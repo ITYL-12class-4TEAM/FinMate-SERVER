@@ -1,0 +1,3 @@
+[submodule "server-submodule"]
+	path = server-submodule
+	url = https://github.com/ITYL-12class-4TEAM/server-submodule.git
