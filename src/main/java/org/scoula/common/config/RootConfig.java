@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -28,6 +29,8 @@ import javax.sql.DataSource;
 @Configuration
 //@PropertySource("file:${config.location}/application.properties")
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
+@ComponentScan(basePackages = {"org.scoula"})
+@MapperScan(basePackages = {"org.scoula.security.account.mapper"})
 public class RootConfig {
 
   @Value("${jdbc.driver}")
