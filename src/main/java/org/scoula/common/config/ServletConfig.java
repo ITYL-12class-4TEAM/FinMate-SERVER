@@ -19,7 +19,7 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.chatgpt.controller",
         "org.scoula.chatgpt.service",
         "org.scoula.chatbot.controller",
-        "org.scoula.chatbot.session"
+        "org.scoula.chatbot.session",
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
 public class ServletConfig implements WebMvcConfigurer {
 
