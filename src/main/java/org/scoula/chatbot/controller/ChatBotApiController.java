@@ -39,4 +39,10 @@ public class ChatBotApiController {
         session.addMessage(new ChatMessage("assistant", response));
         return ApiResponse.success(ResponseCode.CHATBOT_RESPONSE_SUCCESS, response);
     }
+
+    @DeleteMapping("/session")
+    public ApiResponse<?> endSession(@RequestParam String sessionId) {
+        sessionManager.removeSession(sessionId);
+        return ApiResponse.success(ResponseCode.CHATBOT_SESSION_TERMINATED);
+    }
 }
