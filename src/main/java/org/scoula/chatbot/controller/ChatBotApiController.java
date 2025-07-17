@@ -29,4 +29,14 @@ public class ChatBotApiController {
         ChatSession session = sessionManager.createSession(sessionId);
         return ApiResponse.success(ResponseCode.CHATBOT_SESSION_CREATED, sessionId);
     }
+    @PostMapping("/message")
+    public ApiResponse<?> sendMessage(@RequestParam String sessionId, @RequestParam String userMessage) {
+        ChatSession session = sessionManager.getSession(sessionId);
+        if(session == null) return ApiResponse.fail(ResponseCode.CHATGPT_JSON_PARSING_FAILED);
+        session.addMessage(new ChatMessage("user", userMessage));
+
+        String response = chatGptService.summarize(session.getMessages());
+        session.addMessage(new ChatMessage("assistant", response));
+        return ApiResponse.success(ResponseCode.CHATBOT_RESPONSE_SUCCESS, response);
+    }
 }
