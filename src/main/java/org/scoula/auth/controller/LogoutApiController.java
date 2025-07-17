@@ -1,28 +1,33 @@
 package org.scoula.auth.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.scoula.auth.service.LogoutService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
+@Log4j2
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
-public class LogoutApiController {
+public class LogoutController {
+
+    private final LogoutService logoutService;
 
     @PostMapping("/logout")
-    public Map<String, Object> logout(HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            session.invalidate(); // 세션 만료(로그아웃)
-            result.put("success", true);
-            result.put("message", "로그아웃 되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "로그아웃 중 오류가 발생했습니다.");
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String accessToken = extractAccessToken(request);
+        logoutService.logout(accessToken);
+        return ResponseEntity.ok("로그아웃 완료");
+    }
+
+    private String extractAccessToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7); // "Bearer " 제거
         }
-        return result;
+        throw new RuntimeException("Authorization 헤더가 없거나 잘못되었습니다.");
     }
 }

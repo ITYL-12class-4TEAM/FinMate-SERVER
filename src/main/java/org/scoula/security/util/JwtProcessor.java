@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Component
@@ -59,4 +61,15 @@ public class JwtProcessor {
                 .parseClaimsJws(token);
         return true;
     }
+    //토큰 만료 확인
+    public LocalDateTime getExpiration(String token) {
+        Date date = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
 }

@@ -29,6 +29,10 @@
         WHERE username = #{username}
     </update>
 
+    <select id="findIdByUsername" resultType="long">
+        SELECT member_id FROM member WHERE username = #{username}
+    </select>
+
 
 
 

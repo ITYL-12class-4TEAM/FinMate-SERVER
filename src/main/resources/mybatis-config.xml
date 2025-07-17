@@ -15,6 +15,7 @@
     <mappers>
         <package name="org.scoula.security.account.mapper"/>
         <package name="org.scoula.member.mapper"/>
+        <package name="org.scoula.auth.mapper"/>
     </mappers>
 
 </configuration>

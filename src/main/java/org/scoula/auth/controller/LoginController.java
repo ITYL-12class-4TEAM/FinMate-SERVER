@@ -1,4 +1,4 @@
-package org.scoula.controller;
+package org.scoula.auth.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
