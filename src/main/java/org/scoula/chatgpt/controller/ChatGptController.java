@@ -49,9 +49,6 @@ public class ChatGptController {
             sb.append(product.toString()).append("\n\n");
         }
         sb.append(comparePrompt);
-        System.out.println("====================");
-        System.out.println(sb.toString());
-        System.out.println("====================");
         String response = chatGptService.compare(List.of(new ChatMessage(sb.toString())));
         return ApiResponse.success(ResponseCode.CHATGPT_COMPARE_SUCCESS, response);
     }

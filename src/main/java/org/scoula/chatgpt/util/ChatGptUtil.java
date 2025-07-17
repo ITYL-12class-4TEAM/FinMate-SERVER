@@ -44,7 +44,6 @@ public class ChatGptUtil {
         try {
             HttpResponse<String> response = client.send(request,
                     BodyHandlers.ofString(StandardCharsets.UTF_8));
-            System.out.println("OpenAI API response body: " + response.body());
             if (response.statusCode() != 200) {
                 log.error("OpenAI 응답 실패: {}", response.body());
                 throw new ChatGptRetrievalException(ResponseCode.CHATGPT_RETRIEVAL_FAILED);
