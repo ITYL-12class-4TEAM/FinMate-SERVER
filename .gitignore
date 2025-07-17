@@ -17,3 +17,5 @@ target/
 build/
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
+
+server-submodule/
