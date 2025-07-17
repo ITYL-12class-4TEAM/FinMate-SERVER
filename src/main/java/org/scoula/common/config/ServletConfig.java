@@ -60,7 +60,6 @@ public class ServletConfig implements WebMvcConfigurer {
                 new StandardServletMultipartResolver();
         return resolver;
     }
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer servletPropertyConfig() throws IOException, IOException {
         return RootConfig.propertyConfig();
