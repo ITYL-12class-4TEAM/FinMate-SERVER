@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.member.mapper.MemberMapper">
+
+    <!-- 권한 정보 맵핑 -->
+    <resultMap id="authMap" type="AuthVO">
+        <result property="email" column="email"/>
+        <result property="auth" column="auth"/>
+    </resultMap>
+
+    <!-- 멤버 정보 맵핑 -->
+    <resultMap id="memberMap" type="MemberVO">
+        <id property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+    <!-- 토큰  -->
+    <update id="updateTokens">
+        UPDATE member
+        SET refresh_token = #{refreshToken},
+            updated_at = NOW()
+        WHERE username = #{username}
+    </update>
+
+
+
+
+</mapper>

@@ -12,4 +12,9 @@
         <!-- 도메인 패키지 전체를 별칭으로 등록 -->
         <package name="org.scoula.security.account.domain"/>
     </typeAliases>
+    <mappers>
+        <package name="org.scoula.security.account.mapper"/>
+        <package name="org.scoula.member.mapper"/>
+    </mappers>
+
 </configuration>

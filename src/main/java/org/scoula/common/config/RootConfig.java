@@ -30,7 +30,11 @@ import javax.sql.DataSource;
 //@PropertySource("file:${config.location}/application.properties")
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 @ComponentScan(basePackages = {"org.scoula"})
-@MapperScan(basePackages = {"org.scoula.security.account.mapper"})
+@MapperScan(basePackages = {
+        "org.scoula.security.account.mapper",
+        "org.scoula.member.mapper"
+})
+
 public class RootConfig {
 
   @Value("${jdbc.driver}")

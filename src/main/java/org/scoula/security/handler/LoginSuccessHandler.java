@@ -2,6 +2,7 @@ package org.scoula.security.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.security.account.domain.CustomUser;
 import org.scoula.security.account.dto.AuthResultDTO;
 import org.scoula.security.account.dto.UserInfoDTO;
@@ -16,18 +17,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+
 @Log4j2
 @Component
 @RequiredArgsConstructor
+
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProcessor jwtProcessor;
+    private final MemberMapper memberMapper;
 
     private AuthResultDTO makeAuthResult(CustomUser user) {
         String username = user.getUsername();
         // 토큰 생성
-        String token = jwtProcessor.generateToken(username);
+        String accessToken = jwtProcessor.generateAccessToken(username);
+        String refreshToken = jwtProcessor.generateRefreshToken(username);
         // 토큰 + 사용자 기본 정보 (사용자명, ...)를 묶어서 AuthResultDTO 구성
-        return new AuthResultDTO(token, UserInfoDTO.of(user.getMember()));
+        log.info("[DEBUG] accessToken: {}", accessToken);
+        log.info("[DEBUG] refreshToken: {}", refreshToken);
+        memberMapper.updateTokens(username, refreshToken); //
+        return new AuthResultDTO(accessToken, refreshToken, UserInfoDTO.of(user.getMember()));
+
     }
 
     @Override

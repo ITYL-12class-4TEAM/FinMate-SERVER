@@ -1,0 +1,19 @@
+# Java class files
+*.class
+*.war
+*.jar
+*.bin
+*.lock
+*.probe
+*.log
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Build output directories
+out/
+target/
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar

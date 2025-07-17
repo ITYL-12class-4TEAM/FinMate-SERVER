@@ -25,14 +25,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         MemberVO vo = mapper.get(email);
         log.info("[DEBUG] 로그인 요청 이메일: {}", email);
-        log.info("[DEBUG] 조회된 비밀번호: {}", vo.getPassword());
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encoded = encoder.encode("1234"); // 원하는 비밀번호
         System.out.println(encoded);
 
-        if (vo == null) {
-            throw new UsernameNotFoundException(email + "은 없는 id입니다.");
-        }
 
         return new CustomUser(vo);
     }
