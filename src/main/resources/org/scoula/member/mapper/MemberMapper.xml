@@ -26,12 +26,19 @@
         UPDATE member
         SET refresh_token = #{refreshToken},
             updated_at = NOW()
-        WHERE username = #{username}
+        WHERE email = #{username}
+    </update>
+    <update id="clearRefreshToken">
+        UPDATE member
+        SET refresh_token = NULL,
+            updated_at = NOW()
+        WHERE email = #{username}
     </update>
 
     <select id="findIdByUsername" resultType="long">
-        SELECT member_id FROM member WHERE username = #{username}
+        SELECT member_id FROM member WHERE email = #{username}
     </select>
+
 
 
 

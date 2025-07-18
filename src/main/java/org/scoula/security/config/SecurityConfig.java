@@ -41,9 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/login", "/resources/**").permitAll()
+                .antMatchers("/api/auth/**", "/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+                .logout().disable()
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().disable(); // JWT 사용 시 세션 미사용
     }

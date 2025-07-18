@@ -11,7 +11,7 @@ import org.scoula.security.account.domain.MemberVO;
 public interface MemberMapper {
 //    MemberVO get(String username);
 //
-    MemberVO findByUsername(String username);    // id 중복 체크시 사용
+Long findIdByUsername(String username);   // id 중복 체크시 사용
 //    MemberVO selectByEmail(String email);
 //    MemberVO selectByNickname(String nickname);
 
@@ -23,6 +23,8 @@ public interface MemberMapper {
 // MemberMapper.java
 void updateTokens(@Param("username") String username,
                   @Param("refreshToken") String refreshToken);
+
+void clearRefreshToken(@Param("username") String username);
 
 //    int updatePassword(ChangePasswordDTO changePasswordDTO);
 

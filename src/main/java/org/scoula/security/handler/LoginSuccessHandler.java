@@ -2,6 +2,7 @@ package org.scoula.security.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.common.service.RedisService;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.security.account.domain.CustomUser;
 import org.scoula.security.account.dto.AuthResultDTO;
@@ -26,15 +27,23 @@ import java.io.IOException;
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProcessor jwtProcessor;
     private final MemberMapper memberMapper;
+    private final RedisService redisService;
+
 
     private AuthResultDTO makeAuthResult(CustomUser user) {
         String username = user.getUsername();
+        log.info("[DEBUG] 인증 성공: 사용자명 = {}", username);
         // 토큰 생성
         String accessToken = jwtProcessor.generateAccessToken(username);
         String refreshToken = jwtProcessor.generateRefreshToken(username);
         // 토큰 + 사용자 기본 정보 (사용자명, ...)를 묶어서 AuthResultDTO 구성
         log.info("[DEBUG] accessToken: {}", accessToken);
         log.info("[DEBUG] refreshToken: {}", refreshToken);
+
+        redisService.saveAccessToken(
+                user.getMember().getMemberId().toString(),  // 키: "ACCESS:{memberId}"
+                accessToken
+        );
         memberMapper.updateTokens(username, refreshToken); //
         return new AuthResultDTO(accessToken, refreshToken, UserInfoDTO.of(user.getMember()));
 

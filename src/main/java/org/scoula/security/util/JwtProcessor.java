@@ -1,50 +1,59 @@
 package org.scoula.security.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+@Log4j2
 @Component
+
 public class JwtProcessor {
 
-    // 토큰 유효 시간
-    private static final long ACCESS_TOKEN_VALID_MILLIS = 1000L * 60 * 30;   // 30분
-    private static final long REFRESH_TOKEN_VALID_MILLIS = 1000L * 60 * 60 * 24 * 7; // 7일
+    private static final long ACCESS_TOKEN_VALID_MILLIS = 1000L * 60 * 30;
+    private static final long REFRESH_TOKEN_VALID_MILLIS = 1000L * 60 * 60 * 24 * 7;
 
-    // 보안 키 (운영 시 외부 주입 필요)
-    private final String secretKey = "충분히 긴 임의의(랜덤한) 비밀키 문자열 배정 ";
-    private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    @Value("${jwt.secret_key}")
+    private String secretKeyRaw;
 
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        log.info("[JWT] Secret Key Raw = {}", secretKeyRaw);
+        this.key = Keys.hmacShaKeyFor(secretKeyRaw.getBytes(StandardCharsets.UTF_8));
+        log.info("[JWT] Secret Key 초기화 완료, length = {}", secretKeyRaw.length());
+    }
 
     public String generateAccessToken(String subject) {
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_MILLIS))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public String generateRefreshToken(String subject) {
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_MILLIS))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-
     public String getUsername(String token) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -53,15 +62,19 @@ public class JwtProcessor {
                 .getSubject();
     }
 
-
     public boolean validateToken(String token) {
-        Jws<Claims> claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token);
-        return true;
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            log.error("[JWT 검증 실패] {}", e.getMessage());
+            return false;
+        }
     }
-    //토큰 만료 확인
+
     public LocalDateTime getExpiration(String token) {
         Date date = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -71,5 +84,4 @@ public class JwtProcessor {
                 .getExpiration();
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
-
 }
