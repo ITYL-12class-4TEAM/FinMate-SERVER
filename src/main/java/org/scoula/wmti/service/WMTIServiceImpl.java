@@ -1,9 +1,15 @@
 package org.scoula.wmti.service;
 
+import org.scoula.wmti.Mapper.SurveyResultMapper;
+import org.scoula.wmti.dto.survey.WMTIResultDTO;
+import org.scoula.wmti.entity.SurveyResult;
+
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class WMTIServiceImpl implements WMTIService {
-
+    private final SurveyResultMapper surveyResultMapper;
 
     @Override
     public String calculateWMTICode(List<Integer> answers) {
@@ -59,5 +65,25 @@ public class WMTIServiceImpl implements WMTIService {
             case 5 -> -high;
             default -> 0.0;
         };
+    }
+
+    //설문제출처리 : WMTI계산결과 DB저장 + 응답DTO반환
+    public WMTIResultDTO processSurvey(List<Integer> answers, BigInteger memberId) {
+        String wmtiCode = calculateWMTICode(answers);
+
+        //DB저장용 엔티티 생성
+        SurveyResult surveyResult = SurveyResult.builder()
+                .memberId(memberId)
+                .answers(answers)
+                .wmtiCode(wmtiCode)
+                .submittedAt(LocalDateTime.now())
+                .build();
+        //저장
+        surveyResultMapper.insertSurveyResult(surveyResult);
+        //응답 DTO 생성 및 반환
+        return WMTIResultDTO.builder()
+                .code(wmtiCode)
+                .submittedAt(surveyResult.getSubmittedAt())
+                .build();
     }
 }
