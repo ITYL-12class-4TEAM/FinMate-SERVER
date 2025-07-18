@@ -24,7 +24,16 @@ public enum ResponseCode {
     CHATGPT_REQUEST_PARSING_FAILED(HttpStatus.BAD_REQUEST, "올바른 금융 상품 내용을 요청해주세요."),
     CHATGPT_JSON_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
     CHATGPT_RETRIEVAL_FAILED(HttpStatus.UNAUTHORIZED, "금융 상품 분석 요청에 실패했습니다."),
-    CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다.");
+    CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다."),
+
+    /**
+     * WMTI response
+     */
+    WMTI_SURVEY_SUBMITTED(HttpStatus.OK, "성향 테스트가 성공적으로 제출되었습니다."),
+    WMTI_CODE_GENERATED(HttpStatus.OK, "WMTI 코드가 성공적으로 생성되었습니다."),
+    WMTI_SURVEY_RESULT_RETRIEVED(HttpStatus.OK, "성향 테스트 결과가 성공적으로 조회되었습니다."),
+    WMTI_SURVEY_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "성향 테스트 처리 중 오류가 발생했습니다."),
+    WMTI_INCOMPLETE_ANSWERS(HttpStatus.BAD_REQUEST,"20개 문항이 모두 응답되어야 합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
@@ -33,6 +42,7 @@ public enum ResponseCode {
         this.httpStatus = httpStatus;
         this.message = message;
     }
+
 
     public HttpStatus getHttpStatus() {
         return httpStatus;
