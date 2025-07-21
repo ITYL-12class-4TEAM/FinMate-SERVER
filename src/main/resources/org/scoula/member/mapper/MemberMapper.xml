@@ -24,6 +24,9 @@
     <select id="selectByEmail" resultType="org.scoula.security.account.domain.MemberVO">
         SELECT * FROM member WHERE email = #{email}
     </select>
+    <select id="selectByNickname" resultType="org.scoula.security.account.domain.MemberVO">
+        SELECT * FROM member WHERE nickname = #{nickname}
+    </select>
     <!-- 토큰  -->
     <update id="updateTokens">
         UPDATE member

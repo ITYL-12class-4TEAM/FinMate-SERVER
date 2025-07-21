@@ -11,6 +11,7 @@ import org.scoula.security.account.domain.MemberVO;
 public interface MemberMapper {
 //    MemberVO get(String username);
 MemberVO selectByEmail(String email);
+MemberVO selectByNickname(String nickname);  // 회원 정보 조회
 Long findIdByUsername(String username);   // id 중복 체크시 사용
 
 void insert(MemberVO member);  // 회원 정보 추가
