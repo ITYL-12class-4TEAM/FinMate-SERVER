@@ -1,57 +1,149 @@
 package org.scoula.products.dto.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import java.util.List;
+import lombok.NoArgsConstructor;
+import org.scoula.products.dto.response.deposit.DepositProductDTO;
+import org.scoula.products.dto.response.pension.PensionProductDTO;
+import org.scoula.products.dto.response.saving.SavingProductDTO;
 
 /**
- * 금융상품 상세 정보 응답 DTO
- * 특정 상품의 모든 상세 정보와 금리 옵션을 포함합니다.
+ * 금융 상품 상세 정보 응답 DTO
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDetailResponse {
-    /** 상품 ID */
-    private String productId;
 
-    /** 금융회사 ID */
-    private String companyId;
-
-    /** 상품명 */
-    private String productName;
-
-    /** 금융회사명 */
-    private String companyName;
-
-    /** 상품 유형 (정기예금, 적금, 연금저축 등) */
+    // 상품 유형 (deposit: 예금, saving: 적금, pension: 연금저축)
     private String productType;
 
-    /** 가입 방법 (온라인, 방문 등) */
-    private String joinMethod;
+    // 상품 상세 정보 (객체 참조)
+    private Object productDetail;
 
-    /** 우대 조건 */
-    private String specialCondition;
+    // 금융회사 코드
+    private String finCoNo;
 
-    /** 만기 후 이자율 */
-    private String maturityInterest;
+    // 금융회사명
+    private String korCoNm;
 
-    /** 금리 옵션 목록 */
-    private List<InterestOption> interestOptions;
+    // 금융상품 코드
+    private String finPrdtCd;
+
+    // 금융 상품명
+    private String finPrdtNm;
+
+    // 가입 방법
+    private String joinWay;
+
+    // 우대 조건
+    private String spclCnd;
+
+    // 가입 대상
+    private String joinMember;
+
+    // 최고 금리
+    private Double maxIntrRate;
 
     /**
-     * 금리 옵션 정보
-     * 상품의 기간별, 유형별 금리 정보를 담는 내부 클래스입니다.
+     * 예금 상품 정보로 응답 생성
      */
-    @Data
-    public static class InterestOption {
-        /** 금리 유형 (단리, 복리 등) */
-        private String interestRateType;
+    public ProductDetailResponse(DepositProductDTO deposit) {
+        this.productType = "deposit";
+        this.productDetail = deposit;
+        this.finCoNo = deposit.getFinCoNo();
+        this.korCoNm = deposit.getKorCoNm();
+        this.finPrdtCd = deposit.getFinPrdtCd();
+        this.finPrdtNm = deposit.getFinPrdtNm();
+        this.joinWay = deposit.getJoinWay();
+        this.spclCnd = deposit.getSpclCnd();
+        this.joinMember = deposit.getJoinMember();
 
-        /** 저축 기간 (개월) */
-        private Integer saveTerm;
+        // 최고 금리 계산 (옵션 중 가장 높은 금리)
+        this.maxIntrRate = deposit.getOptions().stream()
+                .mapToDouble(option ->
+                    option.getIntrRate2() != null && option.getIntrRate2() > 0
+                        ? option.getIntrRate2()
+                        : option.getIntrRate())
+                .max()
+                .orElse(0.0);
+    }
 
-        /** 기본 금리 (%) */
-        private Double interestRate;
+    /**
+     * 적금 상품 정보로 응답 생성
+     */
+    public ProductDetailResponse(SavingProductDTO saving) {
+        this.productType = "saving";
+        this.productDetail = saving;
+        this.finCoNo = saving.getFinCoNo();
+        this.korCoNm = saving.getKorCoNm();
+        this.finPrdtCd = saving.getFinPrdtCd();
+        this.finPrdtNm = saving.getFinPrdtNm();
+        this.joinWay = saving.getJoinWay();
+        this.spclCnd = saving.getSpclCnd();
+        this.joinMember = saving.getJoinMember();
 
-        /** 우대 금리 (%) */
-        private Double specialRate;
+        // 최고 금리 계산 (옵션 중 가장 높은 금리)
+        this.maxIntrRate = saving.getOptions().stream()
+                .mapToDouble(option ->
+                    option.getIntrRate2() != null && option.getIntrRate2() > 0
+                        ? option.getIntrRate2()
+                        : option.getIntrRate())
+                .max()
+                .orElse(0.0);
+    }
+
+    /**
+     * 연금 상품 정보로 응답 생성
+     */
+    public ProductDetailResponse(PensionProductDTO pension) {
+        this.productType = "pension";
+        this.productDetail = pension;
+        this.finCoNo = pension.getFinCoNo();
+        this.korCoNm = pension.getKorCoNm();
+        this.finPrdtCd = pension.getFinPrdtCd();
+        this.finPrdtNm = pension.getFinPrdtNm();
+        this.joinWay = pension.getJoinWay();
+        this.joinMember = ""; // 연금 상품은 이 필드가 없을 수 있음
+        this.spclCnd = ""; // 연금 상품은 이 필드가 없을 수 있음
+
+        // 최고 금리 계산 (옵션 중 가장 높은 금리)
+        this.maxIntrRate = pension.getOptions().stream()
+                .mapToDouble(option ->
+                    option.getIntrRate2() != null && option.getIntrRate2() > 0
+                        ? option.getIntrRate2()
+                        : option.getIntrRate())
+                .max()
+                .orElse(0.0);
+    }
+
+    /**
+     * 상품 상세 정보에서 금리 옵션 개수 조회
+     */
+    public int getOptionCount() {
+        if (productDetail instanceof DepositProductDTO) {
+            return ((DepositProductDTO) productDetail).getOptions().size();
+        } else if (productDetail instanceof SavingProductDTO) {
+            return ((SavingProductDTO) productDetail).getOptions().size();
+        } else if (productDetail instanceof PensionProductDTO) {
+            return ((PensionProductDTO) productDetail).getOptions().size();
+        }
+        return 0;
+    }
+
+    /**
+     * 상품의 판매 상태 확인 (공시 종료일 기준)
+     */
+    public boolean isAvailable() {
+        if (productDetail instanceof DepositProductDTO) {
+            return ((DepositProductDTO) productDetail).isAvailable();
+        } else if (productDetail instanceof SavingProductDTO) {
+            return ((SavingProductDTO) productDetail).isAvailable();
+        } else if (productDetail instanceof PensionProductDTO) {
+            return ((PensionProductDTO) productDetail).isAvailable();
+        }
+        return false;
     }
 }

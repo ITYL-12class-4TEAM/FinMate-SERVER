@@ -139,6 +139,10 @@ dependencies {
         exclude group: 'ch.qos.logback'
         exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
+
+    // Bean Validation API
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.hibernate.validator:hibernate-validator:6.1.7.Final'
 }
 // 테스트 실행 설정
 test {

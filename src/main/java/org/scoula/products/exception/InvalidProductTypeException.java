@@ -3,8 +3,8 @@ package org.scoula.products.exception;
 import org.scoula.common.exception.BaseException;
 import org.scoula.response.ResponseCode;
 
-public class IllegalArgumentException extends BaseException {
-  public IllegalArgumentException(ResponseCode responseCode) {
+public class InvalidProductTypeException extends BaseException {
+  public InvalidProductTypeException(ResponseCode responseCode) {
     super(responseCode);
   }
 }

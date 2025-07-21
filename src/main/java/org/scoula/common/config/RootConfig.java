@@ -29,7 +29,13 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = {
         "org.scoula.chatgpt.util",
-        "org.scoula.common.config"
+        "org.scoula.common.config",
+        "org.scoula.products.service",
+        "org.scoula.products.service.impl",
+        "org.scoula.products.service.api",
+        "org.scoula.products.service.api.impl",
+        "org.scoula.products.controller",
+        "org.scoula.products.config"
 })
 //@PropertySource("file:${config.location}/application.properties")
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
