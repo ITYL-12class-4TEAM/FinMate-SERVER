@@ -139,6 +139,9 @@ dependencies {
     //redis
     implementation 'org.springframework.data:spring-data-redis:2.6.6'
     implementation 'io.lettuce:lettuce-core:6.1.10.RELEASE'
+    //validation 관련 의존성
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
 
 }
 // 테스트 실행 설정

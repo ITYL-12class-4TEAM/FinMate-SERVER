@@ -34,7 +34,6 @@ import javax.sql.DataSource;
 @MapperScan(basePackages = {
         "org.scoula.security.account.mapper",
         "org.scoula.member.mapper",
-        "org.scoula.auth.mapper"
 })
 
 public class RootConfig {

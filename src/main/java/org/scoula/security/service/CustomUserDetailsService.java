@@ -4,26 +4,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.security.account.domain.CustomUser;
 import org.scoula.security.account.domain.MemberVO;
-import org.scoula.security.account.mapper.UserDetailsMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserDetailsMapper mapper;
+    private final MemberMapper mapper;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        MemberVO vo = mapper.get(email);
+        MemberVO vo = mapper.selectByEmail(email);
         log.info("[DEBUG] 로그인 요청 이메일: {}", email);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

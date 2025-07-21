@@ -21,6 +21,9 @@
         <result property="role" column="role"/>
     </resultMap>
 
+    <select id="selectByEmail" resultType="org.scoula.security.account.domain.MemberVO">
+        SELECT * FROM member WHERE email = #{email}
+    </select>
     <!-- 토큰  -->
     <update id="updateTokens">
         UPDATE member
@@ -38,6 +41,11 @@
     <select id="findIdByUsername" resultType="long">
         SELECT member_id FROM member WHERE email = #{username}
     </select>
+
+    <insert id="insert" parameterType="org.scoula.security.account.domain.MemberVO">
+        INSERT INTO member (username, password, nickname, email, phone_number, birth_date, gender)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender})
+    </insert>
 
 
 
