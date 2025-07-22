@@ -247,27 +247,39 @@ public class SavingProductFetcher {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement psOpt = conn.prepareStatement(insOpt)) {
+
+            // 1. 예치 기간 (단위: 개월)
             psOpt.setInt(1, option.path("save_trm").asInt());
+
+            // 2. 이자율 타입 (코드)
             psOpt.setString(2, option.path("intr_rate_type").asText());
+
+            // 3. 이자율 타입 이름 (예: 단리, 복리)
             psOpt.setString(3, option.path("intr_rate_type_nm").asText());
 
-            // intr_rate 처리
+            // 4. 기본 금리 설정
             if (option.path("intr_rate").isNull()) {
                 psOpt.setNull(4, Types.DECIMAL);
             } else {
                 psOpt.setBigDecimal(4, BigDecimal.valueOf(option.path("intr_rate").asDouble()));
             }
 
-            // intr_rate2 처리
+            // 5. 우대 금리 설정
             if (option.path("intr_rate2").isNull()) {
                 psOpt.setNull(5, Types.DECIMAL);
             } else {
                 psOpt.setBigDecimal(5, BigDecimal.valueOf(option.path("intr_rate2").asDouble()));
             }
 
+            // 6. 적립 방식 코드 (예: 정액적립식, 자유적립식)
             psOpt.setString(6, option.path("rsrv_type").asText(null));
+
+            // 7. 적립 방식 이름
             psOpt.setString(7, option.path("rsrv_type_nm").asText(null));
+
+            // 8. 해당 옵션이 속한 상품의 product_id (외래키)
             psOpt.setLong(8, productId);
+
             psOpt.executeUpdate();
         }
     }

@@ -162,20 +162,20 @@ public class DepositProductFetcher {
                 "account_limit_note=VALUES(account_limit_note), rotation_cycle=VALUES(rotation_cycle)";
 
         try (PreparedStatement psDp = conn.prepareStatement(insDp)) {
-            // product_id 설정
-            psDp.setLong(1, productId);
+            // 기본 정보
+            psDp.setLong(1, productId); // 외래키: financial_product.product_id
 
-            // parse etc_note
+            // etc_note 파싱
             String etcNoteRaw = base.path("etc_note").asText(null);
             EtcNoteParsedResult parsed = parseEtcNote(etcNoteRaw);
 
-            // min_deposit, preferential_conditions, inquiry_url, etc_note
-            psDp.setInt(2, parsed.minDeposit != null ? parsed.minDeposit : 0);
-            psDp.setString(3, base.path("spcl_cnd").asText(null));
-            psDp.setNull(4, Types.VARCHAR); // inquiry_url
-            psDp.setString(5, etcNoteRaw);
+            // 최소 예치금, 우대조건, 조회URL, 기타설명
+            psDp.setInt(2, parsed.minDeposit != null ? parsed.minDeposit : 0); // 최소 예치금
+            psDp.setString(3, base.path("spcl_cnd").asText(null));             // 우대조건 (원문)
+            psDp.setNull(4, Types.VARCHAR);                                    // 조회 URL 없음
+            psDp.setString(5, etcNoteRaw);                                     // etc_note 원문 저장
 
-            // max_limit
+            // 최대한도 (숫자 여부 검사 포함)
             String maxLimitStr = base.path("max_limit").asText();
             if (!maxLimitStr.equals("null") && !maxLimitStr.isEmpty()) {
                 try {
@@ -187,16 +187,17 @@ public class DepositProductFetcher {
                 psDp.setNull(6, Types.BIGINT);
             }
 
-            // 날짜 필드 설정
-            setDateField(psDp, 7, base.path("dcls_strt_day").asText());
-            setDateField(psDp, 8, base.path("dcls_end_day").asText());
-            setTimestampField(psDp, 9, base.path("fin_co_subm_day").asText());
+            // 날짜 필드들 (공시 시작/종료일, 금융사 제출일)
+            setDateField(psDp, 7, base.path("dcls_strt_day").asText());   // 공시 시작일
+            setDateField(psDp, 8, base.path("dcls_end_day").asText());    // 공시 종료일
+            setTimestampField(psDp, 9, base.path("fin_co_subm_day").asText()); // 제출일
 
-            // 계약 기간, 이자 지급 방식, 디지털 전용 여부
+            // 부가 정보 (계약 기간, 이자 지급 방식, 디지털 여부)
             psDp.setString(10, parsed.contractPeriod);
             psDp.setString(11, parsed.interestPaymentType);
             psDp.setBoolean(12, parsed.isDigitalOnly);
-            // 1인 1계좌 여부, 계좌수 제한, 회전주기
+
+            // 가입 제한 정보 (1인 1계좌, 계좌제한 설명, 회전주기)
             if (parsed.oneAccountPerPerson != null) {
                 psDp.setBoolean(13, parsed.oneAccountPerPerson);
             } else {
@@ -205,7 +206,7 @@ public class DepositProductFetcher {
             psDp.setString(14, parsed.accountLimitNote);
             psDp.setString(15, parsed.rotationCycle);
 
-            // 우대 태그 추출
+            // 우대 태그 (자동 추출된 키워드)
             String spclCnd = base.path("spcl_cnd").asText(null);
             String preferentialTags = extractPreferentialTags(spclCnd);
             psDp.setString(16, preferentialTags);
@@ -233,33 +234,43 @@ public class DepositProductFetcher {
             }
         }
 
-        // deposit_option 삽입
+        // 적금 옵션
         String insOpt = "INSERT IGNORE INTO deposit_option (save_trm, intr_rate_type, intr_rate_type_nm, intr_rate, intr_rate2, rsrv_type, rsrv_type_nm, product_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement psOpt = conn.prepareStatement(insOpt)) {
-            // save_trm, intr_rate_type, intr_rate_type_nm
+            // 예치 기간 (단위: 개월)
             psOpt.setInt(1, option.path("save_trm").asInt());
+
+            // 금리 유형 코드 (e.g., S, M)
             psOpt.setString(2, option.path("intr_rate_type").asText());
+
+            // 금리 유형명 (e.g., 단리, 복리)
             psOpt.setString(3, option.path("intr_rate_type_nm").asText());
 
-            // intr_rate 처리
+            // 기본 금리 (null이면 DB에 null로 처리)
             if (option.path("intr_rate").isNull()) {
                 psOpt.setNull(4, Types.DECIMAL);
             } else {
                 psOpt.setBigDecimal(4, BigDecimal.valueOf(option.path("intr_rate").asDouble()));
             }
 
-            // intr_rate2 처리
+            // 최고 우대 금리 (null이면 DB에 null로 처리)
             if (option.path("intr_rate2").isNull()) {
                 psOpt.setNull(5, Types.DECIMAL);
             } else {
                 psOpt.setBigDecimal(5, BigDecimal.valueOf(option.path("intr_rate2").asDouble()));
             }
 
+            // 적립 유형 코드 (e.g., S: 정액, F: 자유)
             psOpt.setString(6, option.path("rsrv_type").asText(null));
+
+            // 적립 유형명 (e.g., 정액적립식, 자유적립식)
             psOpt.setString(7, option.path("rsrv_type_nm").asText(null));
+
+            // 해당 옵션이 속한 상품 ID (외래키)
             psOpt.setLong(8, productId);
+
             psOpt.executeUpdate();
         }
     }

@@ -247,13 +247,13 @@ public class PensionProductFetcher {
         long productId;
 
         try (PreparedStatement ps3 = conn.prepareStatement(selPid)) {
-            ps3.setString(1, option.path("fin_co_no").asText());
-            ps3.setString(2, option.path("fin_prdt_cd").asText());
+            ps3.setString(1, option.path("fin_co_no").asText()); // 금융회사 코드
+            ps3.setString(2, option.path("fin_prdt_cd").asText()); // 상품 코드
             try (ResultSet rs3 = ps3.executeQuery()) {
                 if (rs3.next()) {
                     productId = rs3.getLong(1);
                 } else {
-                    return; // product를 찾을 수 없으면 스킵
+                    return; // 해당 상품이 없으면 옵션 저장 건너뜀
                 }
             }
         }
@@ -276,18 +276,28 @@ public class PensionProductFetcher {
 
         try (PreparedStatement psIns = conn.prepareStatement(sql)) {
             psIns.setLong(1, productId);
+
+            // 수령 기간 코드/이름
             psIns.setString(2, option.path("pnsn_recp_trm").asText(null));
             psIns.setString(3, option.path("pnsn_recp_trm_nm").asText(null));
+
+            // 연금 가입 나이 코드/이름
             psIns.setString(4, option.path("pnsn_entr_age").asText(null));
             psIns.setString(5, option.path("pnsn_entr_age_nm").asText(null));
+
+            // 월 납입 금액 코드/이름
             psIns.setString(6, option.path("mon_paym_atm").asText(null));
             psIns.setString(7, option.path("mon_paym_atm_nm").asText(null));
+
+            // 납입 기간 코드/이름
             psIns.setString(8, option.path("paym_prd").asText(null));
             psIns.setString(9, option.path("paym_prd_nm").asText(null));
+
+            // 연금 수령 시작 나이 코드/이름
             psIns.setString(10, option.path("pnsn_strt_age").asText(null));
             psIns.setString(11, option.path("pnsn_strt_age_nm").asText(null));
 
-            // 금액 파싱: 숫자 아니면 NULL
+            // 수령 예상 금액
             if (option.hasNonNull("pnsn_recp_amt")) {
                 psIns.setBigDecimal(12, new BigDecimal(option.get("pnsn_recp_amt").asText()));
             } else {
