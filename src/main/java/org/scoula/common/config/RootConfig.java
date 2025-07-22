@@ -29,10 +29,14 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = {
         "org.scoula.chatgpt.util",
-        "org.scoula.common.config"
+        "org.scoula.common.config",
+        "org.scoula"
 })
 //@PropertySource("file:${config.location}/application.properties")
-@MapperScan(basePackages = {"org.scoula.community.board.mapper"}) // Mapper 인터페이스 스캔 설정
+@MapperScan(basePackages = {
+        "org.scoula.member.mapper",
+        "org.scoula.community.board.mapper"
+})
 public class RootConfig {
 
   @Value("${jdbc.driver}")
@@ -90,7 +94,6 @@ public class RootConfig {
     // 최종 설정
     configurer.setLocations(resources.toArray(new Resource[0]));
     configurer.setIgnoreUnresolvablePlaceholders(true);
-    configurer.setFileEncoding("UTF-8");
 
     return configurer;
   }
