@@ -142,7 +142,8 @@ dependencies {
     //validation 관련 의존성
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
-
+    //sms 관련 의존성
+    implementation 'net.nurigo:sdk:4.3.0'
 }
 // 테스트 실행 설정
 test {

@@ -3,6 +3,7 @@ package org.scoula.member.controller;
 import lombok.RequiredArgsConstructor;
 import org.scoula.member.dto.ValidationResponseDTO;
 import org.scoula.member.mapper.MemberMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

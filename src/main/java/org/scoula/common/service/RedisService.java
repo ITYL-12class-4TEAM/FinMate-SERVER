@@ -14,7 +14,7 @@ public class RedisService {
 
     private static final String ACCESS_PREFIX = "ACCESS:";
 
-    // ✅ access token 저장 (30분 유효)
+    //  access token 저장 (30분 유효)
     public void saveAccessToken(String memberId, String token) {
         String key = ACCESS_PREFIX + memberId;
         redisTemplate.opsForValue().set(key, token, Duration.ofMinutes(30));
@@ -30,10 +30,13 @@ public class RedisService {
     public void deleteAccessToken(String memberId) {
         redisTemplate.delete(ACCESS_PREFIX + memberId);
     }
-
-    // 💡 기타 일반 저장도 필요하면 유지 가능
+    // TTL 없는 저장
     public void save(String key, String value) {
-        redisTemplate.opsForValue().set(key, value); // TTL 없는 저장
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    public void save(String key, String value, int minutes) {
+        redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(minutes));
     }
 
     public String get(String key) {

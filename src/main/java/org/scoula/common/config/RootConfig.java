@@ -32,8 +32,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = {"org.scoula"
         })
 @MapperScan(basePackages = {
-        "org.scoula.security.account.mapper",
-        "org.scoula.member.mapper",
+        "org.scoula.member.mapper"
 })
 
 public class RootConfig {

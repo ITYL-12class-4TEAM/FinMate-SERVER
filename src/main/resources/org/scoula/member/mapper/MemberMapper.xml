@@ -50,7 +50,12 @@
         VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender})
     </insert>
 
-
+    <!-- MemberMapper.xml -->
+    <select id="getRefreshToken" resultType="string">
+        SELECT refresh_token
+        FROM member
+        WHERE member.member_id = #{memberId}
+    </select>
 
 
 

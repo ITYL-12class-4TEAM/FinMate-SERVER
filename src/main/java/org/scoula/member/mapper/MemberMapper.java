@@ -14,6 +14,8 @@ MemberVO selectByEmail(String email);
 MemberVO selectByNickname(String nickname);  // 회원 정보 조회
 Long findIdByUsername(String username);   // id 중복 체크시 사용
 
+String getRefreshToken(@Param("memberId") Long memberId);
+
 void insert(MemberVO member);  // 회원 정보 추가
 
 //    int insertAuth(AuthVO auth);        // 회원 권한 정보 추가
