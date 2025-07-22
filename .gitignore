@@ -18,3 +18,5 @@ build/
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
 
+Gradle__org_scoula__*.xml
+workspace.xml
