@@ -27,6 +27,6 @@ public class PreInfoController {
     public ApiResponse<PreInfoResponseDTO> submitPreInfo(@RequestBody PreInfoRequestDTO DTO, Principal principal) {
         Long userId = Long.parseLong(principal.getName());
         PreInfoResponseDTO response = preInfoService.savePreInfoAndResponse(userId, DTO);
-        return ApiResponse.success(ResponseCode.PREINFO_USER_PROFILE_SUBMIT_SUCCESS);
+        return ApiResponse.success(ResponseCode.PREINFO_USER_PROFILE_SUBMIT_SUCCESS, response);
     }
 }

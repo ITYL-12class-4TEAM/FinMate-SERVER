@@ -87,11 +87,11 @@ public class WMTIServiceImpl implements WMTIService {
                 .wmtiCode(wmtiCode)
                 .submittedAt(LocalDateTime.now())
                 .build();
-        //저장
+        //설문결과 저장
         surveyResultMapper.insertSurveyResult(surveyResult);
         //응답 DTO 생성 및 반환
         return WMTIResultDTO.builder()
-                .code(wmtiCode)
+                .wmtiCode(wmtiCode)
                 .submittedAt(surveyResult.getSubmittedAt())
                 .build();
     }

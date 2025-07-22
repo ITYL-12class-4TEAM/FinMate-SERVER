@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.scoula.wmti.Mapper.SurveyResultMapper">
+<mapper namespace="org.scoula.wmti.mapper.SurveyResultMapper">
 
     <!-- 결과 저장 -->
     <insert id="insertSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult" useGeneratedKeys="true" keyProperty="id">
