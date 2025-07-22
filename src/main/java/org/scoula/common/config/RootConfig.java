@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -26,6 +27,10 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
+@ComponentScan(basePackages = {
+        "org.scoula.chatgpt.util",
+        "org.scoula.common.config"
+})
 //@PropertySource("file:${config.location}/application.properties")
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 public class RootConfig {
@@ -85,6 +90,7 @@ public class RootConfig {
     // 최종 설정
     configurer.setLocations(resources.toArray(new Resource[0]));
     configurer.setIgnoreUnresolvablePlaceholders(true);
+    configurer.setFileEncoding("UTF-8");
 
     return configurer;
   }
