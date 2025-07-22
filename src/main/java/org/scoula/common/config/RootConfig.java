@@ -27,14 +27,16 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-//@PropertySource("file:${config.location}/application.properties")
-//@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
-@ComponentScan(basePackages = {"org.scoula"
-        })
-@MapperScan(basePackages = {
-        "org.scoula.member.mapper"
+@ComponentScan(basePackages = {
+        "org.scoula.chatgpt.util",
+        "org.scoula.common.config",
+        "org.scoula"
 })
-
+//@PropertySource("file:${config.location}/application.properties")
+@MapperScan(basePackages = {
+        "org.scoula.member.mapper",
+        "org.scoula.community.board.mapper"
+})
 public class RootConfig {
 
   @Value("${jdbc.driver}")

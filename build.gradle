@@ -32,8 +32,6 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'  // 소스 파일 인코딩을 UTF-8로 설정
 }
 
-
-
 // 프로젝트 의존성 라이브러리 선언 (최신 버전으로 업데이트)
 dependencies {
     // ===== Spring Framework 관련 의존성 =====
@@ -144,6 +142,11 @@ dependencies {
     implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
     //sms 관련 의존성
     implementation 'net.nurigo:sdk:4.3.0'
+    implementation('io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'ch.qos.logback'
+        exclude group: 'org.slf4j', module: 'slf4j-simple'
+    }
 }
 // 테스트 실행 설정
 test {
