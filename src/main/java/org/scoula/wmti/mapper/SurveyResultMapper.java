@@ -1,8 +1,6 @@
-package org.scoula.wmti.Mapper;
+package org.scoula.wmti.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
 import org.scoula.wmti.entity.SurveyResult;
 
 @Mapper

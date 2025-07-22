@@ -2,7 +2,7 @@ package org.scoula.wmti.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.scoula.wmti.Mapper.SurveyResultMapper;
+import org.scoula.wmti.mapper.SurveyResultMapper;
 import org.scoula.wmti.dto.survey.WMTIResultDTO;
 import org.scoula.wmti.entity.SurveyResult;
 
