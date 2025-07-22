@@ -50,8 +50,8 @@ public class ProductDetailResponse {
     /**
      * 예금 상품 정보로 응답 생성
      */
-    public ProductDetailResponse(DepositProductDTO deposit) {
-        this.productType = "deposit";
+    public ProductDetailResponse(DepositProductDTO deposit, String productType) {
+        this.productType = productType;
         this.productDetail = deposit;
         this.finCoNo = deposit.getFinCoNo();
         this.korCoNm = deposit.getKorCoNm();
@@ -98,7 +98,7 @@ public class ProductDetailResponse {
     /**
      * 연금 상품 정보로 응답 생성
      */
-    public ProductDetailResponse(PensionProductDTO pension) {
+    public ProductDetailResponse(PensionProductDTO pension, String productType) {
         this.productType = "pension";
         this.productDetail = pension;
         this.finCoNo = pension.getFinCoNo();

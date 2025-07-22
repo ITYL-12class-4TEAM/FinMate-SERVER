@@ -42,7 +42,7 @@ public class ProductApiController {
      * 초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API
      */
     @ApiOperation(value = "상품 목록 조회",
-                notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
+            notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
     @GetMapping
     public ResponseEntity<ApiResponse<ProductListResponse>> getProducts(
             @RequestParam(required = false) String keyword,
@@ -65,69 +65,86 @@ public class ProductApiController {
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.PRODUCT_SEARCH_SUCCESS, response));
 
     }
-    @ApiOperation(value = "상품 자동완성 검색",
-        notes = "키워드 입력 기반 검색어 추천 목록을 제공합니다.")
-    @GetMapping("/autocomplete")
-    public ApiResponse<?> autocompleteProducts(
-            @RequestParam String keyword) {
-        // 기본 응답값 (샘플 데이터)
-        List<String> sampleSuggestions = Arrays.asList(
-            "정기예금",
-            "정기적금",
-            "정기주택청약",
-            "정기연금저축"
-        );
 
-        return ApiResponse.success(ResponseCode.PRODUCT_AUTOCOMPLETE_SUCCESS, sampleSuggestions);
-    }
+//    @ApiOperation(value = "상품 자동완성 검색",
+//            notes = "키워드 입력 기반 검색어 추천 목록을 제공합니다.")
+//    @GetMapping("/autocomplete")
+//    public ApiResponse<?> autocompleteProducts(
+//            @RequestParam String keyword) {
+//        // 기본 응답값 (샘플 데이터)
+//        List<String> sampleSuggestions = Arrays.asList(
+//                "정기예금",
+//                "정기적금",
+//                "정기주택청약",
+//                "정기연금저축"
+//        );
+//
+//        return ApiResponse.success(ResponseCode.PRODUCT_AUTOCOMPLETE_SUCCESS, sampleSuggestions);
+//    }
 
     @ApiOperation(value = "상품 카테고리 목록",
-        notes = "상품 유형별 선택 가능한 카테고리 목록을 제공합니다.")
+            notes = "상품 유형별 선택 가능한 카테고리 목록을 제공합니다.")
     @GetMapping("/categories")
     public ApiResponse<?> getCategories() {
         // 기본 응답값 (샘플 데이터)
-        Map<String, List<String>> categories = new HashMap<>();
+        Map<String, String> categories = new HashMap<>();
 
-        categories.put("deposit", Arrays.asList("정기예금", "자유적금", "주택청약"));
-        categories.put("saving", Arrays.asList("정액적립식", "자유적립식"));
-        categories.put("pension", Arrays.asList("연금저축", "퇴직연금"));
+        categories.put("deposit", "정기예금");
+        categories.put("saving", "적금");
+        categories.put("pension", "연금저축");
 
         return ApiResponse.success(ResponseCode.PRODUCT_CATEGORY_SUCCESS, categories);
     }
 
     @ApiOperation(value = "필터 옵션 조회",
-        notes = "카테고리별 사용 가능한 필터 옵션을 제공합니다.")
-    @GetMapping("/filters/options")
-    public ApiResponse<?> getFilterOptions() {
+            notes = "카테고리별 사용 가능한 필터 옵션을 제공합니다.")
+    @GetMapping("/filter-options")
+    public ApiResponse<?> getFilterOptions(
+            @RequestParam(required = false, defaultValue = "deposit") String category
+    ) {
         // 기본 응답값 (샘플 데이터)
         Map<String, Object> filterOptions = new HashMap<>();
 
-        // 금리 유형 옵션
-        filterOptions.put("interestRateTypes", Arrays.asList(
-            new HashMap<String, String>() {{ put("code", "S"); put("name", "단리"); }},
-            new HashMap<String, String>() {{ put("code", "M"); put("name", "복리"); }}
-        ));
+        // 카테고리에 따라 다른 필터 옵션 제공
+        switch(category) {
+            case "deposit":
+            case "saving":
+                // 예금/적금 공통 필터 옵션
+                filterOptions.put("interestRateTypes", Arrays.asList(
+                    new HashMap<String, String>() {{ put("code", "S"); put("name", "단리"); }},
+                    new HashMap<String, String>() {{ put("code", "M"); put("name", "복리"); }}
+                ));
+                filterOptions.put("saveTerms", Arrays.asList(1, 3, 6, 12, 24, 36));
+                filterOptions.put("joinMethods", Arrays.asList("전체", "온라인", "오프라인"));
+                break;
 
-        // 저축 기간 옵션
-        filterOptions.put("saveTerms", Arrays.asList(6, 12, 24, 36));
+            case "pension":
+                // 연금 전용 필터 옵션
+                filterOptions.put("pensionTypes", Arrays.asList(
+                    new HashMap<String, String>() {{ put("code", "personal"); put("name", "개인연금"); }},
+                    new HashMap<String, String>() {{ put("code", "retirement"); put("name", "퇴직연금"); }}
+                ));
+                filterOptions.put("guaranteeRates", Arrays.asList(2.0, 2.5, 3.0, 3.5));
+                filterOptions.put("saveTerms", Arrays.asList(10, 15, 20, 30));
+                break;
 
-        // 가입 방법 옵션
-        filterOptions.put("joinMethods", Arrays.asList("인터넷뱅킹", "스마트폰뱅킹", "창구"));
-
+            default:
+                // 기본 필터 옵션
+                filterOptions.put("saveTerms", Arrays.asList(1, 3, 6, 12, 24, 36));
+                filterOptions.put("joinMethods", Arrays.asList("전체", "온라인", "오프라인"));
+        }
         return ApiResponse.success(ResponseCode.PRODUCT_FILTER_OPTIONS_SUCCESS, filterOptions);
     }
 
     @ApiOperation(value = "상품 상세 정보 조회",
-        notes = "상품 유형과 코드 기반으로 상품 상세 정보를 제공합니다.")
+            notes = "상품 유형과 코드 기반으로 상품 상세 정보를 제공합니다.")
     @GetMapping("/{productType}/{productId}")
     public ApiResponse<?> getProductDetail(
             @PathVariable String productType,
             @PathVariable String productId) {
 
-        // 기본 응답값 (샘플 데이터)
-        DepositProductDTO deposit = createSampleDepositProduct(productId);
-        ProductDetailResponse response = new ProductDetailResponse(deposit);
-
+        // 서비스 호출을 통해 상품 상세 정보 조회
+        ProductDetailResponse response = searchService.getProductDetail(productType, productId);
         return ApiResponse.success(ResponseCode.PRODUCT_DETAIL_SUCCESS, response);
     }
 
@@ -161,7 +178,7 @@ public class ProductApiController {
     }
 
     @ApiOperation(value = "상품 비교",
-        notes = "선택한 상품들의 상세 정보를 비교합니다.")
+            notes = "선택한 상품들의 상세 정보를 비교합니다.")
     @GetMapping("/compare")
     public ApiResponse<?> compareProducts(
             @RequestParam List<String> productIds) {

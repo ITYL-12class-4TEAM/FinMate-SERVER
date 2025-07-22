@@ -35,10 +35,12 @@ import javax.sql.DataSource;
         "org.scoula.products.service.api",
         "org.scoula.products.service.api.impl",
         "org.scoula.products.controller",
-        "org.scoula.products.config"
+        "org.scoula.products.config",
+        "org.scoula.products.mapper"
 })
 //@PropertySource("file:${config.location}/application.properties")
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
+@MapperScan(basePackages = {"org.scoula.products.mapper"})
 public class RootConfig {
 
   @Value("${jdbc.driver}")

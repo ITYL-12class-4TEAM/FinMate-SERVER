@@ -111,6 +111,7 @@ dependencies {
 
     // SQL 로깅 라이브러리 (핵심)
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16'
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 
     // spring-security-web: 웹 관련 보안 기능
     implementation("org.springframework.security:spring-security-web:${springSecurityVersion}")
