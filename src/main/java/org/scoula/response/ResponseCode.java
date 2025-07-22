@@ -9,6 +9,12 @@ public enum ResponseCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다,"),
 
     /**
+     * Community - Board
+     */
+    BOARD_CREATE_SUCCESS(HttpStatus.OK, "게시판이 생성되었습니다"),
+    BOARD_LIST_SUCCESS(HttpStatus.OK, "게시판 목록 조회 성공"),
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시판을 찾을 수 없습니다"),
+    /**
      *  ChatBot response
      */
     CHATBOT_SESSION_CREATED(HttpStatus.OK, "챗봇 세션이 생성되었습니다."),
@@ -16,6 +22,7 @@ public enum ResponseCode {
     CHATBOT_SESSION_TERMINATED(HttpStatus.OK, "세션 종료 완료"),
     CHATBOT_SESSION_RESTORED(HttpStatus.OK, "세션이 복원되었습니다."),
     CHATBOT_HISTORY_ROLLED_BACK(HttpStatus.OK, "대화 히스토리 롤백 완료"),
+
     /**
      * ChatGPT response
      */
