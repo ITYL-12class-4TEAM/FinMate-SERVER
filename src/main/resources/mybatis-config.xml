@@ -12,4 +12,7 @@
         <!-- 도메인 패키지 전체를 별칭으로 등록 -->
         <package name="org.scoula.security.account.domain"/>
     </typeAliases>
+    <typeHandlers>
+        <typeHandler handler="org.scoula.community.board.mapper.BoardTypeHandler" />
+    </typeHandlers>
 </configuration>
