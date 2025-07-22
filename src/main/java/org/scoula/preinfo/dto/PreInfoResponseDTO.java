@@ -19,7 +19,7 @@ public class PreInfoResponseDTO {
 
     private AnalysisResult analysis;
     private NextStep nextStep;
-    private String estimatedTime = "5분"; // 고정 문자열
+    private String estimatedTime = "15분"; // 고정 문자열
 
     @Data
     @Builder

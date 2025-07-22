@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.preinfo.dto.PreInfoRequestDTO;
+import org.scoula.preinfo.dto.PreInfoResponseDTO;
 import org.scoula.preinfo.service.PreInfoService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,16 +17,16 @@ import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user-profile")
-@Api(tags = "사용자 프로필 API")
+@RequestMapping("/api/pre-info")
+@Api(tags = "사전 정보 입력 API")
 public class PreInfoController {
     private final PreInfoService preInfoService;
 
     @PostMapping
-    @ApiOperation(value = "사용자 프로필 등록", notes = "로그인한 사용자의 기본 정보를 등록합니다.")
-    public ApiResponse<?> submitUserProfile(@RequestBody PreInfoRequestDTO DTO, Principal principal) {
+    @ApiOperation(value = "사전 정보 등록", notes = "로그인한 사용자의 기본 정보를 등록합니다.")
+    public ApiResponse<PreInfoResponseDTO> submitPreInfo(@RequestBody PreInfoRequestDTO DTO, Principal principal) {
         Long userId = Long.parseLong(principal.getName());
-        preInfoService.saveUserProfile(userId, DTO);
+        PreInfoResponseDTO response = preInfoService.savePreInfoAndResponse(userId, DTO);
         return ApiResponse.success(ResponseCode.PREINFO_USER_PROFILE_SUBMIT_SUCCESS);
     }
 }
