@@ -1,4 +1,4 @@
-package org.scoula.userprofile.entity;
+package org.scoula.preinfo.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserProfile {
+public class PreInformation {
     private Long memberId;     //사용자 고유식별자
     private String username;    //사용자 실명 또는 표기이름
     private Integer age;        //사용자의 나이

@@ -1,9 +1,9 @@
-package org.scoula.userprofile.dto;
+package org.scoula.preinfo.dto;
 
 import lombok.Data;
 
 @Data
-public class UserProfileRequestDTO {
+public class PreInfoRequestDTO {
     private String username;
     private Integer age;
     private Long income;

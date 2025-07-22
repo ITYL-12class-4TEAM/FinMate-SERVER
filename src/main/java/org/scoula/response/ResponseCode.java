@@ -34,7 +34,7 @@ public enum ResponseCode {
     WMTI_SURVEY_RESULT_RETRIEVED(HttpStatus.OK, "성향 테스트 결과가 성공적으로 조회되었습니다."),
     WMTI_SURVEY_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "성향 테스트 처리 중 오류가 발생했습니다."),
     WMTI_INCOMPLETE_ANSWERS(HttpStatus.BAD_REQUEST,"20개 문항이 모두 응답되어야 합니다."),
-    USER_PROFILE_SUBMIT_SUCCESS(HttpStatus.CREATED, "사용자 프로필이 성공적으로 제출되었습니다.");
+    PREINFO_USER_PROFILE_SUBMIT_SUCCESS(HttpStatus.CREATED, "사용자 프로필이 성공적으로 제출되었습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 
