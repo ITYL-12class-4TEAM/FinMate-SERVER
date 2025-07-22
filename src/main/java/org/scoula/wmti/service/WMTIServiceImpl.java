@@ -1,5 +1,7 @@
 package org.scoula.wmti.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.scoula.wmti.Mapper.SurveyResultMapper;
 import org.scoula.wmti.dto.survey.WMTIResultDTO;
 import org.scoula.wmti.entity.SurveyResult;
@@ -70,6 +72,13 @@ public class WMTIServiceImpl implements WMTIService {
     //설문제출처리 : WMTI계산결과 DB저장 + 응답DTO반환
     public WMTIResultDTO processSurvey(List<Integer> answers, BigInteger memberId) {
         String wmtiCode = calculateWMTICode(answers);
+
+        String answersJson;
+        try {
+            answersJson = new ObjectMapper().writeValueAsString(answers);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("답안 JSON 변환 실패", e);
+        }
 
         //DB저장용 엔티티 생성
         SurveyResult surveyResult = SurveyResult.builder()

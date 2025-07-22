@@ -6,7 +6,6 @@ import org.scoula.wmti.dto.survey.WMTIRequestDTO;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.wmti.service.WMTIService;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +24,7 @@ public class WMTIController {
     private final WMTIService wmtiService;
 
     @PostMapping("/submit")
-    public ApiResponse<?> submitSurvey(@RequestBody WMTIRequestDTO wmtirequest, BindingResult bindingResult){
+    public ApiResponse<?> submitSurvey(@RequestBody WMTIRequestDTO wmtirequest){
 
         List<Integer> answers = wmtirequest.getAnswers();
         if (answers == null || answers.size() != 20) {
