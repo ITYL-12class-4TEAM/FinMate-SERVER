@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace는 Mapper 인터페이스의 전체 경로와 일치해야 함 -->
+<mapper namespace="org.scoula.community.board.mapper.BoardMapper">
+    <resultMap id="boardResultMap" type="org.scoula.community.board.domain.BoardVO">
+        <result property="type" column="board_type" typeHandler="org.scoula.community.board.handler.BoardTypeHandler"/>
+        <!-- 다른 컬럼 매핑 -->
+        <result property="boardId" column="board_id"/>
+        <result property="title" column="title"/>
+        <result property="memberId" column="member_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <insert id="create">
+        INSERT INTO board(title, member_id, type, created_at)
+        VALUES (#{title}, #{memberId}, #{type, typeHandler=org.scoula.community.board.handler.BoardTypeHandler}, now())
+    </insert>
+
+    <select id="get" resultMap="boardResultMap">
+        SELECT
+            board_id, title, member_id, type AS type, created_at, updated_at
+        FROM board
+        WHERE board_id = #{no}
+    </select>
+
+    <select id="getList" resultMap="boardResultMap">
+        <![CDATA[
+        select * from board
+        order by board_id desc
+        ]]>
+    </select>
+</mapper>
