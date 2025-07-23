@@ -71,5 +71,10 @@
         WHERE member_id = #{memberId}
     </update>
 
-
+    <update id="updateProfile">
+        UPDATE member
+        SET nickname = #{nickname},
+            receive_push_notification = #{receivePushNotification}
+        WHERE member_id = #{memberId}
+    </update>
 </mapper>

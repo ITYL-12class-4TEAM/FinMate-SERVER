@@ -1,6 +1,7 @@
 package org.scoula.auth.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.scoula.auth.dto.FindIdResponseDTO;
 import org.scoula.auth.dto.TokenResponseDTO;
@@ -12,6 +13,8 @@ import org.scoula.common.service.RedisService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+@Api(tags = "아이디 비번 찾기 및 토큰 갱신 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")

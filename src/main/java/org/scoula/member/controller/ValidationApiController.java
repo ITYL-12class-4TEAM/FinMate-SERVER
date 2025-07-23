@@ -1,11 +1,12 @@
 package org.scoula.member.controller;
 
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.scoula.member.dto.ValidationResponseDTO;
 import org.scoula.member.mapper.MemberMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+@Api(tags = "중복 확인 API")
 @RestController
 @RequestMapping("/api/validation/check")
 @RequiredArgsConstructor

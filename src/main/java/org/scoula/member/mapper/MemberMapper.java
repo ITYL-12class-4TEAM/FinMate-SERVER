@@ -20,7 +20,7 @@ String findUsernameByNameAndPhone(@Param("username") String username,
                                   @Param("phoneNumber") String phoneNumber);
 
 void insert(MemberVO member);  // 회원 정보 추가
-
+int updateProfile(MemberVO member);
 //    int insertAuth(AuthVO auth);        // 회원 권한 정보 추가
 
 //    int update(MemberVO member);

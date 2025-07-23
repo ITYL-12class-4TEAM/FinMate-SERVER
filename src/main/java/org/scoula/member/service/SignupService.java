@@ -21,7 +21,19 @@ public class SignupService {
         String pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-]).{8,}$";
         return password != null && password.matches(pattern);
     }
-
+    public SignupResponseDTO updateProfile(Long memberId, String nickname, Boolean receivePushNotification) {
+        MemberVO member = MemberVO.builder()
+                .memberId(memberId)
+                .nickname(nickname)
+                .receivePushNotification(Boolean.TRUE.equals(receivePushNotification))
+                .build();
+        int updated = memberMapper.updateProfile(member);
+        if (updated > 0) {
+            return new SignupResponseDTO(true, "회원정보가 수정되었습니다.");
+        } else {
+            return new SignupResponseDTO(false, "회원정보 수정에 실패했습니다.");
+        }
+    }
     public SignupResponseDTO register(RegisterDTO dto) {
         Date birthDate = null;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
