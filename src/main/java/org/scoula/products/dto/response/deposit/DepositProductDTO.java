@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -76,12 +77,31 @@ public class DepositProductDTO {
     @JsonProperty("options")
     private List<DepositOptionDTO> options;
 
+
     // 편의를 위한 메서드: 상품 시작일을 LocalDate로 변환
     public LocalDate getStartDate() {
         if (dclsStrtDay == null || dclsStrtDay.isEmpty()) {
             return null;
         }
-        return LocalDate.parse(dclsStrtDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        try {
+            // 기본 ISO 형식 시도 (yyyy-MM-dd)
+            return LocalDate.parse(dclsStrtDay);
+        } catch (DateTimeParseException e) {
+            try {
+                // 명시적인 yyyy-MM-dd 형식 시도
+                return LocalDate.parse(dclsStrtDay, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e1) {
+                try {
+                    // yyyyMMdd 형식 시도
+                    return LocalDate.parse(dclsStrtDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                } catch (DateTimeParseException e2) {
+                    // 모든 시도 실패 시 로그 출력 및 null 반환
+                    System.err.println("날짜 파싱 실패: " + dclsStrtDay);
+                    return null;
+                }
+            }
+        }
     }
 
     // 편의를 위한 메서드: 상품 종료일을 LocalDate로 변환
@@ -89,7 +109,25 @@ public class DepositProductDTO {
         if (dclsEndDay == null || dclsEndDay.isEmpty()) {
             return null;
         }
-        return LocalDate.parse(dclsEndDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        try {
+            // 기본 ISO 형식 시도 (yyyy-MM-dd)
+            return LocalDate.parse(dclsEndDay);
+        } catch (DateTimeParseException e) {
+            try {
+                // 명시적인 yyyy-MM-dd 형식 시도
+                return LocalDate.parse(dclsEndDay, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e1) {
+                try {
+                    // yyyyMMdd 형식 시도
+                    return LocalDate.parse(dclsEndDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                } catch (DateTimeParseException e2) {
+                    // 모든 시도 실패 시 로그 출력 및 null 반환
+                    System.err.println("날짜 파싱 실패: " + dclsEndDay);
+                    return null;
+                }
+            }
+        }
     }
 
     // 편의를 위한 메서드: 상품이 현재 판매 중인지 확인

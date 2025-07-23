@@ -91,11 +91,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     private String mapCategoryName(String categoryName) {
         switch (categoryName) {
             case "deposit":
-                return "정기예금";
+                return "예금";
             case "saving":
                 return "적금";
             case "pension":
-                return "연금저축";
+                return "연금";
             default:
                 return categoryName;
         }

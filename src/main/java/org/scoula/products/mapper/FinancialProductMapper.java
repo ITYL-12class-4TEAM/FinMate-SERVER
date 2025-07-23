@@ -11,7 +11,7 @@ import org.scoula.products.dto.response.pension.PensionProductDTO;
 
 import java.util.List;
 import java.util.Map;
-
+@Mapper
 // FinancialProductMapper.java
 public interface FinancialProductMapper {
     @MapKey("product_id")

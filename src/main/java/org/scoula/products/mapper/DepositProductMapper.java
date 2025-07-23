@@ -1,11 +1,13 @@
 package org.scoula.products.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.scoula.products.dto.response.deposit.DepositOptionDTO;
 import org.scoula.products.dto.response.deposit.DepositProductDTO;
 
 import java.util.List;
 
+@Mapper
 /**
  * 예금 상품 관련 매퍼 인터페이스
  */

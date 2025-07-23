@@ -25,6 +25,16 @@
         JOIN financial_product fp ON dp.product_id = fp.product_id
         JOIN deposit_option do ON dp.product_id = do.product_id
         <where>
+            <!-- 카테고리 필터링 추가 -->
+            <if test="categoryId != null">
+                AND fp.category_id = #{categoryId}
+            </if>
+            <if test="categoryName != null and categoryName != ''">
+                AND EXISTS (
+                SELECT 1 FROM product_category c
+                WHERE fp.category_id = c.category_id AND c.name = #{categoryName}
+                )
+            </if>
             <if test="saveTrm != null">
                 AND do.save_trm = #{saveTrm}
             </if>

@@ -7,6 +7,7 @@ import org.scoula.products.dto.response.ProductDetailResponse;
 import org.scoula.products.dto.response.ProductListResponse;
 import org.scoula.products.dto.response.deposit.DepositOptionDTO;
 import org.scoula.products.dto.response.deposit.DepositProductDTO;
+import org.scoula.products.service.ProductCategoryService;
 import org.scoula.products.service.ProductCompareService;
 import org.scoula.products.service.ProductSearchService;
 import org.scoula.response.ApiResponse;
@@ -28,13 +29,16 @@ public class ProductApiController {
     //
     private final ProductSearchService searchService;
     private final ProductCompareService compareService;
+    private final ProductCategoryService categoryService;
 
     @Autowired
     public ProductApiController(
             ProductSearchService searchService,
-            ProductCompareService compareService) {
+            ProductCompareService compareService,
+            ProductCategoryService categoryService) {
         this.searchService = searchService;
         this.compareService = compareService;
+        this.categoryService = categoryService;
     }
 
     /**
@@ -86,14 +90,32 @@ public class ProductApiController {
             notes = "상품 유형별 선택 가능한 카테고리 목록을 제공합니다.")
     @GetMapping("/categories")
     public ApiResponse<?> getCategories() {
-        // 기본 응답값 (샘플 데이터)
-        Map<String, String> categories = new HashMap<>();
+        // 기본 버전: 카테고리 목록만 반환
+        List<Map<String, Object>> categories = categoryService.getAllCategories();
 
-        categories.put("deposit", "정기예금");
-        categories.put("saving", "적금");
-        categories.put("pension", "연금저축");
+        // 향상된 버전: 카테고리와 하위 카테고리 정보 함께 반환
+        // List<Map<String, Object>> categories = categoryService.getCategoriesWithSubcategories();
 
         return ApiResponse.success(ResponseCode.PRODUCT_CATEGORY_SUCCESS, categories);
+    }
+
+    // 추가 API: 특정 카테고리의 하위 카테고리 조회
+    @ApiOperation(value = "카테고리별 하위 카테고리 목록",
+            notes = "특정 카테고리에 속한 하위 카테고리 목록을 제공합니다.")
+    @GetMapping("/categories/{categoryCode}/subcategories")
+    public ApiResponse<?> getSubcategories(@PathVariable String categoryCode) {
+        // 카테고리 코드로 카테고리 정보 조회
+        Map<String, Object> category = categoryService.getCategoryByCode(categoryCode);
+
+        if (category == null) {
+            return ApiResponse.fail(ResponseCode.CATEGORY_NOT_FOUND);
+        }
+
+        // 카테고리 ID로 하위 카테고리 목록 조회
+        Long categoryId = Long.valueOf(category.get("id").toString());
+        List<Map<String, Object>> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
+
+        return ApiResponse.success(ResponseCode.SUBCATEGORY_SUCCESS, subcategories);
     }
 
     @ApiOperation(value = "필터 옵션 조회",
@@ -106,13 +128,19 @@ public class ProductApiController {
         Map<String, Object> filterOptions = new HashMap<>();
 
         // 카테고리에 따라 다른 필터 옵션 제공
-        switch(category) {
+        switch (category) {
             case "deposit":
             case "saving":
                 // 예금/적금 공통 필터 옵션
                 filterOptions.put("interestRateTypes", Arrays.asList(
-                    new HashMap<String, String>() {{ put("code", "S"); put("name", "단리"); }},
-                    new HashMap<String, String>() {{ put("code", "M"); put("name", "복리"); }}
+                        new HashMap<String, String>() {{
+                            put("code", "S");
+                            put("name", "단리");
+                        }},
+                        new HashMap<String, String>() {{
+                            put("code", "M");
+                            put("name", "복리");
+                        }}
                 ));
                 filterOptions.put("saveTerms", Arrays.asList(1, 3, 6, 12, 24, 36));
                 filterOptions.put("joinMethods", Arrays.asList("전체", "온라인", "오프라인"));
@@ -121,8 +149,14 @@ public class ProductApiController {
             case "pension":
                 // 연금 전용 필터 옵션
                 filterOptions.put("pensionTypes", Arrays.asList(
-                    new HashMap<String, String>() {{ put("code", "personal"); put("name", "개인연금"); }},
-                    new HashMap<String, String>() {{ put("code", "retirement"); put("name", "퇴직연금"); }}
+                        new HashMap<String, String>() {{
+                            put("code", "personal");
+                            put("name", "개인연금");
+                        }},
+                        new HashMap<String, String>() {{
+                            put("code", "retirement");
+                            put("name", "퇴직연금");
+                        }}
                 ));
                 filterOptions.put("guaranteeRates", Arrays.asList(2.0, 2.5, 3.0, 3.5));
                 filterOptions.put("saveTerms", Arrays.asList(10, 15, 20, 30));

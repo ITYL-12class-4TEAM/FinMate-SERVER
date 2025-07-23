@@ -1,11 +1,13 @@
 package org.scoula.products.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.scoula.products.dto.response.pension.PensionOptionDTO;
 import org.scoula.products.dto.response.pension.PensionProductDTO;
 
 import java.util.List;
 
+@Mapper
 /**
  * 연금 상품 관련 매퍼 인터페이스
  */

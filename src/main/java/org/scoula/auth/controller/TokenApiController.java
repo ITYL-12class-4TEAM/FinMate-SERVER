@@ -38,7 +38,7 @@ public class TokenApiController {
         }
 
         //  새로운 access 토큰 발급
-        String newAccessToken = jwtProcessor.generateAccessToken(memberId,username);
+        String newAccessToken = jwtProcessor.generateAccessToken(memberId, username);
 
         //  Redis에 access 토큰 갱신
         redisService.saveAccessToken("ACCESS:" + memberId, newAccessToken);
@@ -52,7 +52,13 @@ public class TokenApiController {
     // 요청 DTO
     public static class RefreshRequest {
         private String refreshToken;
-        public String getRefreshToken() { return refreshToken; }
-        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
     }
 }
