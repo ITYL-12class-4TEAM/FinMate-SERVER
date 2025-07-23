@@ -22,6 +22,8 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.chatbot.session",
         "org.scoula.community.board.service",
         "org.scoula.community.board.controller",
+        "org.scoula.community.post.service",
+        "org.scoula.community.post.controller",
         "org.scoula.auth.controller",
         "org.scoula.member.controller"
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
