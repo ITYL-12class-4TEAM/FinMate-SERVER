@@ -57,6 +57,13 @@
         WHERE member.member_id = #{memberId}
     </select>
 
+    <select id="findUsernameByNameAndPhone" resultType="string">
+        SELECT email
+        FROM member
+        WHERE username = #{username}
+          AND phone_number = #{phoneNumber}
+    </select>
+
 
 
 </mapper>
