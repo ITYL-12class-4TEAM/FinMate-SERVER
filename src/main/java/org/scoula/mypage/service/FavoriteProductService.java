@@ -15,10 +15,13 @@ public class FavoriteProductService {
 
     public void addFavorite(Long memberId, Long productId) {
         favoriteProductMapper.insertFavorite(memberId, productId);
+        favoriteProductMapper.increaseWishlistCount(productId);
+
     }
 
     public void removeFavorite(Long memberId, Long productId) {
         favoriteProductMapper.deleteFavorite(memberId, productId);
+        favoriteProductMapper.decreaseWishlistCount(productId);
     }
 
     public List<FavoriteProductDto> getFavorites(Long memberId) {

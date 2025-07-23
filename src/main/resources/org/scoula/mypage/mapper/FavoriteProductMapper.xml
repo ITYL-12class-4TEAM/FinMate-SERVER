@@ -10,11 +10,24 @@
         VALUES (#{memberId}, #{productId})
     </insert>
 
+    <update id="increaseWishlistCount">
+        UPDATE financial_product
+        SET wishlist_count = wishlist_count + 1
+        WHERE product_id = #{productId};
+    </update>
+
     <delete id="deleteFavorite">
         DELETE FROM favorite_product
         WHERE member_id = #{memberId}
           AND product_id = #{productId}
     </delete>
+
+    <update id="decreaseWishlistCount">
+        UPDATE financial_product
+        SET wishlist_count = wishlist_count - 1
+        WHERE product_id = #{productId}
+          AND wishlist_count > 0;
+    </update>
 
     <select id="selectFavoritesByMemberId" resultType="org.scoula.mypage.dto.FavoriteProductDto">
         SELECT
