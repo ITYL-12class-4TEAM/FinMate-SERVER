@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.community.comment.mapper.CommentMapper">
+
+    <!-- 댓글 생성 -->
+    <insert id="create" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO finmate.comment (
+            post_id,
+            member_id,
+            content,
+            is_anonymous,
+            parent_comment,
+            created_at
+        ) VALUES (
+                     #{postId},
+                     #{memberId},
+                     #{content},
+                     #{isAnonymous},
+                     #{parentComment},
+                     NOW()
+                 )
+    </insert>
+
+    <!-- 댓글 단일 조회 -->
+    <select id="get" parameterType="long" resultType="org.scoula.community.comment.domain.CommentVO">
+        SELECT
+            comment_id,
+            post_id,
+            member_id,
+            content,
+            is_anonymous,
+            parent_comment,
+            created_at
+        FROM finmate.comment
+        WHERE comment_id = #{commentId}
+    </select>
+
+    <!-- 댓글 전체 조회 -->
+    <select id="getList" resultType="org.scoula.community.comment.domain.CommentVO">
+        SELECT
+            comment_id,
+            post_id,
+            member_id,
+            content,
+            is_anonymous,
+            parent_comment,
+            created_at
+        FROM finmate.comment
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 댓글 삭제 (부모 댓글 및 자식 댓글 모두 물리 삭제) -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM finmate.comment
+        WHERE comment_id = #{commentId}
+           OR parent_comment = #{commentId}
+    </delete>
+
+</mapper>
