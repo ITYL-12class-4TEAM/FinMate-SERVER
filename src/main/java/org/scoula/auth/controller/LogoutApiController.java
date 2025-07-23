@@ -1,5 +1,6 @@
 package org.scoula.auth.controller;
 
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.auth.dto.LogoutResponseDTO;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
+@Api(tags = "로그아웃 API")
 @Log4j2
 @RestController
 @RequiredArgsConstructor

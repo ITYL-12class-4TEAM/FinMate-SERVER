@@ -57,6 +57,24 @@
         WHERE member.member_id = #{memberId}
     </select>
 
+    <select id="findUsernameByNameAndPhone" resultType="string">
+        SELECT email
+        FROM member
+        WHERE username = #{username}
+          AND phone_number = #{phoneNumber}
+    </select>
 
+    <update id="updatePassword">
+        UPDATE member
+        SET password = #{Password},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
 
+    <update id="updateProfile">
+        UPDATE member
+        SET nickname = #{nickname},
+            receive_push_notification = #{receivePushNotification}
+        WHERE member_id = #{memberId}
+    </update>
 </mapper>
