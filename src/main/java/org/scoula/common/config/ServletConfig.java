@@ -24,6 +24,8 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.community.board.controller",
         "org.scoula.community.post.service",
         "org.scoula.community.post.controller",
+        "org.scoula.auth.controller",
+        "org.scoula.member.controller"
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
 public class ServletConfig implements WebMvcConfigurer {
 
@@ -67,6 +69,7 @@ public class ServletConfig implements WebMvcConfigurer {
                 new StandardServletMultipartResolver();
         return resolver;
     }
+
     @Bean
     public static PropertySourcesPlaceholderConfigurer servletPropertyConfig() throws IOException, IOException {
         return RootConfig.propertyConfig();
