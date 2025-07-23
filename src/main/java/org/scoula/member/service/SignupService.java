@@ -16,7 +16,7 @@ public class SignupService {
     private final MemberMapper memberMapper;
 
 
-    private boolean isValidPassword(String password) {
+    public boolean isValidPassword(String password) {
         // 8자 이상, 영문/숫자/특수문자 각각 1개 이상
         String pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-]).{8,}$";
         return password != null && password.matches(pattern);
