@@ -3,6 +3,7 @@ package org.scoula.mypage.controller;
 import lombok.RequiredArgsConstructor;
 import org.scoula.mypage.dto.FavoriteProductDto;
 import org.scoula.mypage.dto.FavoriteRequestDTO;
+import org.scoula.mypage.dto.PopularProductGroupDto;
 import org.scoula.mypage.service.FavoriteProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,5 +50,13 @@ public class WishlistApiController {
     public ResponseEntity<Boolean> checkFavorite(@PathVariable Long productId) {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(favoriteProductService.isFavorite(memberId, productId));
+    }
+
+    // 카테고리별 인기 관심상품 조회
+    @GetMapping("/populary")
+    public ResponseEntity<List<PopularProductGroupDto>> getPopularFavoritesByCategory(
+            @RequestParam(defaultValue = "30") int days) {
+        List<PopularProductGroupDto> result = favoriteProductService.getPopularFavoritesByCategory(days);
+        return ResponseEntity.ok(result);
     }
 }

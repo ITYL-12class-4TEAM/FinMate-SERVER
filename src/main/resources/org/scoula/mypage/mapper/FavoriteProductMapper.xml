@@ -50,4 +50,20 @@
         )
     </select>
 
+    <!-- 인기 상품 Top 5 조회 (서브카테고리별) -->
+    <select id="selectPopularFavorites" resultType="org.scoula.mypage.dto.FavoriteProductDto">
+        SELECT
+            product_id,
+            product_name,
+            kor_co_nm,
+            risk_level,
+            external_link,
+            wishlist_count
+        FROM financial_product
+        WHERE subcategory_id = #{subcategoryId}
+          AND created_at >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+        ORDER BY wishlist_count DESC
+        LIMIT 5
+    </select>
+
 </mapper>

@@ -6,9 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/security/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/security/filter/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +34,17 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="FinMate-SERVER" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="FinMate-SERVER" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="FinMate-SERVER" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
@@ -89,6 +102,7 @@
     "Gradle.FinMate-SERVER [:org.scoula.product.PensionProductFetcher.main()].executor": "Run",
     "Gradle.FinMate-SERVER [:org.scoula.product.SavingProductFetcher.main()].executor": "Run",
     "Gradle.FinMate-SERVER [build].executor": "Run",
+    "Gradle.FinMate-SERVER [clean].executor": "Run",
     "Gradle.FinMate-SERVER 빌드.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -122,7 +136,7 @@
       <recent name="org.scoula.product" />
     </key>
   </component>
-  <component name="RunManager" selected="Tomcat 서버.Tomcat 9.0.105">
+  <component name="RunManager" selected="Gradle.FinMate-SERVER [clean]">
     <configuration name="DepositFetcherRunner" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.scoula.product.DepositFetcherRunner" />
       <module name="FinMate-SERVER.main" />
@@ -148,6 +162,28 @@
         <option name="taskNames">
           <list>
             <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="FinMate-SERVER [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -247,12 +283,14 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Gradle.FinMate-SERVER [clean]" />
       <item itemvalue="Gradle.FinMate-SERVER [build]" />
       <item itemvalue="Tomcat 서버.Tomcat 9.0.105" />
       <item itemvalue="애플리케이션.DepositFetcherRunner" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.FinMate-SERVER [clean]" />
         <item itemvalue="Gradle.FinMate-SERVER [build]" />
         <item itemvalue="애플리케이션.DepositFetcherRunner" />
       </list>
@@ -291,7 +329,7 @@
       <workItem from="1753143480356" duration="7305000" />
       <workItem from="1753165612290" duration="8174000" />
       <workItem from="1753177905165" duration="761000" />
-      <workItem from="1753230755859" duration="7038000" />
+      <workItem from="1753230755859" duration="10159000" />
     </task>
     <servers />
   </component>

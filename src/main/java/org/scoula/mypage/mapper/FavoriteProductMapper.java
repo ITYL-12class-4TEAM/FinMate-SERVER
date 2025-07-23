@@ -13,7 +13,10 @@ public interface FavoriteProductMapper {
 
     void deleteFavorite(@Param("memberId") Long memberId, @Param("productId") Long productId);
     void decreaseWishlistCount(@Param("productId") Long productId);
-    
+
     List<FavoriteProductDto> selectFavoritesByMemberId(@Param("memberId") Long memberId);
     boolean existsByMemberIdAndProductId(@Param("memberId") Long memberId, @Param("productId") Long productId);
+
+    List<FavoriteProductDto> selectPopularFavorites(@Param("subcategoryId") Long subcategoryId, @Param("days") int days);
+
 }
