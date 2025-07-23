@@ -29,4 +29,6 @@ public interface WMTIService {
     List<WMTIHistoryDTO> getSurveyHistoryByMemberId(Long memberId);
     // 설문 이력 조회 (단일 이력)
     WMTIHistoryDTO getSurveyHistoryByHistoryId(Long historyId);
+    // 설문 이력 삭제
+    boolean deleteSurveyHistory(Long historyId);
 }

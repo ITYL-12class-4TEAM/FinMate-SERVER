@@ -16,4 +16,7 @@ public interface WMTIHistoryMapper {
 
     //사용자 ID와 HistoryID로 설문이력 조회
     WMTIHistory findByHistoryId(Long historyId);
+
+    //historyId기준 설문이력 삭제
+    int deleteByHistoryId(Long historyId);
 }

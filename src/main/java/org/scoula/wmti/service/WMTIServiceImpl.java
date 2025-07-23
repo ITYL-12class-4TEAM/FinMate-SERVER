@@ -153,4 +153,11 @@ public class WMTIServiceImpl implements WMTIService {
 
         return wmtiHistoryDTO;
     }
+
+    @Override
+    public boolean deleteSurveyHistory(Long historyId) {
+        //삭제 쿼리 실행
+        int deletedRows = wmtiHistoryMapper.deleteByHistoryId(historyId);
+        return deletedRows > 0; //삭제가 성공적으로 이루어졌으면 true반환
+    }
 }
