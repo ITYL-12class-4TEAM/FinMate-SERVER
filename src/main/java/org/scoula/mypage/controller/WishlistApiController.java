@@ -25,10 +25,11 @@ public class WishlistApiController {
 
     // 관심상품 삭제
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> removeFavorite(@RequestParam Long memberId, @PathVariable Long productId) {
+    public ResponseEntity<Void> removeFavorite(@PathVariable Long productId, @RequestParam Long memberId) {
         favoriteProductService.removeFavorite(memberId, productId);
         return ResponseEntity.ok().build();
     }
+
 
     // 관심상품 목록 조회
     @GetMapping
