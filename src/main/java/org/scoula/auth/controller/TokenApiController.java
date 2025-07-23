@@ -38,7 +38,7 @@ public class TokenApiController {
         }
 
         //  새로운 access 토큰 발급
-        String newAccessToken = jwtProcessor.generateAccessToken(username);
+        String newAccessToken = jwtProcessor.generateAccessToken(memberId,username);
 
         //  Redis에 access 토큰 갱신
         redisService.saveAccessToken("ACCESS:" + memberId, newAccessToken);

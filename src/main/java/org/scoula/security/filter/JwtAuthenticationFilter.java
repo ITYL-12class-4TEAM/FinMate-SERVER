@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 토큰의 사용자 정보 추출
                 String username = jwtProcessor.getUsername(token);
-                Long memberId = memberMapper.findIdByUsername(username); // 혹은 mapper를 통해 memberId 조회
+                Long memberId = jwtProcessor.getMemberId(token); // 혹은 mapper를 통해 memberId 조회
 
                 // Redis에 저장된 토큰과 일치 여부 확인
                 String redisToken = redisService.get("ACCESS:" + memberId);
