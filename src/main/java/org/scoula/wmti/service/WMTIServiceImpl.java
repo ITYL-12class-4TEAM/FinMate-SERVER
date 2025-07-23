@@ -2,6 +2,7 @@ package org.scoula.wmti.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.scoula.wmti.domain.WMTIAnalysis;
 import org.scoula.wmti.domain.WMTICalculator;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
@@ -22,6 +23,7 @@ public class WMTIServiceImpl implements WMTIService {
 
     private final SurveyResultMapper surveyResultMapper;
     private final WMTICalculator wmtiCalculator;
+    private final WMTIAnalysis wmtiAnalysis;
     private final WMTIHistoryMapper wmtiHistoryMapper;
     private final ObjectMapper objectMapper;  // Jackson ObjectMapper
 
