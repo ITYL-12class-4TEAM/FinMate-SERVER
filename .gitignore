@@ -11,6 +11,9 @@ build/
 .idea/libraries/
 .idea/workspace.xml
 .idea/dataSources/
+.idea/artifacts/
+.idea/dataSources.local.xml
+.idea/dataSources.xml
 *.iws
 *.iml
 *.ipr
