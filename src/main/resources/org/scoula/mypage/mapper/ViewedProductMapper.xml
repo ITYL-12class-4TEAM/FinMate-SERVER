@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.mypage.mapper.ViewedProductMapper">
+
+    <delete id="deleteExistingViewedProduct">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId} AND product_id = #{productId}
+    </delete>
+
+    <insert id="insertViewedProduct">
+        INSERT INTO viewed_product (member_id, product_id)
+        VALUES (#{memberId}, #{productId})
+    </insert>
+
+    <select id="selectRecentViewedProducts" resultType="org.scoula.mypage.dto.FavoriteProductDto">
+        SELECT
+        fp.product_id,
+        fp.product_name,
+        fp.kor_co_nm,
+        fp.risk_level,
+        fp.external_link,
+        fp.wishlist_count
+        FROM viewed_product vp
+        JOIN financial_product fp ON vp.product_id = fp.product_id
+        WHERE vp.member_id = #{memberId}
+        ORDER BY vp.viewed_at DESC
+        LIMIT 20
+    </select>
+
+    <delete id="deleteViewedProduct">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId} AND product_id = #{productId}
+    </delete>
+
+    <delete id="deleteAllViewedProducts">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId}
+    </delete>
+
+
+</mapper>

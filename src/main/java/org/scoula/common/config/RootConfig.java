@@ -38,7 +38,6 @@ import javax.sql.DataSource;
         "org.scoula.member.mapper",
         "org.scoula.community.board.mapper",
         "org.scoula.mypage.mapper",
-        "org.scoula.product.mapper",
 })
 public class RootConfig {
 
