@@ -3,7 +3,7 @@ package org.scoula.wmti.controller;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
-import org.scoula.wmti.entity.SurveyResult;
+import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
 import org.scoula.wmti.service.WMTIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +46,7 @@ public class WMTIController {
 
     // 설문 결과 조회 (GET)
     @GetMapping("/{memberId}")
-    public ApiResponse<SurveyResult> getSurveyResult(@PathVariable Long memberId) {
+    public ApiResponse<SurveyResultDTO> getSurveyResult(@PathVariable Long memberId) {
         SurveyResultDTO surveyResultDTO = wmtiService.getSurveyResultByMemberId(memberId);
 
         if (surveyResultDTO == null) {
@@ -55,5 +55,24 @@ public class WMTIController {
 
         // ApiResponse로 응답 반환
         return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, surveyResultDTO);
+    }
+    //설문 이력 조회 (전체리스트 GET)
+    public ApiResponse<List<WMTIHistoryDTO>> getSurveyHistory(@PathVariable Long memberId) {
+        List<WMTIHistoryDTO> wmtiHistoryDTOList = wmtiService.getSurveyHistoryByMemberId(memberId);
+        if (wmtiHistoryDTOList == null || wmtiHistoryDTOList.isEmpty()) {
+            return ApiResponse.fail(ResponseCode.WMTI_SURVEY_PROCESSING_FAILED, "설문 이력이 없습니다.");
+        }
+        return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, wmtiHistoryDTOList);
+    }
+    // 설문 이력 조회 (단일 이력, GET)
+    @GetMapping("/history/{historyId}")
+    public ApiResponse<WMTIHistoryDTO> getSurveyHistoryByHistoryId(@PathVariable Long historyId) {
+        WMTIHistoryDTO wmtiHistoryDTO = wmtiService.getSurveyHistoryByHistoryId(historyId);
+
+        if (wmtiHistoryDTO == null) {
+            return ApiResponse.fail(ResponseCode.WMTI_SURVEY_PROCESSING_FAILED, "설문 이력을 찾을 수 없습니다.");
+        }
+
+        return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, wmtiHistoryDTO);
     }
 }
