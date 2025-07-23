@@ -1,6 +1,7 @@
 package org.scoula.security.config;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.security.filter.JwtAuthenticationFilter;
 import org.scoula.security.filter.JwtUsernamePasswordAuthenticationFilter;
 import org.scoula.security.handler.LoginFailureHandler;
 import org.scoula.security.handler.LoginSuccessHandler;
@@ -25,6 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
 
+    // JWT 인증 필터
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     // AuthenticationManager 빈 등록
     @Bean
     @Override
@@ -45,6 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .logout().disable()
+                // JWT 인증필터
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().disable(); // JWT 사용 시 세션 미사용
     }

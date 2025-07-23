@@ -32,16 +32,17 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private AuthResultDTO makeAuthResult(CustomUser user) {
         String username = user.getUsername();
+        Long memberId = user.getMember().getMemberId();
         log.info("[DEBUG] 인증 성공: 사용자명 = {}", username);
         // 토큰 생성
-        String accessToken = jwtProcessor.generateAccessToken(username);
+        String accessToken = jwtProcessor.generateAccessToken(memberId,username);
         String refreshToken = jwtProcessor.generateRefreshToken(username);
         // 토큰 + 사용자 기본 정보 (사용자명, ...)를 묶어서 AuthResultDTO 구성
         log.info("[DEBUG] accessToken: {}", accessToken);
         log.info("[DEBUG] refreshToken: {}", refreshToken);
 
         redisService.saveAccessToken(
-                user.getMember().getMemberId().toString(),  // 키: "ACCESS:{memberId}"
+                memberId.toString(),  // 키: "ACCESS:{memberId}"
                 accessToken
         );
         memberMapper.updateTokens(username, refreshToken); //
