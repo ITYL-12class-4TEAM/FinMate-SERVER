@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -18,13 +19,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
-import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -35,7 +33,8 @@ import javax.sql.DataSource;
 //@PropertySource("file:${config.location}/application.properties")
 @MapperScan(basePackages = {
         "org.scoula.community.board.mapper",
-        "org.scoula.community.post.mapper"
+        "org.scoula.community.post.mapper",
+        "org.scoula.community.comment.mapper",
         "org.scoula.member.mapper"
 })
 public class RootConfig {

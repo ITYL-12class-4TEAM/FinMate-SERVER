@@ -9,11 +9,17 @@ import org.scoula.community.post.dto.PostCreateRequestDTO;
 import org.scoula.community.post.dto.PostDetailsResponseDTO;
 import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.dto.PostUpdateRequestDTO;
-import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.service.PostService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -36,6 +42,7 @@ public class PostApiController {
         return ApiResponse.success(ResponseCode.POST_DETAILS_SUCCESS, postService.get(postId));
     }
 
+
     @ApiOperation(value = "게시글 생성", notes = "새 게시글을 등록합니다.")
     @PostMapping("")
     public ApiResponse<PostDetailsResponseDTO> create(
@@ -43,6 +50,7 @@ public class PostApiController {
         PostDetailsResponseDTO created = postService.create(postCreateRequestDTO);
         return ApiResponse.success(ResponseCode.POST_CREATE_SUCCESS, created);
     }
+
 
     @ApiOperation(value = "게시글 수정", notes = "기존 게시글을 수정합니다.")
     @PutMapping("/{postId}")
