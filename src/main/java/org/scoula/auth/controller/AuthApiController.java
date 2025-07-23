@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
 import org.scoula.auth.dto.FindIdResponseDTO;
 import org.scoula.auth.dto.TokenResponseDTO;
+import org.scoula.member.service.SignupService;
+import org.scoula.security.account.domain.MemberVO;
 import org.scoula.security.util.JwtProcessor;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.common.service.RedisService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -18,7 +20,8 @@ public class AuthApiController {
     private final JwtProcessor jwtProcessor;
     private final MemberMapper memberMapper;
     private final RedisService redisService;
-
+    private final SignupService signupService;
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponseDTO> refresh(@RequestBody RefreshRequest request) {
         String refreshToken = request.getRefreshToken();
@@ -73,6 +76,43 @@ public class AuthApiController {
             return ResponseEntity.badRequest().body(new FindIdResponseDTO(false, "일치하는 회원이 없습니다.", null));
         }
         return ResponseEntity.ok(new FindIdResponseDTO(true, "비밀번호를 다시 설정해주세요.", username));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<FindIdResponseDTO> resetPassword(@RequestBody ResetPasswordRequest request) {
+        // 비밀번호 유효성 검사
+        if (!signupService.isValidPassword(request.getNewPassword())) {
+            return ResponseEntity.badRequest().body(
+                    new FindIdResponseDTO(false, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다.", null)
+            );
+        }
+        if (!request.getNewPassword().equals(request.getNewPasswordCheck())) {
+            return ResponseEntity.badRequest().body(
+                    new FindIdResponseDTO(false, "비밀번호가 일치하지 않습니다.", null)
+            );
+        }
+        MemberVO member = memberMapper.selectByEmail(request.getUsername());
+        Long memberId = member.getMemberId();
+        // 비밀번호 암호화 및 저장
+         encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        String encodedPassword = encoder.encode(request.getNewPassword());
+        memberMapper.updatePassword(memberId, encodedPassword);
+
+        return ResponseEntity.ok(new FindIdResponseDTO(true, "비밀번호가 성공적으로 변경되었습니다.", null));
+    }
+
+    // 요청 DTO
+    public static class ResetPasswordRequest {
+        private String username;
+        private String newPassword;
+        private String newPasswordCheck;
+
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public String getNewPassword() { return newPassword; }
+        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+        public String getNewPasswordCheck() { return newPasswordCheck; }
+        public void setNewPasswordCheck(String newPasswordCheck) { this.newPasswordCheck = newPasswordCheck; }
     }
 
     // 요청 DTO

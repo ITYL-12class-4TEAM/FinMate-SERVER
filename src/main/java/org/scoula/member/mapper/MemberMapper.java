@@ -30,6 +30,7 @@ void updateTokens(@Param("username") String username,
 
 void clearRefreshToken(@Param("username") String username);
 
-//    int updatePassword(ChangePasswordDTO changePasswordDTO);
+int updatePassword(@Param("memberId") Long memberId,
+                   @Param("Password") String encodedPassword);
 
 }

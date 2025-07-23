@@ -64,6 +64,12 @@
           AND phone_number = #{phoneNumber}
     </select>
 
+    <update id="updatePassword">
+        UPDATE member
+        SET password = #{Password},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
 
 
 </mapper>
