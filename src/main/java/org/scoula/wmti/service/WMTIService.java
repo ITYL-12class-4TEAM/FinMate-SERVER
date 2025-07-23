@@ -1,5 +1,6 @@
 package org.scoula.wmti.service;
 
+import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.entity.SurveyResult;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface WMTIService {
      * @return 저장된 설문 결과
      */
     SurveyResult saveSurveyResult(Long memberId, List<Integer> answers);
+    // 설문 결과 조회
+    SurveyResultDTO getSurveyResultByMemberId(Long memberId);
 }

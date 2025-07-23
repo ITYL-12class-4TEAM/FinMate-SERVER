@@ -1,18 +1,21 @@
-package org.scoula.wmti.dto;
+package org.scoula.wmti.dto.survey;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SurveyRequestDTO {
-    private Long wmtiId;       // WMTI 결과 고유 ID
-    private Long memberId;     // 사용자 고유 ID
-    private String wmtiCode;   // 도출된 4자리 WMTI 코드
-    private String answersJson; // 설문 응답 데이터 JSON 형태로 저장 (20개문항, 각 1점~5점)
-    private LocalDateTime createdAt; // 설문 제출 시간
+    private List<Integer> answers; // 설문 응답 (1~5까지의 점수 리스트)
+    private LocalDateTime startTime; // 설문시작시간
+    // 응답 유효성 검증 메서드
+    public boolean isValid() {
+        // 20개 문항이 모두 응답되어야 합니다.
+        return answers != null && answers.size() == 20;
+    }
 }

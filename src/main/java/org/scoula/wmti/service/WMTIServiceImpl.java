@@ -1,98 +1,65 @@
 package org.scoula.wmti.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.scoula.wmti.mapper.SurveyResultMapper;
-import org.scoula.wmti.dto.survey.WMTIResultDTO;
+import lombok.RequiredArgsConstructor;
+import org.scoula.wmti.domain.WMTICalculator;
+import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.entity.SurveyResult;
+import org.scoula.wmti.mapper.SurveyResultMapper;
+import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
+@RequiredArgsConstructor
 public class WMTIServiceImpl implements WMTIService {
+
     private final SurveyResultMapper surveyResultMapper;
+    private final WMTICalculator wmtiCalculator;
 
     @Override
     public String calculateWMTICode(List<Integer> answers) {
-        double aScore = 65.0;
-        double pScore = 60.0;
-        double mScore = 60.0;
-        double lScore = 60.0;
-
-        for (int i = 0; i < answers.size(); i++) {
-            int qNum = i + 1;
-            int score = answers.get(i);
-
-            switch (qNum) {
-                case 1:
-                    // A vs I
-                    if (score == 1) aScore = 65.0;
-                    else if (score == 2) aScore = 60.0;
-                    else if (score == 3) aScore = 50.0;
-                    else if (score == 4) aScore = 45.0;
-                    else if (score == 5) aScore = 40.0;
-                    break;
-                case 2: case 4: case 10: case 11: case 15: case 17: case 20:
-                    // P vs B
-                    pScore += getDelta(score, 6.0, 3.0);
-                    break;
-                case 3: case 5: case 7: case 8: case 13: case 14: case 16: case 18:
-                    // M vs W
-                    mScore += getDelta(score, 5.0, 2.5);
-                    break;
-                case 6: case 9: case 12: case 19:
-                    // L vs C
-                    lScore += getDelta(score, 10.0, 5.0);
-                    break;
-            }
-        }
-
-        // 성향 결정
-        StringBuilder code = new StringBuilder();
-        code.append(aScore >= 50 ? "A" : "I");
-        code.append(pScore >= 50 ? "P" : "B");
-        code.append(mScore >= 50 ? "M" : "W");
-        code.append(lScore >= 50 ? "L" : "C");
-
-        return code.toString();
-    }
-    //가중치 설정.
-    private double getDelta(int score, double high, double mid) {
-        return switch (score) {
-            case 1 -> high;
-            case 2 -> mid;
-            case 3 -> 0.0;
-            case 4 -> -mid;
-            case 5 -> -high;
-            default -> 0.0;
-        };
+        // WMTI 코드 계산
+        return wmtiCalculator.calculateWMTICode(answers);
     }
 
-    //설문제출처리 : WMTI계산결과 DB저장 + 응답DTO반환
-    public WMTIResultDTO processSurvey(List<Integer> answers, BigInteger memberId) {
+    @Override
+    public SurveyResult saveSurveyResult(Long memberId, List<Integer> answers) {
+        // WMTI 코드 계산
         String wmtiCode = calculateWMTICode(answers);
 
-        String answersJson;
-        try {
-            answersJson = new ObjectMapper().writeValueAsString(answers);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("답안 JSON 변환 실패", e);
+        // 설문 결과 DTO 객체 생성
+        SurveyResultDTO surveyResultDTO = new SurveyResultDTO();
+        surveyResultDTO.setMemberId(memberId);
+        surveyResultDTO.setWmtiCode(wmtiCode);
+        surveyResultDTO.setAnswersJson(answers.toString());
+        surveyResultDTO.setCreatedAt(java.time.LocalDateTime.now());
+
+        // SurveyResultDTO -> SurveyResult (Entity)로 변환
+        SurveyResult surveyResult = new SurveyResult();
+        surveyResult.setMemberId(surveyResultDTO.getMemberId());
+        surveyResult.setWmtiCode(surveyResultDTO.getWmtiCode());
+        surveyResult.setAnswersJson(surveyResultDTO.getAnswersJson());
+        surveyResult.setCreatedAt(surveyResultDTO.getCreatedAt());
+
+        // 설문결과 DTO를 DB에 저장
+        surveyResultMapper.saveSurveyResult(surveyResult);
+
+        return surveyResult;
+    }
+    @Override
+    public SurveyResultDTO getSurveyResultByMemberId(Long memberId) {
+        //SurveyResult 엔티티 조회
+        SurveyResult surveyResult = surveyResultMapper.findByMemberId(memberId);
+        if (surveyResult == null) {
+            return null; //설문결과가 없으면 null 반환
         }
 
-        //DB저장용 엔티티 생성
-        SurveyResult surveyResult = SurveyResult.builder()
-                .memberId(memberId)
-                .answers(answers)
-                .wmtiCode(wmtiCode)
-                .submittedAt(LocalDateTime.now())
-                .build();
-        //설문결과 저장
-        surveyResultMapper.insertSurveyResult(surveyResult);
-        //응답 DTO 생성 및 반환
-        return WMTIResultDTO.builder()
-                .wmtiCode(wmtiCode)
-                .submittedAt(surveyResult.getSubmittedAt())
-                .build();
+        // SurveyResult -> SurveyResultDTO 변환
+        SurveyResultDTO surveyResultDTO = new SurveyResultDTO();
+        surveyResultDTO.setWmtiCode(surveyResult.getWmtiCode());
+        surveyResultDTO.setAnswersJson(surveyResult.getAnswersJson());
+        surveyResultDTO.setCreatedAt(surveyResult.getCreatedAt());
+
+        return surveyResultDTO;
     }
 }

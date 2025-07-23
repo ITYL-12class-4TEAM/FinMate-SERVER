@@ -5,20 +5,16 @@
 
 <mapper namespace="org.scoula.wmti.mapper.SurveyResultMapper">
 
-    <!-- 결과 저장 -->
-    <insert id="insertSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO wmti_profile (
-            member_id,
-            wmti_code,
-            wmti_id,
-            answers_json,
-            submitted_at
-        ) VALUES (
-                     #{userId},
-                     #{wmtiCode},
-                     #{answersJson},
-                     #{submittedAt}
-                 )
+    <!-- 설문 결과 저장 -->
+    <insert id="saveSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult">
+        INSERT INTO wmti_profile (member_id, wmti_code, answers_json, created_at)
+        VALUES (#{memberId}, #{wmtiCode}, #{answersJson}, #{submittedAt})
     </insert>
 
+    <!-- 사용자 ID로 설문 결과 조회 -->
+    <select id="findByMemberId" resultType="org.scoula.wmti.entity.SurveyResult">
+        SELECT wmti_id, member_id, wmti_code, answers_json, created_at
+        FROM wmti_profile
+        WHERE member_id = #{memberId}
+    </select>
 </mapper>
