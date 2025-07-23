@@ -2,6 +2,7 @@ package org.scoula.products.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.scoula.products.dto.response.FilterOptionsResponse;
 import org.scoula.products.dto.response.ProductCompareResponse;
 import org.scoula.products.dto.response.ProductDetailResponse;
 import org.scoula.products.dto.response.ProductListResponse;
@@ -54,14 +55,20 @@ public class ProductApiController {
             @RequestParam(required = false) String interestRateType,
             @RequestParam(required = false) String saveTerm,
             @RequestParam(required = false) String joinMethod,
-            @RequestParam(defaultValue = "1") int pageNo) {
+            @RequestParam(required = false) Double minIntrRate,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestParam(defaultValue = "1") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
         // 필터 파라미터 구성
         Map<String, String> filters = new HashMap<>();
         if (category != null) filters.put("category", category);
         if (interestRateType != null) filters.put("interestRateType", interestRateType);
         if (saveTerm != null) filters.put("saveTerm", saveTerm.toString());
         if (joinMethod != null) filters.put("joinMethod", joinMethod);
-
+        if (minIntrRate != null) filters.put("minIntrRate", minIntrRate.toString());
+        if (sort != null) filters.put("sort", sort);
+        if (order != null) filters.put("order", order);
         // 서비스 호출
         ProductListResponse response = searchService.searchProducts(keyword, filters, pageNo);
 
@@ -124,49 +131,8 @@ public class ProductApiController {
     public ApiResponse<?> getFilterOptions(
             @RequestParam(required = false, defaultValue = "deposit") String category
     ) {
-        // 기본 응답값 (샘플 데이터)
-        Map<String, Object> filterOptions = new HashMap<>();
-
-        // 카테고리에 따라 다른 필터 옵션 제공
-        switch (category) {
-            case "deposit":
-            case "saving":
-                // 예금/적금 공통 필터 옵션
-                filterOptions.put("interestRateTypes", Arrays.asList(
-                        new HashMap<String, String>() {{
-                            put("code", "S");
-                            put("name", "단리");
-                        }},
-                        new HashMap<String, String>() {{
-                            put("code", "M");
-                            put("name", "복리");
-                        }}
-                ));
-                filterOptions.put("saveTerms", Arrays.asList(1, 3, 6, 12, 24, 36));
-                filterOptions.put("joinMethods", Arrays.asList("전체", "온라인", "오프라인"));
-                break;
-
-            case "pension":
-                // 연금 전용 필터 옵션
-                filterOptions.put("pensionTypes", Arrays.asList(
-                        new HashMap<String, String>() {{
-                            put("code", "personal");
-                            put("name", "개인연금");
-                        }},
-                        new HashMap<String, String>() {{
-                            put("code", "retirement");
-                            put("name", "퇴직연금");
-                        }}
-                ));
-                filterOptions.put("guaranteeRates", Arrays.asList(2.0, 2.5, 3.0, 3.5));
-                filterOptions.put("saveTerms", Arrays.asList(10, 15, 20, 30));
-                break;
-
-            default:
-                // 기본 필터 옵션
-                filterOptions.put("saveTerms", Arrays.asList(1, 3, 6, 12, 24, 36));
-                filterOptions.put("joinMethods", Arrays.asList("전체", "온라인", "오프라인"));
-        }
+        // 서비스 호출하여 필터 옵션 조회
+        FilterOptionsResponse filterOptions = searchService.getFilterOptions(category);
         return ApiResponse.success(ResponseCode.PRODUCT_FILTER_OPTIONS_SUCCESS, filterOptions);
     }
 

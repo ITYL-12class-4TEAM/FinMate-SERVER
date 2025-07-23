@@ -1,6 +1,7 @@
 package org.scoula.products.service.impl;
 
 import org.scoula.products.dto.request.ProductSearchRequest;
+import org.scoula.products.dto.response.FilterOptionsResponse;
 import org.scoula.products.dto.response.ProductDetailResponse;
 import org.scoula.products.dto.response.ProductListResponse;
 import org.scoula.products.dto.response.deposit.DepositOptionDTO;
@@ -53,6 +54,13 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         // 검색어 설정
         request.setSearchText(keyword);
 
+
+        // 정렬 파라미터 처리
+        String sort = filters.getOrDefault("sort", "created_at");
+        String order = filters.getOrDefault("order", "desc");
+
+        request.setSortBy(sort);
+        request.setSortDirection(order);
         // 페이징 설정
         request.setPage(pageNo);
         request.setPageSize(10); // 기본값 설정
@@ -80,7 +88,12 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         }
 
         if (filters.containsKey("joinMethod")) {
-            request.setJoinWay(filters.get("joinMethod"));
+            String joinMethod = filters.get("joinMethod");
+            if (!"전체".equals(joinMethod)) {
+                request.setJoinWay(joinMethod);
+            } else {
+                request.setJoinWay(null); // "전체"인 경우 null로 설정
+            }
         }
 
         // 기존 메서드 호출하여 검색 수행
@@ -103,71 +116,105 @@ public class ProductSearchServiceImpl implements ProductSearchService {
 
     private ProductListResponse.ProductSummary convertPensionDTOToSummary(PensionProductDTO pension) {
         return ProductListResponse.ProductSummary.builder()
-            .finPrdtCd(pension.getFinPrdtCd())
-            .korCoNm(pension.getKorCoNm())
-            .finPrdtNm(pension.getFinPrdtNm())
-            // 연금 상품은 다른 방식으로 금리 정보 제공
-            .intrRate(pension.getDclsRate() != null ? pension.getDclsRate() : 0.0)
-            .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
-            // 저축 기간은 해당 없을 수 있음
-            .saveTrm(null)
-            .joinWay(pension.getJoinWay())
-            .build();
+                .finPrdtCd(pension.getFinPrdtCd())
+                .korCoNm(pension.getKorCoNm())
+                .finPrdtNm(pension.getFinPrdtNm())
+                // 연금 상품은 다른 방식으로 금리 정보 제공
+                .intrRate(pension.getDclsRate() != null ? pension.getDclsRate() : 0.0)
+                .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
+                // 저축 기간은 해당 없을 수 있음
+                .saveTrm(null)
+                .joinWay(pension.getJoinWay())
+                .build();
     }
 
     @Override
     public ProductListResponse searchProducts(ProductSearchRequest request) {
         String mappedProductType = mapCategoryName(request.getProductType());
-        List<ProductListResponse.ProductSummary> summaries = new ArrayList<>();
 
-        if("연금저축".equals(mappedProductType)){
+        // 페이징 기본값 설정
+        Integer pageSize = request.getPageSize() != null ? request.getPageSize() : 10;
+        Integer page = request.getPage() != null ? request.getPage() : 1;
+
+        if ("연금저축".equals(mappedProductType)) {
             List<PensionProductDTO> pensionProducts = pensionProductMapper.findPensionProducts(
                     request.getSearchText(),
                     request.getJoinWay(),
                     request.getMinIntrRate()
             );
 
-            summaries = pensionProducts.stream()
+            List<ProductListResponse.ProductSummary> summaries = pensionProducts.stream()
                     .map(this::convertPensionDTOToSummary)
                     .collect(Collectors.toList());
+
+            // 연금 상품은 메모리에서 페이징 처리
+            int totalCount = summaries.size();
+            int startIndex = (page - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, totalCount);
+
+            List<ProductListResponse.ProductSummary> pagedProducts =
+                    (startIndex < totalCount) ? summaries.subList(startIndex, endIndex) : new ArrayList<>();
+
+            return ProductListResponse.builder()
+                    .productType(request.getProductType())
+                    .products(pagedProducts)
+                    .totalCount(totalCount)
+                    .currentPage(page)
+                    .pageSize(pageSize)
+                    .totalPages((int) Math.ceil((double) totalCount / pageSize))
+                    .sortBy(request.getSortBy())
+                    .sortDirection(request.getSortDirection())
+                    .build();
+        } else {
+            // 페이징 처리를 위한 값 계산
+            Integer offset = (page - 1) * pageSize;
+
+            // depositAmount가 null일 경우 처리
+            Integer minAmount = request.getDepositAmount() != null ?
+                    request.getDepositAmount().intValue() : null;
+
+            // 데이터베이스에서 이미 페이징된 결과 가져오기
+            List<Map<String, Object>> products = financialProductMapper.findProducts(
+                    mappedProductType,
+                    request.getSearchText(),
+                    request.getMinIntrRate(),
+                    request.getSaveTrm(),
+                    request.getIntrRateType(),
+                    request.getJoinWay(),
+                    minAmount,
+                    request.getSortBy(),
+                    request.getSortDirection(),
+                    pageSize,
+                    offset
+            );
+
+            // 전체 상품 수 조회 (별도 쿼리)
+            int totalCount = financialProductMapper.countProducts(
+                    mappedProductType,
+                    request.getSearchText(),
+                    request.getMinIntrRate(),
+                    request.getSaveTrm(),
+                    request.getIntrRateType(),
+                    request.getJoinWay(),
+                    minAmount
+            );
+
+            List<ProductListResponse.ProductSummary> summaries = products.stream()
+                    .map(this::convertToProductSummary)
+                    .collect(Collectors.toList());
+
+            // 응답 구성 - 이미 페이징된 결과 사용
+            return ProductListResponse.builder()
+                    .productType(request.getProductType())
+                    .products(summaries)
+                    .totalCount(totalCount)
+                    .currentPage(page)
+                    .pageSize(pageSize)
+                    .totalPages((int) Math.ceil((double) totalCount / pageSize))
+                    .sortBy(request.getSortBy())
+                    .sortDirection(request.getSortDirection())
+                    .build();
         }
-        else {
-                // 예금/적금 상품은 기존 쿼리 사용
-                List<Map<String, Object>> products = financialProductMapper.findProducts(
-                        mappedProductType,
-                        request.getSearchText(),
-                        request.getMinIntrRate(),
-                        request.getSaveTrm(),
-                        request.getIntrRateType(),
-                        request.getJoinWay()
-                );
-
-                summaries = products.stream()
-                        .map(this::convertToProductSummary)
-                        .collect(Collectors.toList());
-            }
-
-        // 페이징 처리
-        int totalCount = summaries.size();
-        int pageSize = request.getPageSize();
-        int currentPage = request.getPage();
-        int startIndex = (currentPage - 1) * pageSize;
-        int endIndex = Math.min(startIndex + pageSize, totalCount);
-
-        List<ProductListResponse.ProductSummary> pagedProducts =
-                (startIndex < totalCount) ? summaries.subList(startIndex, endIndex) : new ArrayList<>();
-
-        // 응답 구성
-        return ProductListResponse.builder()
-                .productType(request.getProductType())
-                .products(pagedProducts)
-                .totalCount(totalCount)
-                .currentPage(currentPage)
-                .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalCount / pageSize))
-                .sortBy(request.getSortBy())
-                .sortDirection(request.getSortDirection())
-                .build();
     }
 
     // Map 객체를 ProductSummary로 변환하는 메서드
@@ -267,6 +314,134 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         }
 
         return suggestions;
+    }
+
+    /**
+     * 카테고리명을 카테고리 ID로 변환
+     */
+    private Long mapCategoryToId(String categoryName) {
+        switch (categoryName.toLowerCase()) {
+            case "deposit":
+                return 1L;  // 예금 카테고리 ID
+            case "saving":
+                return 1L;  // 적금도 예금 카테고리에 포함될 수 있음
+            case "pension":
+                return 5L;  // 연금 카테고리 ID
+            default:
+                return 1L;  // 기본값
+        }
+    }
+
+    @Override
+    public FilterOptionsResponse getFilterOptions(String category) {
+        // 카테고리 매핑 (API 입력값 -> DB 값)
+        String mappedCategory = mapCategoryName(category);
+
+        Long categoryId = mapCategoryToId(category);
+
+        // 필터 옵션 빌더 시작
+        FilterOptionsResponse.FilterOptionsResponseBuilder builder = FilterOptionsResponse.builder()
+                .productType(category);
+
+        // 카테고리별 필터 옵션 구성
+        switch (category.toLowerCase()) {
+            case "deposit":
+                // 예금 필터 옵션
+                List<Map<String, String>> depositInterestRateTypes = new ArrayList<>();
+                depositInterestRateTypes.add(createOption("S", "단리"));
+                depositInterestRateTypes.add(createOption("M", "복리"));
+
+                builder.interestRateTypes(depositInterestRateTypes)
+                        .saveTerms(Arrays.asList(1, 3, 6, 12, 24, 36))
+                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+
+                // 예치 금액 옵션
+                Map<String, Object> depositAmountOptions = new HashMap<>();
+                depositAmountOptions.put("min", 10000);
+                depositAmountOptions.put("max", 100000000);
+                depositAmountOptions.put("defaultValue", 100000);
+
+                builder.depositAmountOptions(depositAmountOptions);
+                break;
+
+            case "saving":
+                // 적금 필터 옵션 (예금과 유사)
+                List<Map<String, String>> savingInterestRateTypes = new ArrayList<>();
+                savingInterestRateTypes.add(createOption("S", "단리"));
+                savingInterestRateTypes.add(createOption("M", "복리"));
+
+                builder.interestRateTypes(savingInterestRateTypes)
+                        .saveTerms(Arrays.asList(6, 12, 24, 36))
+                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+
+                // 예치 금액 옵션
+                Map<String, Object> savingAmountOptions = new HashMap<>();
+                savingAmountOptions.put("min", 10000);
+                savingAmountOptions.put("max", 10000000);
+                savingAmountOptions.put("defaultValue", 100000);
+
+                builder.depositAmountOptions(savingAmountOptions);
+                break;
+
+            case "pension":
+                // 연금 유형 (DB에서 조회 또는 기본값 사용)
+                List<Map<String, String>> pensionTypes = pensionProductMapper.getDistinctPensionTypes(categoryId);
+                if (pensionTypes == null || pensionTypes.isEmpty()) {
+                    pensionTypes = new ArrayList<>();
+                    pensionTypes.add(createOption("personal", "개인연금"));
+                    pensionTypes.add(createOption("retirement", "퇴직연금"));
+                }
+                builder.pensionTypes(pensionTypes);
+
+                // 보장 수익률 (DB에서 조회 또는 기본값 사용)
+                List<Double> guaranteeRates = pensionProductMapper.getDistinctGuaranteeRates(categoryId);
+                if (guaranteeRates == null || guaranteeRates.isEmpty()) {
+                    guaranteeRates = Arrays.asList(2.0, 2.5, 3.0, 3.5);
+                }
+                builder.guaranteeRates(guaranteeRates);
+
+                // 납입 기간 (DB에서 조회 또는 기본값 사용)
+                List<Integer> paymentPeriods = pensionProductMapper.getDistinctPaymentPeriods(categoryId);
+                if (paymentPeriods == null || paymentPeriods.isEmpty()) {
+                    paymentPeriods = Arrays.asList(10, 15, 20, 30);
+                }
+                builder.saveTerms(paymentPeriods);
+
+                // 월 납입금 범위
+                Map<String, Object> monthlyPaymentOptions = new HashMap<>();
+                Integer minMonthlyPayment = pensionProductMapper.getMinMonthlyPayment(categoryId);
+                Integer maxMonthlyPayment = pensionProductMapper.getMaxMonthlyPayment(categoryId);
+
+                monthlyPaymentOptions.put("min", minMonthlyPayment != null ? minMonthlyPayment : 50000);
+                monthlyPaymentOptions.put("max", maxMonthlyPayment != null ? maxMonthlyPayment : 1000000);
+                monthlyPaymentOptions.put("defaultValue", minMonthlyPayment != null ? minMonthlyPayment : 100000);
+
+                builder.depositAmountOptions(monthlyPaymentOptions);
+
+                // 가입 방식
+                builder.joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+                break;
+
+            default:
+                // 기본 필터 옵션
+                builder.saveTerms(Arrays.asList(1, 3, 6, 12, 24, 36))
+                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+        }
+
+        // 하위 카테고리 정보 (가정: ProductCategoryService가 주입되어 있음)
+        // 이 부분은 실제 구현에서는 ProductCategoryService를 주입받아 사용해야 합니다.
+        // 현재는 예시로 빈 리스트를 설정합니다.
+        builder.subcategories(new ArrayList<>());
+
+        return builder.build();
+    }
+
+    // 옵션 생성 도우미 메서드
+    private Map<String, String> createOption(String code, String name) {
+        Map<String, String> option = new HashMap<>();
+        option.put("code", code);
+        option.put("name", name);
+        return option;
     }
 
 //    /**

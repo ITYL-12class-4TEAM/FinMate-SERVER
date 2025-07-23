@@ -1,6 +1,7 @@
 package org.scoula.products.service;
 
 import org.scoula.products.dto.request.ProductSearchRequest;
+import org.scoula.products.dto.response.FilterOptionsResponse;
 import org.scoula.products.dto.response.ProductDetailResponse;
 import org.scoula.products.dto.response.ProductListResponse;
 
@@ -25,7 +26,7 @@ public interface ProductSearchService {
      *
      * @param keyword 검색 키워드
      * @param filters 필터 맵 (카테고리, 금리 유형 등)
-     * @param pageNo 페이지 번호
+     * @param pageNo  페이지 번호
      * @return 검색 결과 목록
      */
     ProductListResponse searchProducts(String keyword, Map<String, String> filters, int pageNo);
@@ -35,7 +36,7 @@ public interface ProductSearchService {
      * 상품 ID로 상세 정보를 조회합니다.
      *
      * @param productType 상품 유형 (deposit, saving, pension)
-     * @param productId 상품 ID
+     * @param productId   상품 ID
      * @return 상품 상세 정보
      */
     ProductDetailResponse getProductDetail(String productType, String productId);
@@ -47,4 +48,12 @@ public interface ProductSearchService {
      * @return 자동완성 제안 목록
      */
     List<String> autocompleteProducts(String keyword);
+
+    /**
+     * 카테고리별 필터 옵션 조회
+     *
+     * @param category 카테고리 코드 (deposit, saving, pension 등)
+     * @return 필터 옵션 응답
+     */
+    FilterOptionsResponse getFilterOptions(String category);
 }

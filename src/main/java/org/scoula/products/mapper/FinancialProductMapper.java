@@ -12,19 +12,45 @@ import org.scoula.products.dto.response.pension.PensionProductDTO;
 import java.util.List;
 import java.util.Map;
 @Mapper
-// FinancialProductMapper.java
 public interface FinancialProductMapper {
+
+    /**
+     * 필터 조건에 맞는 금융 상품 목록 조회
+     */
     @MapKey("product_id")
     List<Map<String, Object>> findProducts(
-            @Param("productType") String productType,
-            @Param("keyword") String keyword,
+            @Param("categoryName") String categoryName,
+            @Param("searchText") String searchText,
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
-            @Param("joinWay") String joinWay);
+            @Param("joinWay") String joinWay,
+            @Param("minAmount") Integer minAmount,
+            @Param("sortBy") String sortBy,
+            @Param("sortDirection") String sortDirection,
+            @Param("limit") Integer limit,
+            @Param("offset") Integer offset);
 
+    /**
+     * 필터 조건에 맞는 금융 상품 총 개수 조회
+     */
+    int countProducts(
+            @Param("categoryName") String categoryName,
+            @Param("searchText") String searchText,
+            @Param("minIntrRate") Double minIntrRate,
+            @Param("saveTrm") Integer saveTrm,
+            @Param("intrRateType") String intrRateType,
+            @Param("joinWay") String joinWay,
+            @Param("minAmount") Integer minAmount);
+
+    /**
+     * 검색어에 맞는 상품명 자동완성 목록 조회
+     */
     List<String> findProductNamesByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 상품 ID로 상세 정보 조회
+     */
+    @MapKey("product_id")
+    Map<String, Object> findProductDetail(@Param("productId") String productId);
 }
-
-
-
