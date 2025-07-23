@@ -45,6 +45,9 @@ public class SignupService {
         if (!dto.getPassword().equals(dto.getPasswordCheck())) {
             return new SignupResponseDTO(false, "비밀번호가 일치하지 않습니다.");
         }
+        if (!Boolean.TRUE.equals(dto.getTermsRequired1()) || !Boolean.TRUE.equals(dto.getTermsRequired2())) {
+            return new SignupResponseDTO(false, "필수 약관에 동의해 주세요.");
+        }
         if (dto.getUsername() == null || dto.getUsername().isEmpty() ||
                 dto.getPassword() == null || dto.getPassword().isEmpty() ||
                 dto.getPasswordCheck() == null || dto.getPasswordCheck().isEmpty() ||
