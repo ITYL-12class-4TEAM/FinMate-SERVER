@@ -1,4 +1,4 @@
-package org.scoula.community.board.mapper;
+package org.scoula.community.board.handler;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;

@@ -32,7 +32,10 @@ import javax.sql.DataSource;
         "org.scoula.common.config"
 })
 //@PropertySource("file:${config.location}/application.properties")
-@MapperScan(basePackages = {"org.scoula.community.board.mapper"}) // Mapper 인터페이스 스캔 설정
+@MapperScan(basePackages = {
+        "org.scoula.community.board.mapper",
+        "org.scoula.community.post.mapper"
+}) // Mapper 인터페이스 스캔 설정
 public class RootConfig {
 
   @Value("${jdbc.driver}")

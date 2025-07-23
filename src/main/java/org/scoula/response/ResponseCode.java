@@ -14,6 +14,20 @@ public enum ResponseCode {
     BOARD_CREATE_SUCCESS(HttpStatus.OK, "게시판이 생성되었습니다"),
     BOARD_LIST_SUCCESS(HttpStatus.OK, "게시판 목록 조회 성공"),
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시판을 찾을 수 없습니다"),
+
+    /**
+     * Community - Post
+     */
+    POST_CREATE_SUCCESS(HttpStatus.OK, "게시글이 생성되었습니다"),
+    POST_LIST_SUCCESS(HttpStatus.OK, "게시글 목록 조회가 성공되었습니다"),
+    POST_DETAILS_SUCCESS(HttpStatus.OK, "게시글 상세 정보 조회가 성공되었습니다"),
+    POST_UPDATE_SUCCESS(HttpStatus.OK, "게시글 수정 성공되었습니다"),
+    POST_DELETE_SUCCESS(HttpStatus.OK, "게시글 삭제가 성공되었습니다"),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다"),
+
+    ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "첨부파일을 찾을 수 없습니다"),
+    FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
+
     /**
      *  ChatBot response
      */

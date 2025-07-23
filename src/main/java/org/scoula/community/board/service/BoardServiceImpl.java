@@ -22,8 +22,8 @@ public class BoardServiceImpl implements BoardService {
     public BoardDTO create(BoardDTO boardDTO) {
         BoardVO vo = boardDTO.toVo();
         boardMapper.create(vo);
-        boardDTO.setNo(vo.getNo());
-        return get(vo.getNo());
+        boardDTO.setBoardId(vo.getBoardId());
+        return get(vo.getBoardId());
     }
 
     @Override

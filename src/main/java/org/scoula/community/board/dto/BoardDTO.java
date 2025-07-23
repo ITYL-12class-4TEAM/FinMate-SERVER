@@ -15,18 +15,18 @@ import org.scoula.community.board.domain.BoardVO;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BoardDTO {
-    private Long no;
+    private Long boardId;
     private String title;
-    private String writer;
+    private Long memberId;
     private String boardType;
     private Date createdAt;
 
     public static BoardDTO of(BoardVO vo) {
         System.out.println("vo.getType() = " + vo.getType());
         return vo == null ? null : BoardDTO.builder()
-                .no(vo.getNo())
+                .boardId(vo.getBoardId())
                 .title(vo.getTitle())
-                .writer(vo.getWriter())
+                .memberId(vo.getMemberId())
                 .boardType(vo.getType() != null ? vo.getType().getCode() : BoardType.자유게시판.getCode())  // 기본값 설정
                 .createdAt(vo.getCreatedAt())
                 .build();
@@ -36,9 +36,9 @@ public class BoardDTO {
         BoardType boardTypeEnum = BoardType.fromCode(boardType);
         System.out.println("boardTypeEnum = " + boardTypeEnum);
         return BoardVO.builder()
-                .no(no)
+                .boardId(boardId)
                 .title(title)
-                .writer(writer)
+                .memberId(memberId)
                 .type(boardTypeEnum)
                 .createdAt(createdAt)
                 .build();

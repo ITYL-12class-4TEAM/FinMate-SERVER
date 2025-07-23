@@ -13,6 +13,7 @@
         <package name="org.scoula.security.account.domain"/>
     </typeAliases>
     <typeHandlers>
-        <typeHandler handler="org.scoula.community.board.mapper.BoardTypeHandler" />
+        <typeHandler handler="org.scoula.community.board.handler.BoardTypeHandler" />
+        <typeHandler handler="org.scoula.community.post.handler.PostStatusTypeHandler"/>
     </typeHandlers>
 </configuration>

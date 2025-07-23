@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BoardVO {
 
-    private Long no;
+    private Long boardId;
     private String title;
-    private String writer; // Member로 연관관계
+    private Long memberId; // Member로 연관관계
     private BoardType type;
     private Date createdAt;
     private Date updatedAt;

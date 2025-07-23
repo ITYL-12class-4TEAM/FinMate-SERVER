@@ -21,7 +21,9 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.chatbot.controller",
         "org.scoula.chatbot.session",
         "org.scoula.community.board.service",
-        "org.scoula.community.board.controller"
+        "org.scoula.community.board.controller",
+        "org.scoula.community.post.service",
+        "org.scoula.community.post.controller",
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
 public class ServletConfig implements WebMvcConfigurer {
 

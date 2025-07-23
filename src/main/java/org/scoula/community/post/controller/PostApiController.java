@@ -1,0 +1,63 @@
+package org.scoula.community.post.controller;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.scoula.community.post.dto.PostCreateRequestDTO;
+import org.scoula.community.post.dto.PostDetailsResponseDTO;
+import org.scoula.community.post.dto.PostListResponseDTO;
+import org.scoula.community.post.dto.PostUpdateRequestDTO;
+import org.scoula.community.post.exception.PostNotFoundException;
+import org.scoula.community.post.service.PostService;
+import org.scoula.response.ApiResponse;
+import org.scoula.response.ResponseCode;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/posts")
+@RequiredArgsConstructor
+@Log4j2
+@Api(tags = "게시글 API")
+public class PostApiController {
+
+    private final PostService postService;
+
+    @ApiOperation(value = "게시글 리스트 조회", notes = "등록된 모든 게시글을 최신 등록일 기준으로 내림차순 조회합니다.")
+    @GetMapping("")
+    public ApiResponse<List<PostListResponseDTO>> getList() {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getList());
+    }
+
+    @ApiOperation(value = "게시글 단건 조회", notes = "postId에 해당하는 게시글 상세 정보를 반환합니다.")
+    @GetMapping("/{postId}")
+    public ApiResponse<PostDetailsResponseDTO> get(@PathVariable Long postId) {
+        return ApiResponse.success(ResponseCode.POST_DETAILS_SUCCESS, postService.get(postId));
+    }
+
+    @ApiOperation(value = "게시글 생성", notes = "새 게시글을 등록합니다.")
+    @PostMapping("")
+    public ApiResponse<PostDetailsResponseDTO> create(
+            @RequestBody PostCreateRequestDTO postCreateRequestDTO) {
+        PostDetailsResponseDTO created = postService.create(postCreateRequestDTO);
+        return ApiResponse.success(ResponseCode.POST_CREATE_SUCCESS, created);
+    }
+
+    @ApiOperation(value = "게시글 수정", notes = "기존 게시글을 수정합니다.")
+    @PutMapping("/{postId}")
+    public ApiResponse<PostDetailsResponseDTO> update(
+            @PathVariable Long postId,
+            @RequestBody PostUpdateRequestDTO postUpdateRequestDTO) {
+        postUpdateRequestDTO.setPostId(postId);
+        PostDetailsResponseDTO updated = postService.update(postUpdateRequestDTO);
+        return ApiResponse.success(ResponseCode.POST_UPDATE_SUCCESS, updated);
+    }
+
+    @ApiOperation(value = "게시글 삭제", notes = "postId에 해당하는 게시글을 삭제합니다.")
+    @DeleteMapping("/{postId}")
+    public ApiResponse<Void> delete(@PathVariable Long postId) {
+        postService.delete(postId);
+        return ApiResponse.success(ResponseCode.POST_DELETE_SUCCESS);
+    }
+}
