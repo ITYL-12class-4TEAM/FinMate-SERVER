@@ -16,12 +16,24 @@ public class SignupService {
     private final MemberMapper memberMapper;
 
 
-    private boolean isValidPassword(String password) {
+    public boolean isValidPassword(String password) {
         // 8자 이상, 영문/숫자/특수문자 각각 1개 이상
         String pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-]).{8,}$";
         return password != null && password.matches(pattern);
     }
-
+    public SignupResponseDTO updateProfile(Long memberId, String nickname, Boolean receivePushNotification) {
+        MemberVO member = MemberVO.builder()
+                .memberId(memberId)
+                .nickname(nickname)
+                .receivePushNotification(Boolean.TRUE.equals(receivePushNotification))
+                .build();
+        int updated = memberMapper.updateProfile(member);
+        if (updated > 0) {
+            return new SignupResponseDTO(true, "회원정보가 수정되었습니다.");
+        } else {
+            return new SignupResponseDTO(false, "회원정보 수정에 실패했습니다.");
+        }
+    }
     public SignupResponseDTO register(RegisterDTO dto) {
         Date birthDate = null;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -44,6 +56,9 @@ public class SignupService {
         // 비밀번호 확인
         if (!dto.getPassword().equals(dto.getPasswordCheck())) {
             return new SignupResponseDTO(false, "비밀번호가 일치하지 않습니다.");
+        }
+        if (!Boolean.TRUE.equals(dto.getTermsRequired1()) || !Boolean.TRUE.equals(dto.getTermsRequired2())) {
+            return new SignupResponseDTO(false, "필수 약관에 동의해 주세요.");
         }
         if (dto.getUsername() == null || dto.getUsername().isEmpty() ||
                 dto.getPassword() == null || dto.getPassword().isEmpty() ||

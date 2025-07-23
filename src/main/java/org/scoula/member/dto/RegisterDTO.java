@@ -12,6 +12,8 @@ public class RegisterDTO {
     private String phoneNumber;//"-제외
     private String birthDate; // "yyyy-MM-dd"
     private String gender;
+    private Boolean termsRequired1;
+    private Boolean termsRequired2;
     private String receive_push_notification;
 
 
