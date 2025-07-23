@@ -29,9 +29,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponseDTO get(Long postId) {
+    public CommentResponseDTO get(Long commentId) {
         log.info("get..........");
-        CommentVO comment = commentMapper.get(postId);
+        CommentVO comment = commentMapper.get(commentId);
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
