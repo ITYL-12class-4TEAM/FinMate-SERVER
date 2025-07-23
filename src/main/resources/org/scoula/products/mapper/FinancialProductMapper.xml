@@ -3,28 +3,37 @@
 <mapper namespace="org.scoula.products.mapper.FinancialProductMapper">
 
     <!-- 상품 목록 조회 -->
-    <select id="findProducts" resultType="map">
-        SELECT fp.*, c.name as category_name, do.intr_rate, do.intr_rate2, do.save_trm
+    <select id="findProducts" resultType="java.util.HashMap">
+        SELECT
+        fp.fin_prdt_cd as "fin_prdt_cd",
+        fp.kor_co_nm as "kor_co_nm",
+        fp.product_name as "product_name",
+        c.name as "category_name",
+        CAST(do.intr_rate AS CHAR) as "intr_rate",
+        CAST(do.intr_rate2 AS CHAR) as "intr_rate2",
+        CAST(do.save_trm AS CHAR) as "save_trm",
+        fp.external_link as "join_way"
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
         JOIN deposit_product dp ON fp.product_id = dp.product_id
         JOIN deposit_option do ON dp.product_id = do.product_id
-        WHERE c.name = #{productType}
-        <if test="keyword != null and keyword != ''">
-            AND (fp.product_name LIKE CONCAT('%', #{keyword}, '%')
-                OR fp.kor_co_nm LIKE CONCAT('%', #{keyword}, '%'))
+        WHERE c.name = #{param1}
+        <!-- 나머지 조건 -->
+        <if test="param2 != null and param2 != ''">
+            AND (fp.product_name LIKE CONCAT('%', #{param2}, '%')
+            OR fp.kor_co_nm LIKE CONCAT('%', #{param2}, '%'))
         </if>
-        <if test="minIntrRate != null">
-            AND do.intr_rate >= #{minIntrRate}
+        <if test="param3 != null">
+            AND do.intr_rate >= #{param3}
         </if>
-        <if test="saveTrm != null">
-            AND do.save_trm = #{saveTrm}
+        <if test="param4 != null">
+            AND do.save_trm = #{param4}
         </if>
-        <if test="intrRateType != null and intrRateType != ''">
-            AND do.intr_rate_type = #{intrRateType}
+        <if test="param5 != null and param5 != ''">
+            AND do.intr_rate_type = #{param5}
         </if>
-        <if test="joinWay != null and joinWay != ''">
-            AND dp.join_way LIKE CONCAT('%', #{joinWay}, '%')
+        <if test="param6 != null and param6 != ''">
+            AND fp.join_way LIKE CONCAT('%', #{param6}, '%')
         </if>
     </select>
 

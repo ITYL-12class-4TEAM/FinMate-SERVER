@@ -76,6 +76,12 @@ public class PensionProductDTO {
     @JsonProperty("dcls_end_day")
     private String dclsEndDay;
 
+    @JsonProperty("dcls_rate")
+    private Double dclsRate;  // 공시 금리
+
+    @JsonProperty("guar_rate")
+    private Double guarRate;  // 보장 금리
+
     // 금리 정보 목록
     @JsonProperty("options")
     private List<PensionOptionDTO> options;

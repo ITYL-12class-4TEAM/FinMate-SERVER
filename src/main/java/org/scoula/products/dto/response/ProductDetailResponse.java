@@ -64,9 +64,9 @@ public class ProductDetailResponse {
         // 최고 금리 계산 (옵션 중 가장 높은 금리)
         this.maxIntrRate = deposit.getOptions().stream()
                 .mapToDouble(option ->
-                    option.getIntrRate2() != null && option.getIntrRate2() > 0
-                        ? option.getIntrRate2()
-                        : option.getIntrRate())
+                        option.getIntrRate2() != null && option.getIntrRate2() > 0
+                                ? option.getIntrRate2()
+                                : option.getIntrRate())
                 .max()
                 .orElse(0.0);
     }
@@ -88,9 +88,9 @@ public class ProductDetailResponse {
         // 최고 금리 계산 (옵션 중 가장 높은 금리)
         this.maxIntrRate = saving.getOptions().stream()
                 .mapToDouble(option ->
-                    option.getIntrRate2() != null && option.getIntrRate2() > 0
-                        ? option.getIntrRate2()
-                        : option.getIntrRate())
+                        option.getIntrRate2() != null && option.getIntrRate2() > 0
+                                ? option.getIntrRate2()
+                                : option.getIntrRate())
                 .max()
                 .orElse(0.0);
     }
@@ -109,14 +109,16 @@ public class ProductDetailResponse {
         this.joinMember = ""; // 연금 상품은 이 필드가 없을 수 있음
         this.spclCnd = ""; // 연금 상품은 이 필드가 없을 수 있음
 
-        // 최고 금리 계산 (옵션 중 가장 높은 금리)
-        this.maxIntrRate = pension.getOptions().stream()
-                .mapToDouble(option ->
-                    option.getIntrRate2() != null && option.getIntrRate2() > 0
-                        ? option.getIntrRate2()
-                        : option.getIntrRate())
-                .max()
-                .orElse(0.0);
+        // 연금 수령액 기준 계산
+        if (pension.getOptions() != null && !pension.getOptions().isEmpty()) {
+            // 연금 수령액 기준으로 가장 높은 값 사용
+            this.maxIntrRate = pension.getOptions().stream()
+                    .mapToDouble(option -> option.getPnsnRecpAmt() / 1000000.0) // 백만 원당 비율 예시
+                    .max()
+                    .orElse(0.0);
+        } else {
+            this.maxIntrRate = 0.0;
+        }
     }
 
     /**

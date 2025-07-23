@@ -43,7 +43,7 @@ public class ProductDataConverter {
 
             // 3. 각 상품에 해당하는 옵션 목록 설정
             products.forEach(product ->
-                product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
+                    product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
             );
         }
 
@@ -72,7 +72,7 @@ public class ProductDataConverter {
 
             // 3. 각 상품에 해당하는 옵션 목록 설정
             products.forEach(product ->
-                product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
+                    product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
             );
         }
 
@@ -101,7 +101,7 @@ public class ProductDataConverter {
 
             // 3. 각 상품에 해당하는 옵션 목록 설정
             products.forEach(product ->
-                product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
+                    product.setOptions(optionsByProductCode.getOrDefault(product.getFinPrdtCd(), new ArrayList<>()))
             );
         }
 
@@ -212,11 +212,23 @@ public class ProductDataConverter {
     private PensionOptionDTO convertToPensionOption(Map<String, Object> map) {
         return PensionOptionDTO.builder()
                 .finPrdtCd(getStringValue(map, "fin_prdt_cd"))
-                .saveTrm(getIntegerValue(map, "save_trm"))
-                .intrRateType(getStringValue(map, "intr_rate_type"))
-                .intrRateTypeNm(getStringValue(map, "intr_rate_type_nm"))
-                .intrRate(getDoubleValue(map, "intr_rate"))
-                .intrRate2(getDoubleValue(map, "intr_rate2"))
+                // 연금 수령 기간 관련 필드
+                .pnsnRecpTrm(getStringValue(map, "pnsn_recp_trm"))
+                .pnsnRecpTrmNm(getStringValue(map, "pnsn_recp_trm_nm"))
+                // 연금 가입 나이 관련 필드
+                .pnsnEntrAge(getIntegerValue(map, "pnsn_entr_age"))
+                .pnsnEntrAgeNm(getStringValue(map, "pnsn_entr_age_nm"))
+                // 월 납입액 관련 필드
+                .monPaymAtm(getIntegerValue(map, "mon_paym_atm"))
+                .monPaymAtmNm(getStringValue(map, "mon_paym_atm_nm"))
+                // 납입 기간 관련 필드
+                .paymPrd(getIntegerValue(map, "paym_prd"))
+                .paymPrdNm(getStringValue(map, "paym_prd_nm"))
+                // 연금 시작 나이 관련 필드
+                .pnsnStrtAge(getIntegerValue(map, "pnsn_strt_age"))
+                .pnsnStrtAgeNm(getStringValue(map, "pnsn_strt_age_nm"))
+                // 연금 수령액
+                .pnsnRecpAmt(getLongValue(map, "pnsn_recp_amt"))
                 .build();
     }
 

@@ -6,10 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 연금저축 상품 옵션(금리) 정보 DTO
- * 금융감독원 금융상품 한눈에 API 기준으로 구성
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,33 +16,72 @@ public class PensionOptionDTO {
     @JsonProperty("fin_prdt_cd")
     private String finPrdtCd;
 
-    // 저축 기간 (단위: 개월)
-    @JsonProperty("save_trm")
-    private Integer saveTrm;
+    // 연금 수령 기간
+    @JsonProperty("pnsn_recp_trm")
+    private String pnsnRecpTrm;
 
-    // 저축 금리 유형 (단리/복리)
-    @JsonProperty("intr_rate_type")
-    private String intrRateType;
+    // 연금 수령 기간명
+    @JsonProperty("pnsn_recp_trm_nm")
+    private String pnsnRecpTrmNm;
 
-    // 저축 금리 유형명
-    @JsonProperty("intr_rate_type_nm")
-    private String intrRateTypeNm;
+    // 연금 가입 나이
+    @JsonProperty("pnsn_entr_age")
+    private Integer pnsnEntrAge;
 
-    // 저축 기본 금리
-    @JsonProperty("intr_rate")
-    private Double intrRate;
+    // 연금 가입 나이명
+    @JsonProperty("pnsn_entr_age_nm")
+    private String pnsnEntrAgeNm;
 
-    // 저축 최고 우대 금리
-    @JsonProperty("intr_rate2")
-    private Double intrRate2;
+    // 월 납입액
+    @JsonProperty("mon_paym_atm")
+    private Integer monPaymAtm;
 
-    // 편의를 위한 메서드: 금리 유형이 단리인지 확인
-    public boolean isSingleRate() {
-        return "S".equals(intrRateType);
-    }
+    // 월 납입액명
+    @JsonProperty("mon_paym_atm_nm")
+    private String monPaymAtmNm;
 
-    // 편의를 위한 메서드: 금리 유형이 복리인지 확인
-    public boolean isCompoundRate() {
-        return "M".equals(intrRateType);
-    }
+    // 납입 기간
+    @JsonProperty("paym_prd")
+    private Integer paymPrd;
+
+    // 납입 기간명
+    @JsonProperty("paym_prd_nm")
+    private String paymPrdNm;
+
+    // 연금 시작 나이
+    @JsonProperty("pnsn_strt_age")
+    private Integer pnsnStrtAge;
+
+    // 연금 시작 나이명
+    @JsonProperty("pnsn_strt_age_nm")
+    private String pnsnStrtAgeNm;
+
+    // 연금 수령액
+    @JsonProperty("pnsn_recp_amt")
+    private Long pnsnRecpAmt;
+
+    // 아래 필드들은 제거하거나 주석 처리
+    // @JsonProperty("save_trm")
+    // private Integer saveTrm;
+
+    // @JsonProperty("intr_rate_type")
+    // private String intrRateType;
+
+    // @JsonProperty("intr_rate_type_nm")
+    // private String intrRateTypeNm;
+
+    // @JsonProperty("intr_rate")
+    // private Double intrRate;
+
+    // @JsonProperty("intr_rate2")
+    // private Double intrRate2;
+
+    // 편의 메서드도 필요에 따라 수정/제거
+    // public boolean isSingleRate() {
+    //     return "S".equals(intrRateType);
+    // }
+
+    // public boolean isCompoundRate() {
+    //     return "M".equals(intrRateType);
+    // }
 }

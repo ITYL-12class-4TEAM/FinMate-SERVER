@@ -101,24 +101,51 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         }
     }
 
+    private ProductListResponse.ProductSummary convertPensionDTOToSummary(PensionProductDTO pension) {
+        return ProductListResponse.ProductSummary.builder()
+            .finPrdtCd(pension.getFinPrdtCd())
+            .korCoNm(pension.getKorCoNm())
+            .finPrdtNm(pension.getFinPrdtNm())
+            // 연금 상품은 다른 방식으로 금리 정보 제공
+            .intrRate(pension.getDclsRate() != null ? pension.getDclsRate() : 0.0)
+            .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
+            // 저축 기간은 해당 없을 수 있음
+            .saveTrm(null)
+            .joinWay(pension.getJoinWay())
+            .build();
+    }
+
     @Override
     public ProductListResponse searchProducts(ProductSearchRequest request) {
         String mappedProductType = mapCategoryName(request.getProductType());
+        List<ProductListResponse.ProductSummary> summaries = new ArrayList<>();
 
-        // DB에서 상품 목록 조회
-        List<Map<String, Object>> products = financialProductMapper.findProducts(
-                mappedProductType,
-                request.getSearchText(),
-                request.getMinIntrRate(),
-                request.getSaveTrm(),
-                request.getIntrRateType(),
-                request.getJoinWay()
-        );
+        if("연금저축".equals(mappedProductType)){
+            List<PensionProductDTO> pensionProducts = pensionProductMapper.findPensionProducts(
+                    request.getSearchText(),
+                    request.getJoinWay(),
+                    request.getMinIntrRate()
+            );
 
-        // Map 객체를 ProductSummary로 변환
-        List<ProductListResponse.ProductSummary> summaries = products.stream()
-                .map(this::convertToProductSummary)
-                .collect(Collectors.toList());
+            summaries = pensionProducts.stream()
+                    .map(this::convertPensionDTOToSummary)
+                    .collect(Collectors.toList());
+        }
+        else {
+                // 예금/적금 상품은 기존 쿼리 사용
+                List<Map<String, Object>> products = financialProductMapper.findProducts(
+                        mappedProductType,
+                        request.getSearchText(),
+                        request.getMinIntrRate(),
+                        request.getSaveTrm(),
+                        request.getIntrRateType(),
+                        request.getJoinWay()
+                );
+
+                summaries = products.stream()
+                        .map(this::convertToProductSummary)
+                        .collect(Collectors.toList());
+            }
 
         // 페이징 처리
         int totalCount = summaries.size();
