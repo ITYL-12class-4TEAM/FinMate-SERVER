@@ -5,6 +5,7 @@ import org.scoula.mypage.dto.FavoriteProductDto;
 import org.scoula.mypage.dto.FavoriteRequestDTO;
 import org.scoula.mypage.service.FavoriteProductService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +20,17 @@ public class WishlistApiController {
     // 관심상품 등록
     @PostMapping
     public ResponseEntity<Void> addFavorite(@RequestBody FavoriteRequestDTO request) {
-        favoriteProductService.addFavorite(request.getMemberId(), request.getProductId());
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        favoriteProductService.addFavorite(memberId, request.getProductId());
         return ResponseEntity.ok().build();
     }
 
     // 관심상품 삭제
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> removeFavorite(@PathVariable Long productId, @RequestParam Long memberId) {
+    public ResponseEntity<Void> removeFavorite(@PathVariable Long productId) {
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         favoriteProductService.removeFavorite(memberId, productId);
         return ResponseEntity.ok().build();
     }
@@ -33,13 +38,16 @@ public class WishlistApiController {
 
     // 관심상품 목록 조회
     @GetMapping
-    public ResponseEntity<List<FavoriteProductDto>> getFavorites(@RequestParam Long memberId) {
+    public ResponseEntity<List<FavoriteProductDto>> getFavorites() {
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         return ResponseEntity.ok(favoriteProductService.getFavorites(memberId));
     }
 
     // 관심상품 여부 확인
     @GetMapping("/status/{productId}")
-    public ResponseEntity<Boolean> checkFavorite(@RequestParam Long memberId, @PathVariable Long productId) {
+    public ResponseEntity<Boolean> checkFavorite(@PathVariable Long productId) {
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(favoriteProductService.isFavorite(memberId, productId));
     }
 }

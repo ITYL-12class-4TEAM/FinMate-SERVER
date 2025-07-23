@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/security/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/security/filter/JwtAuthenticationFilter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,7 +291,7 @@
       <workItem from="1753143480356" duration="7305000" />
       <workItem from="1753165612290" duration="8174000" />
       <workItem from="1753177905165" duration="761000" />
-      <workItem from="1753230755859" duration="3909000" />
+      <workItem from="1753230755859" duration="7038000" />
     </task>
     <servers />
   </component>
