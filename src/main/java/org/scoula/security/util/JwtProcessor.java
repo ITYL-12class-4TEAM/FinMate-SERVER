@@ -35,13 +35,25 @@ public class JwtProcessor {
         log.info("[JWT] Secret Key 초기화 완료, length = {}", secretKeyRaw.length());
     }
 
-    public String generateAccessToken(String subject) {
+    // 토큰 생성
+    public String generateAccessToken(Long memberId, String username) {
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject(username)
+                .claim("memberId", memberId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_MILLIS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    // 토큰에서 memberId 추출
+    public Long getMemberId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("memberId", Long.class);
     }
 
     public String generateRefreshToken(String subject) {
@@ -62,6 +74,8 @@ public class JwtProcessor {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+
 
 
     public String getUsername(String token) {

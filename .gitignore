@@ -45,6 +45,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/.idea/dbnavigator.xml
+/.idea/encodings.xml
+/.idea/uiDesigner.xml
+/.idea/gradle.xml
+/.idea/vcs.xml
 
 
 apache-tomcat*/

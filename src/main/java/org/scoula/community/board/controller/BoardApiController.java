@@ -22,18 +22,16 @@ public class BoardApiController {
     private final BoardService service;
 
     @ApiOperation(
-            value = "게시글 리스트 조회",
-            notes = "등록된 모든 게시글을 최신 등록일 기준으로 내림차순 조회합니다. " +
-                    "게시글 번호, 제목, 작성자, 게시판 타입 등의 기본 정보를 포함합니다."
-    )
+            value = "게시판 리스트 조회",
+            notes = "등록된 모든 게시판을 조회합니다. ")
     @GetMapping("")
     public ApiResponse<List<BoardDTO>> getList() {
         return ApiResponse.success(ResponseCode.BOARD_LIST_SUCCESS, service.getList());
     }
 
     @ApiOperation(
-            value = "게시글 생성",
-            notes = "요청 바디에 게시글 정보를 JSON 형식으로 전달하여 새로운 게시글을 생성합니다. " +
+            value = "게시판 생성",
+            notes = "요청 바디에 게시판 정보를 JSON 형식으로 전달하여 새로운 게시글을 생성합니다. " +
                     "필수 필드는 제목(title), 작성자(writer), 게시판 타입(boardType)이며, " +
                     "게시판 타입은 'FREE', 'HOT', 'NOTICE', 'CUSTOM' 중 하나여야 합니다. " +
                     "성공 시 생성된 게시글 정보를 반환합니다."

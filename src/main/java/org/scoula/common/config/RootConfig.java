@@ -34,8 +34,9 @@ import javax.sql.DataSource;
 })
 //@PropertySource("file:${config.location}/application.properties")
 @MapperScan(basePackages = {
-        "org.scoula.member.mapper",
-        "org.scoula.community.board.mapper"
+        "org.scoula.community.board.mapper",
+        "org.scoula.community.post.mapper"
+        "org.scoula.member.mapper"
 })
 public class RootConfig {
 
