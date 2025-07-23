@@ -5,66 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Gradle___org_scoula___FinMate_SERVER_1_0_SNAPSHOT_war.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Gradle___org_scoula___FinMate_SERVER_1_0_SNAPSHOT_war__exploded_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12/storage_v2/_src_/schema/finmate.kJUpzQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatbot/controller/ChatBotApiController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatbot/session/ChatSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatbot/session/ChatSessionManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatbot/session/SessionCleanupScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/controller/ChatGptController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/gpt/ChatCompletionChoice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/gpt/ChatCompletionRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/gpt/ChatCompletionResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/gpt/ChatMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/gpt/Usage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/dto/product/FinancialProductGptRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/exception/ChatGptDeserializationException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/exception/ChatGptExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/exception/ChatGptJsonParsingException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/exception/ChatGptRequestParsingException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/exception/ChatGptRetrievalException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/service/ChatGptService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/chatgpt/util/ChatGptUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/ChatGptConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/exception/BaseException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/util/UploadFileName.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/util/UploadFiles.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/controller/BoardApiController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/domain/BoardType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/domain/BoardVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/dto/BoardDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/mapper/BoardMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/mapper/BoardTypeHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/service/BoardService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/community/board/service/BoardServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/product/DepositProductFetcher.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/product/EtcNoteParsedResult.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/product/PensionProductFetcher.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/product/SavingProductFetcher.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ApiBody.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ApiHeader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ApiResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ErrorResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ResponseCode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/community/board/mapper/BoardMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Gradle___org_scoula___FinMate_SERVER_1_0_SNAPSHOT_war.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Gradle___org_scoula___FinMate_SERVER_1_0_SNAPSHOT_war__exploded_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/ServletConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/ServletConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/controller/TestController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/exception/CommonExceptionAdvice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/exception/CommonExceptionAdvice.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/scoula/config/RootConfigTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/scoula/persistence/JDBCTests.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/scoula/security/PasswordEncoderTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/scoula/security/account/mapper/UserDetailsMapperTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/scoula/security/util/JwtProcessorTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/product/DepositProductFetcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/product/DepositProductFetcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/security/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/security/config/SecurityConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,13 +42,7 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="FinMate-SERVER" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="FinMate-SERVER" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
+                <item name="실행 구성" type="7b0102dc:RunConfigurationsNode" />
               </path>
             </expand>
             <select />
@@ -134,6 +78,9 @@
     <option name="FILTER_DEBUG" value="true" />
     <option name="CUSTOM_FILTER" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -152,7 +99,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Tomcat 서버.Tomcat 9.0.105.executor": "Run",
-    "git-widget-placeholder": "feature/login 병합 중",
+    "git-widget-placeholder": "feature/mypage",
     "grid.search.filter.rows": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy",
@@ -161,7 +108,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -172,6 +119,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula\mypage\mapper" />
       <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula\mapper" />
       <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula\product" />
       <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula" />
@@ -180,7 +128,7 @@
       <recent name="org.scoula.product" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.FinMate-SERVER [build]">
+  <component name="RunManager" selected="Tomcat 서버.Tomcat 9.0.105">
     <configuration name="DepositFetcherRunner" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.scoula.product.DepositFetcherRunner" />
       <module name="FinMate-SERVER.main" />
@@ -217,6 +165,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Tomcat 9.0.105" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 9.0.105" ALTERNATIVE_JRE_ENABLED="false" nameIsGenerated="true">
+      <option name="COMMON_VM_ARGUMENTS" value="-Dconfig.location=/$PROJECT_DIR$/server-submodule" />
       <option name="UPDATING_POLICY" value="restart-server" />
       <deployment>
         <artifact name="Gradle : org.scoula : FinMate-SERVER-1.0-SNAPSHOT.war">
@@ -303,6 +252,11 @@
         </option>
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Gradle.FinMate-SERVER [build]" />
+      <item itemvalue="Tomcat 서버.Tomcat 9.0.105" />
+      <item itemvalue="애플리케이션.DepositFetcherRunner" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.FinMate-SERVER [build]" />
@@ -341,6 +295,9 @@
       <workItem from="1753071649411" duration="14470000" />
       <workItem from="1753095985378" duration="5000" />
       <workItem from="1753143480356" duration="7305000" />
+      <workItem from="1753165612290" duration="8174000" />
+      <workItem from="1753177905165" duration="761000" />
+      <workItem from="1753230755859" duration="1993000" />
     </task>
     <servers />
   </component>
@@ -350,5 +307,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API" />
     <option name="LAST_COMMIT_MESSAGE" value="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

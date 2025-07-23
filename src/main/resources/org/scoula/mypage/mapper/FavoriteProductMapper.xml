@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.mypage.mapper.FavoriteProductMapper">
+
+    <insert id="insertFavorite">
+        INSERT IGNORE INTO favorite_product (member_id, product_id)
+        VALUES (#{memberId}, #{productId})
+    </insert>
+
+    <delete id="deleteFavorite">
+        DELETE FROM favorite_product
+        WHERE member_id = #{memberId}
+          AND product_id = #{productId}
+    </delete>
+
+    <select id="selectFavoritesByMemberId" resultType="org.scoula.mypage.dto.FavoriteProductDto">
+        SELECT
+            fp.product_id AS productId,
+            p.product_name AS productName,
+            p.kor_co_nm AS korCoNm,
+            p.risk_level AS riskLevel,
+            p.external_link AS externalLink,
+            p.wishlist_count AS wishlistCount
+        FROM favorite_product fp
+                 JOIN financial_product p ON fp.product_id = p.product_id
+        WHERE fp.member_id = #{memberId}
+    </select>
+
+    <select id="existsByMemberIdAndProductId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM favorite_product
+            WHERE member_id = #{memberId}
+              AND product_id = #{productId}
+        )
+    </select>
+
+</mapper>

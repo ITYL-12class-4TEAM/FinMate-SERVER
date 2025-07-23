@@ -30,12 +30,14 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = {
         "org.scoula.chatgpt.util",
         "org.scoula.common.config",
-        "org.scoula"
+        "org.scoula",
+        "org.scoula.mypage"
 })
 //@PropertySource("file:${config.location}/application.properties")
 @MapperScan(basePackages = {
         "org.scoula.member.mapper",
-        "org.scoula.community.board.mapper"
+        "org.scoula.community.board.mapper",
+        "org.scoula.mypage.mapper"
 })
 public class RootConfig {
 

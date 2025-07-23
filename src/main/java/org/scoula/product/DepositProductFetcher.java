@@ -114,7 +114,8 @@ public class DepositProductFetcher {
         // 1. financial_product 저장
         String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month, risk_level, external_link, category_id, subcategory_id) " +
                 "VALUES (?, ?, ?, ?, ?, 'LOW', '', 1, 101) " +  // 예금(1), 정기예금(101)
-                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)";
+                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)" +
+                "";
 
         try (PreparedStatement ps = conn.prepareStatement(insertFin, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, base.path("fin_co_no").asText());
