@@ -14,7 +14,7 @@ public class RegisterDTO {
     private String gender;
     private Boolean termsRequired1;
     private Boolean termsRequired2;
-    private String receive_push_notification;
+    private Boolean receive_push_notification;
 
 
 

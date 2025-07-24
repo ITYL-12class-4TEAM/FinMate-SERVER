@@ -1,6 +1,7 @@
 package org.scoula.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.common.service.RedisService;
 import org.scoula.member.dto.RegisterDTO;
 import org.scoula.member.dto.SignupResponseDTO;
 import org.scoula.member.mapper.MemberMapper;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @RequiredArgsConstructor
 public class SignupService {
     private final MemberMapper memberMapper;
+    private final RedisService redisService;
 
 
     public boolean isValidPassword(String password) {
@@ -34,7 +36,7 @@ public class SignupService {
             return new SignupResponseDTO(false, "회원정보 수정에 실패했습니다.");
         }
     }
-    public SignupResponseDTO register(RegisterDTO dto) {
+    public SignupResponseDTO register(RegisterDTO dto, String phoneNumber) {
         Date birthDate = null;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -46,7 +48,11 @@ public class SignupService {
         } catch (Exception e) {
             return new SignupResponseDTO(false, "생년월일 형식이 올바르지 않습니다.");
         }
-
+        String verificationKey = "phone_verified:" + phoneNumber;
+        String isVerified = redisService.get(verificationKey);
+        if (!"true".equals(isVerified)) {
+            return new SignupResponseDTO(false, "휴대폰 인증을 완료해 주세요.");
+        }
 
         // 비밀번호 확인
         if (!isValidPassword(dto.getPassword())) {
@@ -60,6 +66,7 @@ public class SignupService {
         if (!Boolean.TRUE.equals(dto.getTermsRequired1()) || !Boolean.TRUE.equals(dto.getTermsRequired2())) {
             return new SignupResponseDTO(false, "필수 약관에 동의해 주세요.");
         }
+
         if (dto.getUsername() == null || dto.getUsername().isEmpty() ||
                 dto.getPassword() == null || dto.getPassword().isEmpty() ||
                 dto.getPasswordCheck() == null || dto.getPasswordCheck().isEmpty() ||
@@ -81,11 +88,11 @@ public class SignupService {
                 .phoneNumber(dto.getPhoneNumber())
                 .birthDate(birthDate) // dto에서 birthDate를 받아옴
                 .gender(dto.getGender())
-                .receivePushNotification(dto.getReceive_push_notification() != null && dto.getReceive_push_notification().equalsIgnoreCase("true"))
+                .receivePushNotification(Boolean.TRUE.equals(dto.getReceive_push_notification()))
                 .build();
 
         memberMapper.insert(member);
-
+        redisService.delete(verificationKey);
         return new SignupResponseDTO(true, "회원가입이 완료되었습니다.");
     }
 }

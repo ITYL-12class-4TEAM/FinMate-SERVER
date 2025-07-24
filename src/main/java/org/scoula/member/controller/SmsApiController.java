@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class SmsApiController {
 
     private final SmsService smsService;
-    private final RedisService redisService;
 
     @GetMapping("/send-verification")
     public ResponseEntity<ResponseDTO<Void>> sendSms(@RequestParam String phoneNumber) {
@@ -27,6 +26,7 @@ public class SmsApiController {
 
         boolean verified = smsService.verifyCode(phoneNumber, code);
         if (verified) {
+            smsService.markPhoneAsVerified(phoneNumber);
             return ResponseEntity.ok(new ResponseDTO<>(true, "인증 성공", null));
         } else {
             return ResponseEntity.badRequest().body(new ResponseDTO<>(false, "인증번호가 일치하지 않거나 만료되었습니다.", null));
