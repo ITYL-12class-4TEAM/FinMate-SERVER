@@ -1,5 +1,6 @@
 package org.scoula.wmti.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.scoula.preinfo.entity.PreInformation;
 import org.scoula.preinfo.mapper.PreInfoMapper;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class WMTIServiceImpl implements WMTIService {
+    private final ObjectMapper objectMapper;  // Jackson Bean 자동 주입
 
     private final SurveyResultMapper surveyResultMapper;
     private final WMTICalculator wmtiCalculator;
@@ -44,6 +46,13 @@ public class WMTIServiceImpl implements WMTIService {
 
     @Override
     public SurveyResult saveSurveyResult(Long memberId, List<Integer> answers) {
+        String answersJson;
+        try {
+            answersJson = objectMapper.writeValueAsString(answers); // ← 진짜 JSON 배열로 직렬화
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 직렬화 실패", e);
+        }
+
         // 1. WMTI 코드 계산
         String wmtiCode = wmtiCalculator.calculateWMTICode(answers);
 
@@ -69,7 +78,7 @@ public class WMTIServiceImpl implements WMTIService {
         SurveyResultDTO surveyResultDTO = SurveyResultDTO.builder()
                 .memberId(memberId)
                 .wmtiCode(wmtiCode)
-                .answersJson(answers.toString())
+                .answersJson(answersJson)
                 .aScore(aScore)
                 .pScore(pScore)
                 .mScore(mScore)
