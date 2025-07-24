@@ -15,5 +15,11 @@ public enum RiskPreference {
     RiskPreference(String label) {
         this.label = label;
     }
+
+    //RiskPreference enum의 label이 JSON 응답에 직접 노출되도록 설정
+    @JsonValue
+    public String toJson() {
+        return label;
+    }
 }
 

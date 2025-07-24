@@ -1,6 +1,8 @@
 package org.scoula.wmti.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.preinfo.entity.PreInformation;
+import org.scoula.preinfo.mapper.PreInfoMapper;
 import org.scoula.wmti.domain.WMTIAnalysis;
 import org.scoula.wmti.domain.WMTICalculator;
 import org.scoula.wmti.domain.WMTIScoreResult;
@@ -27,6 +29,7 @@ public class WMTIServiceImpl implements WMTIService {
     private final WMTICalculator wmtiCalculator;
     private final WMTIAnalysis wmtiAnalysis;
     private final WMTIHistoryMapper wmtiHistoryMapper;
+    private final PreInfoMapper preInfoMapper;
 
     @Override
     public String calculateWMTICode(List<Integer> answers) {
@@ -58,10 +61,10 @@ public class WMTIServiceImpl implements WMTIService {
         WMTIDimension L = WMTIDimension.valueOf(wmtiCode.substring(3, 4));
 
         // 4. 사전정보 연산값 불러오기(투자자유형, 리스크수용성, (+userName))
-        //PreInfo preInfo = getPreInfoByMemberId(memberId); // (예시 메서드)
-        //    String resultType = preInfo.getResultType();
-        //    String riskPreference = preInfo.getriskPreference();
-        //    String userName = preInfo.getUserName();
+        PreInformation preInfo = preInfoMapper.findByMemberId(memberId); // (예시 메서드)
+        String resultType = (preInfo != null) ? preInfo.getResultType() : null;
+        RiskPreference riskPreference = (preInfo != null) ? preInfo.getRiskPreference() : null;
+        String userName = (preInfo != null) ? preInfo.getUsername() : null;
         // 5. 설문 결과 DTO 객체 생성
         SurveyResultDTO surveyResultDTO = SurveyResultDTO.builder()
                 .memberId(memberId)
@@ -75,9 +78,9 @@ public class WMTIServiceImpl implements WMTIService {
                 .P(P)
                 .M(M)
                 .L(L)
-                //.resultType(riskPreference.getLabel()) // 혹은 별도 로직
-                //.riskPreference(riskPreference)
-                //.userName(userName)
+                .resultType(resultType)
+                .riskPreference(riskPreference)
+                .userName(userName)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -89,9 +92,9 @@ public class WMTIServiceImpl implements WMTIService {
         SurveyResult surveyResult = SurveyResult.builder()
                 .wmtiId(surveyResultDTO.getWmtiId())
                 .memberId(surveyResultDTO.getMemberId())
-                //.resultType(surveyResultDTO.getResultType())
-                //.riskPreference(surveyResultDTO.getRiskPreference())
-                //.userName(surveyResultDTO.getUserName())
+                .resultType(resultType)
+                .riskPreference(surveyResultDTO.getRiskPreference())
+                .userName(userName)
                 .answersJson(surveyResultDTO.getAnswersJson())
                 .aScore(surveyResultDTO.getAScore())
                 .pScore(surveyResultDTO.getPScore())
@@ -128,8 +131,8 @@ public class WMTIServiceImpl implements WMTIService {
                     .createdAt(existingResult.getCreatedAt())
 
                     // 추가된 필드 반영
-                    //.resultType(existingResult.getResultType())
-                    //.riskPreference(existingResult.getRiskPreference())
+                    .resultType(existingResult.getResultType())
+                    .riskPreference(existingResult.getRiskPreference())
                     .aScore(existingResult.getAScore())
                     .pScore(existingResult.getPScore())
                     .mScore(existingResult.getMScore())
