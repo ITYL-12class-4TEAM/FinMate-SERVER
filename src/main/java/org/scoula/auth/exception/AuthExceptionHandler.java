@@ -1,4 +1,5 @@
-package org.scoula.chatgpt.exception;
+package org.scoula.auth.exception;
+
 
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
@@ -9,10 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class ChatGptExceptionHandler {
-    @ExceptionHandler(ChatGptDeserializationException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleChatGptDeserializationException(
-            ChatGptDeserializationException exception,
+public class AuthExceptionHandler {
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
+            AuthenticationException exception,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -27,9 +29,9 @@ public class ChatGptExceptionHandler {
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
 
-    @ExceptionHandler(ChatGptJsonParsingException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleChatGptJsonParsingException(
-            ChatGptJsonParsingException exception,
+    @ExceptionHandler(InvalidPasswordFormatException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleInvalidPasswordFormatException(
+            InvalidPasswordFormatException exception,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -43,10 +45,9 @@ public class ChatGptExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
-
-    @ExceptionHandler(ChatGptRequestParsingException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleChatGptRequestParsingException(
-            ChatGptRequestParsingException exception,
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handlePasswordMismatchException(
+            PasswordMismatchException exception,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -60,10 +61,9 @@ public class ChatGptExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
-
-    @ExceptionHandler(ChatGptRetrievalException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleChatGptRetrievalException(
-            ChatGptRetrievalException exception,
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleTokenValidationException(
+            TokenValidationException exception,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(

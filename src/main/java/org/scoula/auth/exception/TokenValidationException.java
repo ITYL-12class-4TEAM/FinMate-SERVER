@@ -1,0 +1,10 @@
+package org.scoula.auth.exception;
+
+import org.scoula.common.exception.BaseException;
+import org.scoula.response.ResponseCode;
+
+public class TokenValidationException extends BaseException {
+    public TokenValidationException(ResponseCode responseCode) {
+        super(responseCode);
+    }
+}
