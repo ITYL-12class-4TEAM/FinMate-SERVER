@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/common/config/RootConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,9 +58,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
         <option value="spring-beans.schema" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -92,36 +92,36 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.FinMate-SERVER [:org.scoula.product.DepositFetcherRunner.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.DepositProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.PensionProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.SavingProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [build].executor": "Run",
-    "Gradle.FinMate-SERVER [clean].executor": "Run",
-    "Gradle.FinMate-SERVER 빌드.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Tomcat 서버.Tomcat 9.0.105.executor": "Run",
-    "git-widget-placeholder": "feature/mypage",
-    "grid.search.filter.rows": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.DepositFetcherRunner.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.DepositProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.PensionProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.SavingProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER 빌드.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Tomcat 서버.Tomcat 9.0.105.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/mypage&quot;,
+    &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula\mypage\mapper" />
@@ -296,8 +296,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91" />
       </set>
     </attachedChunks>
   </component>
@@ -326,7 +326,9 @@
       <workItem from="1753143480356" duration="7305000" />
       <workItem from="1753165612290" duration="8174000" />
       <workItem from="1753177905165" duration="761000" />
-      <workItem from="1753230755859" duration="14364000" />
+      <workItem from="1753230755859" duration="24039000" />
+      <workItem from="1753316794508" duration="45000" />
+      <workItem from="1753316961748" duration="3900000" />
     </task>
     <servers />
   </component>

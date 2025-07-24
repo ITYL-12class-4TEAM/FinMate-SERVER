@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.scoula.mypage.mapper.PortfolioMapper">
+
+    <select id="getPortfolioItems" resultType="org.scoula.mypage.dto.PortfolioItemDTO">
+        SELECT p.portfolio_id AS portfolioId,
+               fp.product_name AS productName,
+               pc.name AS categoryName,
+               ps.name AS subcategoryName,
+               p.amount,
+               p.join_date AS joinDate,
+               p.memo
+        FROM portfolio_item p
+                 JOIN financial_product fp ON p.product_id = fp.product_id
+                 JOIN product_category pc ON p.category_id = pc.category_id
+                 JOIN product_subcategory ps ON p.subcategory_id = ps.subcategory_id
+        WHERE p.member_id = #{memberId}
+        ORDER BY p.created_at DESC
+    </select>
+
+    <insert id="insertPortfolioItem">
+        INSERT INTO portfolio_item (member_id, product_id, category_id, subcategory_id, amount, join_date, memo)
+        VALUES (#{memberId}, #{dto.productId}, #{dto.categoryId}, #{dto.subcategoryId}, #{dto.amount}, #{dto.joinDate}, #{dto.memo})
+    </insert>
+
+    <select id="findCategoryIdByProductId" resultType="long">
+        SELECT category_id
+        FROM financial_product
+        WHERE product_id = #{productId}
+    </select>
+
+    <select id="findSubcategoryIdByProductId" resultType="long">
+        SELECT subcategory_id
+        FROM financial_product
+        WHERE product_id = #{productId}
+    </select>
+
+    <update id="updatePortfolioItem">
+        UPDATE portfolio_item
+        SET amount = #{dto.amount},
+            memo = #{dto.memo},
+            updated_at = NOW()
+        WHERE portfolio_id = #{portfolioId}
+    </update>
+
+    <delete id="deletePortfolioItem">
+        DELETE FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+    </delete>
+
+    <resultMap id="PortfolioSummaryMap" type="org.scoula.mypage.dto.PortfolioSummaryDTO">
+        <result property="categoryName" column="category_name"/>
+        <result property="totalAmount" column="category_total"/>
+        <result property="ratio" column="category_ratio"/>
+        <collection property="subcategories" ofType="org.scoula.mypage.dto.SubcategorySummaryDTO">
+            <result property="subcategoryName" column="subcategory_name"/>
+            <result property="totalAmount" column="subcategory_total"/>
+            <result property="ratio" column="subcategory_ratio"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPortfolioSummary" resultType="map">
+        SELECT
+            pc.name AS categoryName,
+            psc.name AS subcategoryName,
+            SUM(p.amount) AS totalAmount
+        FROM portfolio_item p
+                 JOIN product_category pc ON p.category_id = pc.category_id
+                 JOIN financial_product fp ON p.product_id = fp.product_id
+                 JOIN product_subcategory psc ON fp.subcategory_id = psc.subcategory_id
+        WHERE p.member_id = #{memberId}
+        GROUP BY pc.name, psc.name
+    </select>
+
+</mapper>
