@@ -82,7 +82,8 @@ public class WMTIServiceImpl implements WMTIService {
                 .build();
 
         // 6. 설문 결과를 DB에 저장하기 전에 이전 결과를 wmti_history에 백업
-        backupSurveyResultToHistory(memberId);
+        SurveyResult existingResult = surveyResultMapper.findByMemberId(memberId);
+        backupSurveyResultToHistory(existingResult);
 
         // 7. SurveyResultDTO -> SurveyResult (Entity)로 변환
         SurveyResult surveyResult = SurveyResult.builder()
@@ -105,15 +106,18 @@ public class WMTIServiceImpl implements WMTIService {
                 .build();
 
 
-        // 8. 설문결과 DTO를 DB에 저장
-        surveyResultMapper.saveSurveyResult(surveyResult);
+        // 8. 설문결과 DTO를 DB에 저장 (기존 결과가 있으면 update, 없으면 insert)
+        if (existingResult == null) {
+            surveyResultMapper.saveSurveyResult(surveyResult); // insert
+        } else {
+            surveyResultMapper.updateSurveyResult(surveyResult); // update
+        }
+
 
         return surveyResult;
     }
     // SurveyResult 백업 로직
-    private void backupSurveyResultToHistory(Long memberId) {
-        // 기존 설문 결과 조회
-        SurveyResult existingResult = surveyResultMapper.findByMemberId(memberId);
+    private void backupSurveyResultToHistory(SurveyResult existingResult) {
 
         if (existingResult != null) {
             // SurveyResult → WMTIHistory 변환
@@ -134,7 +138,6 @@ public class WMTIServiceImpl implements WMTIService {
                     .p(existingResult.getP())
                     .m(existingResult.getM())
                     .l(existingResult.getL())
-
                     .build();
 
             // WMTIHistory 엔티티를 wmti_history 테이블에 저장

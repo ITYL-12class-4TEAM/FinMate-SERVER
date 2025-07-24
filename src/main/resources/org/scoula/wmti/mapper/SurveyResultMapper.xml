@@ -54,11 +54,28 @@
                      #{createdAt}
                  )
     </insert>
+    <update id="updateSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult">
+        UPDATE wmti_profile
+        SET
+            wmti_code = #{wmtiCode},
+            answers_json = #{answersJson},
+            a_score = #{aScore},
+            p_score = #{pScore},
+            m_score = #{mScore},
+            l_score = #{lScore},
+            a = #{a},
+            p = #{p},
+            m = #{m},
+            l = #{l},
+            created_at = #{createdAt}
+        WHERE member_id = #{memberId}
+    </update>
+
 
     <!-- 사용자 ID로 설문 결과 조회 (단건조회)-->
     <select id="findByMemberId" resultMap="SurveyResultMap">
         SELECT *
-        FROM survey_result
+        FROM wmti_profile
         WHERE member_id = #{memberId}
         ORDER BY created_at DESC
         LIMIT 1
