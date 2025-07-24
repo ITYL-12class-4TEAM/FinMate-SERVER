@@ -22,9 +22,13 @@ public class WMTIHistory {
     //설문연산인자
     private String answersJson; // 설문 응답 데이터 (JSON 형태)
     private double aScore; //  A지향성 (%)
+    private double iScore; //  I지향성 (%)
     private double pScore; //  P지향성 (%)
+    private double bScore; //  B지향성 (%)
     private double mScore; //  M지향성 (%)
+    private double wScore; //  W지향성 (%)
     private double lScore; //  L지향성 (%)
+    private double cScore; //  C지향성 (%)
 
     //설문결과인자
     private String wmtiCode;

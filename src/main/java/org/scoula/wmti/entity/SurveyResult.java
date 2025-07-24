@@ -23,9 +23,13 @@ public class SurveyResult {
     //설문연산인자
     private String answersJson; // 20문항 설문응답 데이터를 JSON문자열 형태로 저장
     private double aScore; //  A지향성 (%)
+    private double iScore; //  I지향성 (%)
     private double pScore; //  P지향성 (%)
+    private double bScore; //  B지향성 (%)
     private double mScore; //  M지향성 (%)
+    private double wScore; //  W지향성 (%)
     private double lScore; //  L지향성 (%)
+    private double cScore; //  C지향성 (%)
 
     //설문결과인자
     private String wmtiCode; //검사결과 도출된 4자리 wmti코드

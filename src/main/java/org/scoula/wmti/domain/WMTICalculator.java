@@ -46,7 +46,19 @@ public class WMTICalculator {
             }
         }
 
-        return new WMTIScoreResult(aScore, pScore, mScore, lScore);
+        // 클램핑
+        aScore = clampScore(aScore);
+        pScore = clampScore(pScore);
+        mScore = clampScore(mScore);
+        lScore = clampScore(lScore);
+
+        // 반대 성향은 100 - X
+        double iScore = 100 - aScore;
+        double bScore = 100 - pScore;
+        double wScore = 100 - mScore;
+        double cScore = 100 - lScore;
+
+        return new WMTIScoreResult(aScore, iScore, pScore, bScore, mScore, wScore, lScore, cScore);
     }
 
     /**
@@ -75,6 +87,9 @@ public class WMTICalculator {
             case 5: return -high;
             default: return 0.0;
         }
+    }
+    private double clampScore(double score) {
+        return Math.max(0, Math.min(100, score));
     }
 
     // 각 성향 문항 판단

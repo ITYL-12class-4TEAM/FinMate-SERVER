@@ -80,10 +80,10 @@ public class WMTIController {
     public ApiResponse<Map<String, Object>> getAnalysis(@PathVariable String wmtiCode) {
         Map<String, Object> analysisResult = wmtiService.getAnalysisByWMTICode(wmtiCode);
 
-        if (analysisResult == null || analysisResult.isEmpty()) {
-            return ApiResponse.fail(ResponseCode.미정, "분석 결과를 찾을 수 없습니다.");
-        }
+//        if (analysisResult == null || analysisResult.isEmpty()) {
+//            return ApiResponse.fail(ResponseCode.미정, "분석 결과를 찾을 수 없습니다.");
+//        }
 
-        return ApiResponse.success(ResponseCode.미정, analysisResult);
+        return ApiResponse.success(ResponseCode.WMTI_CODE_GENERATED, analysisResult); //얘도 미정, 리스폰스코드 다시 짤것.
     }
 }

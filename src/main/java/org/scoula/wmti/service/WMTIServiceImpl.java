@@ -59,9 +59,13 @@ public class WMTIServiceImpl implements WMTIService {
         // 2. 성향 점수 계산 및 코드 분리
         WMTIScoreResult scoreResult = wmtiCalculator.calculateScores(answers);
         double aScore = scoreResult.getAScore();
+        double iScore = scoreResult.getIScore();
         double pScore = scoreResult.getPScore();
+        double bScore = scoreResult.getBScore();
         double mScore = scoreResult.getMScore();
+        double wScore = scoreResult.getWScore();
         double lScore = scoreResult.getLScore();
+        double cScore = scoreResult.getCScore();
 
         // 3. 각 자리 문자 → WMTIDimension 변환
         WMTIDimension A = WMTIDimension.valueOf(wmtiCode.substring(0, 1));
@@ -80,9 +84,13 @@ public class WMTIServiceImpl implements WMTIService {
                 .wmtiCode(wmtiCode)
                 .answersJson(answersJson)
                 .aScore(aScore)
+                .iScore(iScore)
                 .pScore(pScore)
+                .bScore(bScore)
                 .mScore(mScore)
+                .wScore(wScore)
                 .lScore(lScore)
+                .cScore(cScore)
                 .A(A)
                 .P(P)
                 .M(M)
@@ -106,9 +114,13 @@ public class WMTIServiceImpl implements WMTIService {
                 .userName(userName)
                 .answersJson(surveyResultDTO.getAnswersJson())
                 .aScore(surveyResultDTO.getAScore())
+                .iScore(surveyResultDTO.getIScore())
                 .pScore(surveyResultDTO.getPScore())
+                .bScore(surveyResultDTO.getBScore())
                 .mScore(surveyResultDTO.getMScore())
+                .wScore(surveyResultDTO.getWScore())
                 .lScore(surveyResultDTO.getLScore())
+                .cScore(surveyResultDTO.getCScore())
                 .wmtiCode(surveyResultDTO.getWmtiCode())
                 .a(surveyResultDTO.getA())
                 .p(surveyResultDTO.getP())
@@ -143,9 +155,13 @@ public class WMTIServiceImpl implements WMTIService {
                     .resultType(existingResult.getResultType())
                     .riskPreference(existingResult.getRiskPreference())
                     .aScore(existingResult.getAScore())
+                    .iScore(existingResult.getIScore())
                     .pScore(existingResult.getPScore())
+                    .bScore(existingResult.getBScore())
                     .mScore(existingResult.getMScore())
+                    .wScore(existingResult.getWScore())
                     .lScore(existingResult.getLScore())
+                    .cScore(existingResult.getCScore())
                     .a(existingResult.getA())
                     .p(existingResult.getP())
                     .m(existingResult.getM())

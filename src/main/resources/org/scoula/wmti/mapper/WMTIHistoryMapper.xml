@@ -10,9 +10,13 @@
         <result property="riskPreference" column="risk_preference"/>
         <result property="answersJson" column="answers_json"/>
         <result property="aScore" column="a_score"/>
+        <result property="iScore" column="i_score"/>
         <result property="pScore" column="p_score"/>
+        <result property="bScore" column="b_score"/>
         <result property="mScore" column="m_score"/>
+        <result property="wScore" column="w_score"/>
         <result property="lScore" column="l_score"/>
+        <result property="cScore" column="c_score"/>
         <result property="wmtiCode" column="wmti_code"/>
         <result property="a" column="AvsI"/>
         <result property="p" column="PvsB"/>
@@ -30,9 +34,13 @@
             risk_preference,
             answers_json,
             a_score,
+            i_score,
             p_score,
+            b_score,
             m_score,
+            w_score,
             l_score,
+            c_score,
             wmti_code,
             a, p, m, l,
             created_at
@@ -42,9 +50,13 @@
                      #{riskPreference},
                      #{answersJson},
                      #{aScore},
+                     #{iScore},
                      #{pScore},
+                     #{bScore},
                      #{mScore},
+                     #{wScore},
                      #{lScore},
+                     #{cScore},
                      #{wmtiCode},
                      #{A}, #{P}, #{M}, #{L},
                      #{createdAt}
