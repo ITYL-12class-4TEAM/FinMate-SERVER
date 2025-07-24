@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.community.commentlike.dto.CommentLikeToggleResponseDTO;
 import org.scoula.community.postlike.dto.PostLikeToggleResponseDTO;
 import org.scoula.community.postlike.service.PostLikeService;
 import org.scoula.response.ApiResponse;
@@ -40,5 +41,13 @@ public class PostLikeApiController {
     @ApiOperation("게시글 좋아요 개수 조회")
     public ApiResponse<?> getLikeCount(@PathVariable Long postId) {
         return ApiResponse.success(ResponseCode.POST_LIKE_COUNT_SUCCESS, postLikeService.getLikeCount(postId));
+    }
+
+    @GetMapping("/{postId}/me")
+    @ApiOperation("해당 게시글 좋아요 여부 조회")
+    public ApiResponse<?> getMyLikeStatus(@PathVariable Long postId,
+                                          @RequestParam("memberId") Long memberId) {
+        boolean liked = postLikeService.isLikedByMember(postId, memberId);
+        return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
     }
 }

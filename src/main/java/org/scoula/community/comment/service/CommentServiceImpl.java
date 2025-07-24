@@ -50,7 +50,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void delete(Long commentId) {
         log.info("delete........." + commentId);
-        CommentResponseDTO commentResponseDTO = get(commentId);
+        CommentVO comment = commentMapper.get(commentId);
+        if (comment == null) {
+            throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
+        }
         commentMapper.delete(commentId);
     }
 }
