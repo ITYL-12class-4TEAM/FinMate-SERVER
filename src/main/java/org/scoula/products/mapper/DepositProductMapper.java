@@ -21,7 +21,7 @@ public interface DepositProductMapper {
      * @param productId 상품 ID(fin_prdt_cd)
      * @return 예금 상품 상세 정보
      */
-    DepositProductDTO findByProductId(String productId);
+    DepositProductDTO findByProductId(Long productId);
 
     /**
      * 상품 ID로 예금 상품 옵션 정보 조회
@@ -29,7 +29,7 @@ public interface DepositProductMapper {
      * @param productId 상품 ID(fin_prdt_cd)
      * @return 예금 상품 옵션 목록
      */
-    List<DepositOptionDTO> findOptionsByProductId(String productId);
+    List<DepositOptionDTO> findOptionsByProductId(Long productId);
 
     /**
      * 예금 상품 목록 조회 (필터링 적용)

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 /**
@@ -15,32 +16,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductListResponse {
-    /** 상품 유형 (deposit: 예금, saving: 적금, pension: 연금저축) */
+    // 호환성을 위해 유지
     private String productType;
 
-    /** 상품 목록 */
+    // 카테고리 및 서브카테고리 정보 추가
+    private Long categoryId;
+    private Long subcategoryId;
+
+    // 기존 필드
     private List<ProductSummary> products;
-
-    /** 전체 상품 수 */
-    private Integer totalCount;
-
-    /** 현재 페이지 번호 */
-    private Integer currentPage;
-
-    /** 페이지 크기 */
-    private Integer pageSize;
-
-    /** 전체 페이지 수 */
-    private Integer totalPages;
-
-    /** 정렬 기준 */
+    private int totalCount;
+    private int currentPage;
+    private int pageSize;
+    private int totalPages;
     private String sortBy;
-
-    /** 정렬 방향 */
     private String sortDirection;
-
-    /** 검색 조건 요약 */
-    private String searchSummary;
 
     /**
      * 상품 요약 정보

@@ -39,7 +39,7 @@ public interface ProductSearchService {
      * @param productId   상품 ID
      * @return 상품 상세 정보
      */
-    ProductDetailResponse getProductDetail(String productType, String productId);
+    ProductDetailResponse getProductDetail(String productType, Long productId);
 
     /**
      * 검색어 자동완성 제안을 제공합니다.
@@ -55,5 +55,5 @@ public interface ProductSearchService {
      * @param category 카테고리 코드 (deposit, saving, pension 등)
      * @return 필터 옵션 응답
      */
-    FilterOptionsResponse getFilterOptions(String category);
+    FilterOptionsResponse getFilterOptions(String category, Long subCategoryId);
 }

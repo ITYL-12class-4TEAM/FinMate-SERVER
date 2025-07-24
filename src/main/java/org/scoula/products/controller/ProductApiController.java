@@ -52,6 +52,7 @@ public class ProductApiController {
     public ResponseEntity<ApiResponse<ProductListResponse>> getProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) Long subCategory,
             @RequestParam(required = false) String banks, // 은행명 파라미터 추가
             @RequestParam(required = false) String interestRateType,
             @RequestParam(required = false) String saveTerm,
@@ -64,6 +65,7 @@ public class ProductApiController {
         // 필터 파라미터 구성
         Map<String, String> filters = new HashMap<>();
         if (category != null) filters.put("category", category);
+        if( subCategory != null) filters.put("subCategory", subCategory.toString());
         if (banks != null) filters.put("banks", banks); // 은행명 필터 추가
         if (interestRateType != null) filters.put("interestRateType", interestRateType);
         if (saveTerm != null) filters.put("saveTerm", saveTerm);
@@ -155,19 +157,21 @@ public class ProductApiController {
             notes = "카테고리별 사용 가능한 필터 옵션을 제공합니다.")
     @GetMapping("/filter-options")
     public ApiResponse<?> getFilterOptions(
-            @RequestParam(required = false, defaultValue = "deposit") String category
+            @RequestParam(required = false, defaultValue = "deposit") String category,
+            @RequestParam(value = "subCategory", required = false) Long subCategory
     ) {
-        // 서비스 호출하여 필터 옵션 조회
-        FilterOptionsResponse filterOptions = searchService.getFilterOptions(category);
+        // 서비스 호출하여 필터 옵션 조회 (subCategory가 null이면 서비스에서 디폴트 101L 사용)
+        FilterOptionsResponse filterOptions = searchService.getFilterOptions(category, subCategory);
         return ApiResponse.success(ResponseCode.PRODUCT_FILTER_OPTIONS_SUCCESS, filterOptions);
     }
+
 
     @ApiOperation(value = "상품 상세 정보 조회",
             notes = "상품 유형과 코드 기반으로 상품 상세 정보를 제공합니다.")
     @GetMapping("/{productType}/{productId}")
     public ApiResponse<?> getProductDetail(
             @PathVariable String productType,
-            @PathVariable String productId) {
+            @PathVariable Long productId) {
 
         // 서비스 호출을 통해 상품 상세 정보 조회
         ProductDetailResponse response = searchService.getProductDetail(productType, productId);

@@ -21,6 +21,10 @@
             <if test="categoryName != null">
                 c.name = #{categoryName}
             </if>
+            <!-- 서브카테고리 필터링 추가 -->
+            <if test="subCategoryId != null">
+                AND fp.subcategory_id = #{subCategoryId}
+            </if>
             <!-- 검색어 필터링 -->
             <if test="searchText != null and searchText != ''">
                 AND (fp.product_name LIKE CONCAT('%', #{searchText}, '%')
@@ -112,6 +116,10 @@
             <if test="categoryName != null">
                 c.name = #{categoryName}
             </if>
+            <!-- 서브카테고리 필터링 추가 -->
+            <if test="subCategoryId != null">
+                AND fp.subcategory_id = #{subCategoryId}
+            </if>
             <!-- 검색어 필터링 -->
             <if test="searchText != null and searchText != ''">
                 AND (fp.product_name LIKE CONCAT('%', #{searchText}, '%')
@@ -173,5 +181,12 @@
         SELECT DISTINCT kor_co_nm
         FROM financial_product
         ORDER BY kor_co_nm
+    </select>
+
+    <select id="getSubcategoriesByCategoryId" resultType="java.util.Map">
+        SELECT subcategory_id, name, description
+        FROM product_subcategory
+        WHERE category_id = #{categoryId}
+        ORDER BY name
     </select>
 </mapper>

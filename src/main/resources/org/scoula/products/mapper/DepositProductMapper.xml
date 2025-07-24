@@ -7,15 +7,14 @@
         SELECT dp.*, fp.fin_co_no, fp.fin_prdt_cd, fp.product_name as fin_prdt_nm, fp.kor_co_nm
         FROM deposit_product dp
         JOIN financial_product fp ON dp.product_id = fp.product_id
-        WHERE fp.fin_prdt_cd = #{productId}
+        WHERE fp.product_id = #{productId}
     </select>
 
     <!-- 상품 ID로 예금 상품 옵션 정보 조회 -->
     <select id="findOptionsByProductId" resultType="org.scoula.products.dto.response.deposit.DepositOptionDTO">
         SELECT do.*
         FROM deposit_option do
-        JOIN financial_product fp ON do.product_id = fp.product_id
-        WHERE fp.fin_prdt_cd = #{productId}
+        WHERE do.product_id = #{productId}
     </select>
 
     <!-- 예금 상품 목록 조회 (필터링 적용) -->

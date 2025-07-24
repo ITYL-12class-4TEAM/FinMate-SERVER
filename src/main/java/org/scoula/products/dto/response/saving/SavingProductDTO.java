@@ -89,7 +89,7 @@ public class SavingProductDTO {
         if (dclsStrtDay == null || dclsStrtDay.isEmpty()) {
             return null;
         }
-        return LocalDate.parse(dclsStrtDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return LocalDate.parse(dclsStrtDay, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     // 편의를 위한 메서드: 상품 종료일을 LocalDate로 변환
@@ -97,7 +97,7 @@ public class SavingProductDTO {
         if (dclsEndDay == null || dclsEndDay.isEmpty()) {
             return null;
         }
-        return LocalDate.parse(dclsEndDay, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return LocalDate.parse(dclsEndDay, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     // 편의를 위한 메서드: 상품이 현재 판매 중인지 확인

@@ -47,30 +47,72 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         // 인자를 ProductSearchRequest로 변환
         ProductSearchRequest request = new ProductSearchRequest();
 
-        // 상품 유형 설정 (카테고리)
+        // 카테고리 ID 설정 - 기본값은 예금(1)
+        request.setCategoryId(1L);
+
+        // 서브카테고리 설정 - 필터에서 직접 추출
+        if (filters.containsKey("subCategory")) {
+            try {
+                request.setSubCategoryId(Long.parseLong(filters.get("subCategory")));
+            } catch (NumberFormatException e) {
+                // 서브카테고리 파싱 에러 처리
+            }
+        } else if (filters.containsKey("category")) {
+            // 기존 코드와의 호환성을 위해 "category" 값에 따라 서브카테고리 매핑
+            String category = filters.get("category");
+            if ("deposit".equals(category)) {
+                request.setSubCategoryId(101L);  // 정기예금
+            } else if ("pension".equals(category)) {
+                request.setCategoryId(5L);  // 연금 카테고리
+            }
+        }
+
+        // productType 설정 (호환성 유지)
         String productType = filters.getOrDefault("category", "deposit");
         request.setProductType(productType);
 
         // 검색어 설정
         request.setSearchText(keyword);
 
-
         // 정렬 파라미터 처리
         String sort = filters.getOrDefault("sort", "created_at");
         String order = filters.getOrDefault("order", "desc");
-
         request.setSortBy(sort);
         request.setSortDirection(order);
+
         // 페이징 설정
         request.setPage(pageNo);
         request.setPageSize(10); // 기본값 설정
 
-        // 필터 설정
+        // 금액 필터 설정 - 서브카테고리별 다른 필드 사용
+        if (filters.containsKey("amount")) {
+            try {
+                Long amount = Long.parseLong(filters.get("amount"));
+
+                // 서브카테고리에 따라 다른 필드에 값 설정
+                if (request.getSubCategoryId() != null) {
+                    if (request.getSubCategoryId() == 101 || request.getSubCategoryId() == 103) {
+                        // 정기예금/입출금예금 - 예치 금액
+                        request.setDepositAmount(amount);
+                    } else if (request.getSubCategoryId() == 102 || request.getSubCategoryId() == 104) {
+                        // 자유적금/정기적금 - 월 납입 금액
+                        request.setMonthlyPayment(amount);
+                    }
+                } else {
+                    // 서브카테고리 ID가 없을 경우 예치 금액으로 기본 설정
+                    request.setDepositAmount(amount);
+                }
+            } catch (NumberFormatException e) {
+                // 금액 파싱 에러 처리
+            }
+        }
+
+        // 기타 필터 설정
         if (filters.containsKey("saveTerm")) {
             try {
                 request.setSaveTrm(Integer.parseInt(filters.get("saveTerm")));
             } catch (NumberFormatException e) {
-                // 예외 처리 또는 무시
+                // 저축 기간 파싱 에러 처리
             }
         }
 
@@ -79,7 +121,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             try {
                 request.setMinIntrRate(Double.parseDouble(filters.get("minIntrRate")));
             } catch (NumberFormatException e) {
-                // 예외 처리 또는 무시
+                // 금리 파싱 에러 처리
             }
         }
 
@@ -113,43 +155,61 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         return searchProducts(request);
     }
 
-
-    private String mapCategoryName(String categoryName) {
-        switch (categoryName) {
-            case "deposit":
-                return "예금";
-            case "saving":
-                return "적금";
-            case "pension":
-                return "연금";
-            default:
-                return categoryName;
-        }
-    }
-
-    private ProductListResponse.ProductSummary convertPensionDTOToSummary(PensionProductDTO pension) {
-        return ProductListResponse.ProductSummary.builder()
-                .finPrdtCd(pension.getFinPrdtCd())
-                .korCoNm(pension.getKorCoNm())
-                .finPrdtNm(pension.getFinPrdtNm())
-                // 연금 상품은 다른 방식으로 금리 정보 제공
-                .intrRate(pension.getDclsRate() != null ? pension.getDclsRate() : 0.0)
-                .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
-                // 저축 기간은 해당 없을 수 있음
-                .saveTrm(null)
-                .joinWay(pension.getJoinWay())
-                .build();
-    }
-
     @Override
     public ProductListResponse searchProducts(ProductSearchRequest request) {
-        String mappedProductType = mapCategoryName(request.getProductType());
+        // 서브카테고리 ID가 없으면 기본값 설정
+        if (request.getSubCategoryId() == null) {
+            // productType 기반으로 서브카테고리 설정 (호환성 유지)
+            if (request.getProductType() != null) {
+                if ("deposit".equals(request.getProductType())) {
+                    request.setSubCategoryId(101L);  // 정기예금
+                }
+            } else {
+                request.setSubCategoryId(101L);  // 기본값: 정기예금
+            }
+        }
+
+        // 카테고리 ID가 없으면 기본값 설정
+        if (request.getCategoryId() == null) {
+            // 연금 상품은 카테고리 ID 5
+            if (request.getProductType() != null && "pension".equals(request.getProductType())) {
+                request.setCategoryId(5L);  // 연금 카테고리
+            } else {
+                request.setCategoryId(1L);  // 예금 카테고리
+            }
+        }
+
+        // 카테고리 이름 얻기
+        String categoryName = mapCategoryIdToName(request.getCategoryId());
 
         // 페이징 기본값 설정
         Integer pageSize = request.getPageSize() != null ? request.getPageSize() : 10;
         Integer page = request.getPage() != null ? request.getPage() : 1;
+        Integer offset = (page - 1) * pageSize;
 
-        if ("연금저축".equals(mappedProductType)) {
+        // 금액 필터링 - 서브카테고리에 따라 다른 필드 사용
+        Integer minAmount = null;
+        if (request.getSubCategoryId() != null) {
+            if (request.getSubCategoryId() == 101 || request.getSubCategoryId() == 103) {  // 정기예금, 입출금예금
+                minAmount = request.getDepositAmount() != null ?
+                        request.getDepositAmount().intValue() : null;
+            } else if (request.getSubCategoryId() == 102 || request.getSubCategoryId() == 104) {  // 자유적금, 정기적금
+                minAmount = request.getMonthlyPayment() != null ?
+                        request.getMonthlyPayment().intValue() : null;
+            }
+        } else {
+            // 서브카테고리 ID가 없을 경우 예치 금액 기본 사용
+            minAmount = request.getDepositAmount() != null ?
+                    request.getDepositAmount().intValue() : null;
+        }
+
+        // banks 리스트를 콤마로 구분된 문자열로 변환
+        String banksStr = (request.getBanks() != null && !request.getBanks().isEmpty())
+                ? String.join(",", request.getBanks())
+                : null;
+
+        // 카테고리 ID에 따라 다른 쿼리 사용
+        if (request.getCategoryId() == 5) { // 연금 카테고리
             List<PensionProductDTO> pensionProducts = pensionProductMapper.findPensionProducts(
                     request.getSearchText(),
                     request.getJoinWay(),
@@ -170,6 +230,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
 
             return ProductListResponse.builder()
                     .productType(request.getProductType())
+                    .categoryId(request.getCategoryId())
+                    .subcategoryId(request.getSubCategoryId())
                     .products(pagedProducts)
                     .totalCount(totalCount)
                     .currentPage(page)
@@ -179,21 +241,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     .sortDirection(request.getSortDirection())
                     .build();
         } else {
-            // 페이징 처리를 위한 값 계산
-            Integer offset = (page - 1) * pageSize;
-
-            // depositAmount가 null일 경우 처리
-            Integer minAmount = request.getDepositAmount() != null ?
-                    request.getDepositAmount().intValue() : null;
-
-            // banks 리스트를 콤마로 구분된 문자열로 변환
-            String banksStr = (request.getBanks() != null && !request.getBanks().isEmpty())
-                    ? String.join(",", request.getBanks())
-                    : null;
-
-            // 데이터베이스에서 이미 페이징된 결과 가져오기
+            // 일반 금융 상품 조회 로직 (예금 카테고리의 모든 서브카테고리)
             List<Map<String, Object>> products = financialProductMapper.findProducts(
-                    mappedProductType,
+                    categoryName,
+                    request.getCategoryId(),
+                    request.getSubCategoryId(),
                     request.getSearchText(),
                     request.getMinIntrRate(),
                     request.getSaveTrm(),
@@ -207,9 +259,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     banksStr
             );
 
-            // 전체 상품 수 조회 (별도 쿼리)
+            // 전체 상품 수 조회
             int totalCount = financialProductMapper.countProducts(
-                    mappedProductType,
+                    categoryName,
+                    request.getCategoryId(),
+                    request.getSubCategoryId(),
                     request.getSearchText(),
                     request.getMinIntrRate(),
                     request.getSaveTrm(),
@@ -223,9 +277,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     .map(this::convertToProductSummary)
                     .collect(Collectors.toList());
 
-            // 응답 구성 - 이미 페이징된 결과 사용
+            // 응답 구성
             return ProductListResponse.builder()
                     .productType(request.getProductType())
+                    .categoryId(request.getCategoryId())
+                    .subcategoryId(request.getSubCategoryId())
                     .products(summaries)
                     .totalCount(totalCount)
                     .currentPage(page)
@@ -235,6 +291,53 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     .sortDirection(request.getSortDirection())
                     .build();
         }
+    }
+
+    private String mapCategoryName(String categoryName) {
+        if ("deposit".equals(categoryName) || "pension".equals(categoryName)) {
+            return categoryName.equals("deposit") ? "예금" : "연금";
+        }
+        return categoryName;
+    }
+
+    /**
+     * 카테고리 ID를 카테고리 이름으로 변환하는 메서드 (역매핑)
+     */
+    private String mapCategoryIdToName(Long categoryId) {
+        if (categoryId == null) {
+            return "예금";
+        }
+
+        switch (categoryId.intValue()) {
+            case 1:
+                return "예금";
+            case 2:
+                return "대출";
+            case 3:
+                return "펀드";
+            case 4:
+                return "보험";
+            case 5:
+                return "연금";
+            case 6:
+                return "부동산";
+            default:
+                return "예금";
+        }
+    }
+
+    private ProductListResponse.ProductSummary convertPensionDTOToSummary(PensionProductDTO pension) {
+        return ProductListResponse.ProductSummary.builder()
+                .finPrdtCd(pension.getFinPrdtCd())
+                .korCoNm(pension.getKorCoNm())
+                .finPrdtNm(pension.getFinPrdtNm())
+                // 연금 상품은 다른 방식으로 금리 정보 제공
+                .intrRate(pension.getDclsRate() != null ? pension.getDclsRate() : 0.0)
+                .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
+                // 저축 기간은 해당 없을 수 있음
+                .saveTrm(null)
+                .joinWay(pension.getJoinWay())
+                .build();
     }
 
     // Map 객체를 ProductSummary로 변환하는 메서드
@@ -253,50 +356,36 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     }
 
     @Override
-    public ProductDetailResponse getProductDetail(String productType, String productId) {
+    public ProductDetailResponse getProductDetail(String productType, Long productId) {
         System.out.println("요청된 상품 유형: " + productType + ", 상품 ID: " + productId);
 
         // 카테고리 이름 매핑
         String mappedProductType = mapCategoryName(productType);
+        System.out.println("매핑된 상품 유형: " + mappedProductType);
 
-        switch (productType.toLowerCase()) {
-            case "deposit":
-                // DB에서 예금 상품 조회
+        try {
+            // 상품 유형에 따른 처리
+            if ("deposit".equals(productType)) {
+                // 예금 카테고리의 모든 상품 (정기예금, 자유적금 등)
                 DepositProductDTO deposit = depositProductMapper.findByProductId(productId);
 
                 if (deposit != null) {
-                    // 옵션 정보 조회
+                    System.out.println("조회된 상품 정보: ID=" + deposit.getFinPrdtCd() + ", 은행=" + deposit.getKorCoNm());
+                    // 옵션 정보 조회 - product_id로 조회
                     List<DepositOptionDTO> options = depositProductMapper.findOptionsByProductId(productId);
                     deposit.setOptions(options);
-
-                    System.out.println("조회된 상품 정보: ID=" + deposit.getFinPrdtCd() + ", 은행=" + deposit.getKorCoNm());
                 } else {
                     System.out.println("조회된 상품 정보: 없음");
                     throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
                 }
 
                 return new ProductDetailResponse(deposit, "deposit");
-
-            case "saving":
-                // DB에서 적금 상품 조회
-                DepositProductDTO saving = depositProductMapper.findByProductId(productId);
-
-                if (saving != null) {
-                    // 옵션 정보 조회
-                    List<DepositOptionDTO> options = depositProductMapper.findOptionsByProductId(productId);
-                    saving.setOptions(options);
-                } else {
-                    throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
-                }
-
-                return new ProductDetailResponse(saving, "saving");
-
-            case "pension":
-                // DB에서 연금 상품 조회
+            } else if ("pension".equals(productType)) {
+                // 연금 상품 조회 - product_id로 조회
                 PensionProductDTO pension = pensionProductMapper.findByProductId(productId);
 
                 if (pension != null) {
-                    // 옵션 정보 조회
+                    // 옵션 정보 조회 - product_id로 조회
                     List<PensionOptionDTO> options = pensionProductMapper.findOptionsByProductId(productId);
                     pension.setOptions(options);
                 } else {
@@ -304,9 +393,15 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 }
 
                 return new ProductDetailResponse(pension, "pension");
-
-            default:
+            } else {
                 throw new InvalidProductTypeException(ResponseCode.INVALID_PRODUCT_TYPE_ERROR);
+            }
+        } catch (ProductNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println("상품 조회 중 예외 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("상품 상세 정보 조회 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -340,128 +435,124 @@ public class ProductSearchServiceImpl implements ProductSearchService {
      * 카테고리명을 카테고리 ID로 변환
      */
     private Long mapCategoryToId(String categoryName) {
-        switch (categoryName.toLowerCase()) {
-            case "deposit":
-                return 1L;  // 예금 카테고리 ID
-            case "saving":
-                return 1L;  // 적금도 예금 카테고리에 포함될 수 있음
-            case "pension":
-                return 5L;  // 연금 카테고리 ID
-            default:
-                return 1L;  // 기본값
+        if ("deposit".equals(categoryName)) {
+            return 1L;  // 예금 카테고리 ID
+        } else if ("pension".equals(categoryName)) {
+            return 5L;  // 연금 카테고리 ID
         }
+        return 1L;  // 기본값
     }
 
     @Override
-    public FilterOptionsResponse getFilterOptions(String category) {
-        // 카테고리 매핑 (API 입력값 -> DB 값)
-        String mappedCategory = mapCategoryName(category);
+    public FilterOptionsResponse getFilterOptions(String category, Long subCategoryId) {
+        Long categoryId;
+        // 받은 파라미터가 있으면 그대로, 없으면 디폴트 101L
+        Long resolvedSubcategoryId = (subCategoryId != null) ? subCategoryId : 101L;
 
-        Long categoryId = mapCategoryToId(category);
+        if ("deposit".equals(category)) {
+            categoryId = 1L;
+            // subcategoryId 위에서 이미 처리됨
+        } else if ("pension".equals(category)) {
+            categoryId = 5L;
+            // pension은 subcategoryId = null 허용
+        } else {
+            categoryId = 1L;
+        }
 
-        // 필터 옵션 빌더 시작
+        // 필터 옵션 빌더
         FilterOptionsResponse.FilterOptionsResponseBuilder builder = FilterOptionsResponse.builder()
-                .productType(category);
+                .productType(category)  // 호환성을 위해 유지
+                .categoryId(categoryId)
+                .subcategoryId(resolvedSubcategoryId);
 
-        // 카테고리별 필터 옵션 구성
-        switch (category.toLowerCase()) {
-            case "deposit":
-                // 예금 필터 옵션
-                List<Map<String, String>> depositInterestRateTypes = new ArrayList<>();
-                depositInterestRateTypes.add(createOption("S", "단리"));
-                depositInterestRateTypes.add(createOption("M", "복리"));
+        // 카테고리 및 서브카테고리별 필터 옵션 구성
+        if (categoryId == 1) {  // 예금 카테고리
+            // 금리 유형 옵션
+            List<Map<String, String>> interestRateTypes = new ArrayList<>();
+            interestRateTypes.add(createOption("S", "단리"));
+            interestRateTypes.add(createOption("M", "복리"));
+            builder.interestRateTypes(interestRateTypes);
 
-                builder.interestRateTypes(depositInterestRateTypes)
-                        .saveTerms(Arrays.asList(1, 3, 6, 12, 24, 36))
-                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+            // 가입 방법
+            builder.joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+
+            // 은행 목록
+            List<String> banks = financialProductMapper.getDistinctBanks();
+            if (banks == null || banks.isEmpty()) {
+                banks = Arrays.asList(
+                        "국민은행", "신한은행", "우리은행", "하나은행", "농협은행",
+                        "기업은행", "SC제일은행", "케이뱅크", "카카오뱅크", "토스뱅크"
+                );
+            }
+            builder.banks(banks);
+
+            // 서브카테고리에 따른 추가 옵션
+            if (resolvedSubcategoryId == 101 || resolvedSubcategoryId == 103) {  // 정기예금, 입출금예금
+                // 저축 기간
+                builder.saveTerms(Arrays.asList(1, 3, 6, 12, 24, 36));
 
                 // 예치 금액 옵션
                 Map<String, Object> depositAmountOptions = new HashMap<>();
                 depositAmountOptions.put("min", 10000);
                 depositAmountOptions.put("max", 100000000);
-                depositAmountOptions.put("defaultValue", 100000);
-
+                depositAmountOptions.put("defaultValue", 1000000);
                 builder.depositAmountOptions(depositAmountOptions);
+            } else if (resolvedSubcategoryId == 102 || resolvedSubcategoryId == 104) {  // 자유적금, 정기적금
+                // 저축 기간
+                builder.saveTerms(Arrays.asList(6, 12, 24, 36));
 
-                // 은행 목록 조회 - DB에서 고유 은행명 가져오기
-                List<String> banks = financialProductMapper.getDistinctBanks();
-                if (banks == null || banks.isEmpty()) {
-                    banks = Arrays.asList(
-                            "국민은행", "신한은행", "우리은행", "하나은행", "농협은행",
-                            "기업은행", "SC제일은행", "케이뱅크", "카카오뱅크", "토스뱅크"
-                    );
-                }
-                builder.banks(banks);
-                break;
-
-            case "saving":
-                // 적금 필터 옵션 (예금과 유사)
-                List<Map<String, String>> savingInterestRateTypes = new ArrayList<>();
-                savingInterestRateTypes.add(createOption("S", "단리"));
-                savingInterestRateTypes.add(createOption("M", "복리"));
-
-                builder.interestRateTypes(savingInterestRateTypes)
-                        .saveTerms(Arrays.asList(6, 12, 24, 36))
-                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
-
-                // 예치 금액 옵션
-                Map<String, Object> savingAmountOptions = new HashMap<>();
-                savingAmountOptions.put("min", 10000);
-                savingAmountOptions.put("max", 10000000);
-                savingAmountOptions.put("defaultValue", 100000);
-
-                builder.depositAmountOptions(savingAmountOptions);
-                break;
-
-            case "pension":
-                // 연금 유형 (DB에서 조회 또는 기본값 사용)
-                List<Map<String, String>> pensionTypes = pensionProductMapper.getDistinctPensionTypes(categoryId);
-                if (pensionTypes == null || pensionTypes.isEmpty()) {
-                    pensionTypes = new ArrayList<>();
-                    pensionTypes.add(createOption("personal", "개인연금"));
-                    pensionTypes.add(createOption("retirement", "퇴직연금"));
-                }
-                builder.pensionTypes(pensionTypes);
-
-                // 보장 수익률 (DB에서 조회 또는 기본값 사용)
-                List<Double> guaranteeRates = pensionProductMapper.getDistinctGuaranteeRates(categoryId);
-                if (guaranteeRates == null || guaranteeRates.isEmpty()) {
-                    guaranteeRates = Arrays.asList(2.0, 2.5, 3.0, 3.5);
-                }
-                builder.guaranteeRates(guaranteeRates);
-
-                // 납입 기간 (DB에서 조회 또는 기본값 사용)
-                List<Integer> paymentPeriods = pensionProductMapper.getDistinctPaymentPeriods(categoryId);
-                if (paymentPeriods == null || paymentPeriods.isEmpty()) {
-                    paymentPeriods = Arrays.asList(10, 15, 20, 30);
-                }
-                builder.saveTerms(paymentPeriods);
-
-                // 월 납입금 범위
+                // 월 납입 금액 옵션
                 Map<String, Object> monthlyPaymentOptions = new HashMap<>();
-                Integer minMonthlyPayment = pensionProductMapper.getMinMonthlyPayment(categoryId);
-                Integer maxMonthlyPayment = pensionProductMapper.getMaxMonthlyPayment(categoryId);
+                monthlyPaymentOptions.put("min", 10000);
+                monthlyPaymentOptions.put("max", 1000000);
+                monthlyPaymentOptions.put("defaultValue", 100000);
+                builder.monthlyPaymentOptions(monthlyPaymentOptions);
+            }
+        } else if (categoryId == 5) {  // 연금 카테고리
+            // 연금 유형 (DB에서 조회 또는 기본값 사용)
+            List<Map<String, String>> pensionTypes = pensionProductMapper.getDistinctPensionTypes(categoryId);
+            if (pensionTypes == null || pensionTypes.isEmpty()) {
+                pensionTypes = new ArrayList<>();
+                pensionTypes.add(createOption("personal", "개인연금"));
+                pensionTypes.add(createOption("retirement", "퇴직연금"));
+            }
+            builder.pensionTypes(pensionTypes);
 
-                monthlyPaymentOptions.put("min", minMonthlyPayment != null ? minMonthlyPayment : 50000);
-                monthlyPaymentOptions.put("max", maxMonthlyPayment != null ? maxMonthlyPayment : 1000000);
-                monthlyPaymentOptions.put("defaultValue", minMonthlyPayment != null ? minMonthlyPayment : 100000);
+            // 보장 수익률 (DB에서 조회 또는 기본값 사용)
+            List<Double> guaranteeRates = pensionProductMapper.getDistinctGuaranteeRates(categoryId);
+            if (guaranteeRates == null || guaranteeRates.isEmpty()) {
+                guaranteeRates = Arrays.asList(2.0, 2.5, 3.0, 3.5);
+            }
+            builder.guaranteeRates(guaranteeRates);
 
-                builder.depositAmountOptions(monthlyPaymentOptions);
+            // 납입 기간 (DB에서 조회 또는 기본값 사용)
+            List<Integer> paymentPeriods = pensionProductMapper.getDistinctPaymentPeriods(categoryId);
+            if (paymentPeriods == null || paymentPeriods.isEmpty()) {
+                paymentPeriods = Arrays.asList(10, 15, 20, 30);
+            }
+            builder.saveTerms(paymentPeriods);
 
-                // 가입 방식
-                builder.joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
-                break;
+            // 월 납입금 범위
+            Map<String, Object> monthlyPaymentOptions = new HashMap<>();
+            Integer minMonthlyPayment = pensionProductMapper.getMinMonthlyPayment(categoryId);
+            Integer maxMonthlyPayment = pensionProductMapper.getMaxMonthlyPayment(categoryId);
 
-            default:
-                // 기본 필터 옵션
-                builder.saveTerms(Arrays.asList(1, 3, 6, 12, 24, 36))
-                        .joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
+            monthlyPaymentOptions.put("min", minMonthlyPayment != null ? minMonthlyPayment : 50000);
+            monthlyPaymentOptions.put("max", maxMonthlyPayment != null ? maxMonthlyPayment : 1000000);
+            monthlyPaymentOptions.put("defaultValue", minMonthlyPayment != null ? minMonthlyPayment : 100000);
+
+            builder.monthlyPaymentOptions(monthlyPaymentOptions);
+
+            // 가입 방식
+            builder.joinMethods(Arrays.asList("전체", "온라인", "오프라인"));
         }
 
-        // 하위 카테고리 정보 (가정: ProductCategoryService가 주입되어 있음)
-        // 이 부분은 실제 구현에서는 ProductCategoryService를 주입받아 사용해야 합니다.
-        // 현재는 예시로 빈 리스트를 설정합니다.
-        builder.subcategories(new ArrayList<>());
+        // 서브카테고리 목록 조회
+        List<Map<String, Object>> subcategories = financialProductMapper.getSubcategoriesByCategoryId(categoryId);
+        if (subcategories == null) {
+            subcategories = new ArrayList<>();
+        }
+        builder.subcategories(subcategories);
 
         return builder.build();
     }
@@ -473,264 +564,4 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         option.put("name", name);
         return option;
     }
-
-//    /**
-//     * 모의 상품 목록 생성
-//     */
-//    private List<ProductListResponse.ProductSummary> createMockProducts(String productType) {
-//        List<ProductListResponse.ProductSummary> products = new ArrayList<>();
-//
-//        switch (productType.toLowerCase()) {
-//            case "deposit":
-//                // 예금 상품 모의 데이터
-//                products.add(createProductSummary("DP0001", "우리은행", "WR뱅크 정기예금", 3.5, 4.0, 12));
-//                products.add(createProductSummary("DP0002", "국민은행", "KB Star 정기예금", 3.3, 3.8, 24));
-//                products.add(createProductSummary("DP0003", "신한은행", "신한 플러스 정기예금", 3.4, 3.9, 36));
-//                products.add(createProductSummary("DP0004", "하나은행", "하나 두배 정기예금", 3.2, 3.7, 12));
-//                products.add(createProductSummary("DP0005", "농협은행", "NH왕곡 정기예금", 3.1, 3.6, 24));
-//                break;
-//            case "saving":
-//                // 적금 상품 모의 데이터
-//                products.add(createProductSummary("SV0001", "우리은행", "WR뱅크 자유적금", 3.8, 4.3, 12));
-//                products.add(createProductSummary("SV0002", "국민은행", "KB Star 자유적금", 3.6, 4.1, 24));
-//                products.add(createProductSummary("SV0003", "신한은행", "신한 플러스 자유적금", 3.7, 4.2, 36));
-//                products.add(createProductSummary("SV0004", "하나은행", "하나 두배 자유적금", 3.5, 4.0, 12));
-//                products.add(createProductSummary("SV0005", "농협은행", "NH왕곡 자유적금", 3.4, 3.9, 24));
-//                break;
-//            case "pension":
-//                // 연금 상품 모의 데이터
-//                products.add(createProductSummary("PN0001", "우리은행", "WR뱅크 연금저축", 4.0, 4.5, 12));
-//                products.add(createProductSummary("PN0002", "국민은행", "KB Star 연금저축", 3.8, 4.3, 24));
-//                products.add(createProductSummary("PN0003", "신한은행", "신한 플러스 연금저축", 3.9, 4.4, 36));
-//                products.add(createProductSummary("PN0004", "하나은행", "하나 두배 연금저축", 3.7, 4.2, 12));
-//                products.add(createProductSummary("PN0005", "농협은행", "NH왕곡 연금저축", 3.6, 4.1, 24));
-//                break;
-//            default:
-//                throw new IllegalArgumentException("지원하지 않는 상품 유형입니다: " + productType);
-//        }
-//
-//        return products;
-//    }
-//
-//    /**
-//     * 모의 상품 요약 정보 생성
-//     */
-//    private ProductListResponse.ProductSummary createProductSummary(
-//            String productId, String companyName, String productName,
-//            double interestRate, double specialRate, int saveTerm) {
-//
-//        return ProductListResponse.ProductSummary.builder()
-//                .finPrdtCd(productId)
-//                .korCoNm(companyName)
-//                .finPrdtNm(productName)
-//                .intrRate(interestRate)
-//                .intrRate2(specialRate)
-//                .saveTrm(saveTerm)
-//                .joinWay("인터넷뱅킹,스마트폰뱅킹,창구")
-//                .build();
-//    }
-//
-//    /**
-//     * 모의 예금 상품 상세 정보 조회
-//     */
-//    private DepositProductDTO getMockDepositProduct(String productId) {
-//        // 예금 상품 데이터 맵 (ID -> 상품 객체)
-//        Map<String, DepositProductDTO> depositProducts = new HashMap<>();
-//
-//        // DP0001 상품 정보
-//        DepositProductDTO product1 = new DepositProductDTO();
-//        product1.setFinPrdtCd("DP0001");
-//        product1.setFinCoNo("WR001");
-//        product1.setKorCoNm("우리은행");
-//        product1.setFinPrdtNm("WR뱅크 정기예금");
-//        product1.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product1.setMtrtInt("만기 후 자동 해지");
-//        product1.setSpclCnd("우리은행 급여통장 보유 고객 우대금리 0.5% 적용");
-//        product1.setJoinMember("제한없음");
-//        product1.setJoinDeny("없음");
-//        product1.setJoinAmt(10000000L);
-//        product1.setDclsStrtDay("20230101");
-//
-//        // DP0001 옵션 정보
-//        List<DepositOptionDTO> options1 = new ArrayList<>();
-//        DepositOptionDTO option1 = new DepositOptionDTO();
-//        option1.setFinPrdtCd("DP0001");
-//        option1.setSaveTrm(12);
-//        option1.setIntrRateType("S");
-//        option1.setIntrRateTypeNm("단리");
-//        option1.setIntrRate(3.5);
-//        option1.setIntrRate2(4.0);
-//        options1.add(option1);
-//        product1.setOptions(options1);
-//
-//        depositProducts.put("DP0001", product1);
-//
-//        // DP0002 상품 정보
-//        DepositProductDTO product2 = new DepositProductDTO();
-//        product2.setFinPrdtCd("DP0002");
-//        product2.setFinCoNo("KB001");
-//        product2.setKorCoNm("국민은행");
-//        product2.setFinPrdtNm("KB Star 정기예금");
-//        product2.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product2.setMtrtInt("만기 후 자동 해지");
-//        product2.setSpclCnd("국민은행 KB Star 멤버십 고객 우대금리 0.5% 적용");
-//        product2.setJoinMember("제한없음");
-//        product2.setJoinDeny("없음");
-//        product2.setJoinAmt(10000000L);
-//        product2.setDclsStrtDay("20230101");
-//
-//        // DP0002 옵션 정보
-//        List<DepositOptionDTO> options2 = new ArrayList<>();
-//        DepositOptionDTO option2 = new DepositOptionDTO();
-//        option2.setFinPrdtCd("DP0002");
-//        option2.setSaveTrm(24);
-//        option2.setIntrRateType("S");
-//        option2.setIntrRateTypeNm("단리");
-//        option2.setIntrRate(3.3);
-//        option2.setIntrRate2(3.8);
-//        options2.add(option2);
-//        product2.setOptions(options2);
-//
-//        depositProducts.put("DP0002", product2);
-//
-//        // DP0003 상품 정보 (신한은행)
-//        DepositProductDTO product3 = new DepositProductDTO();
-//        product3.setFinPrdtCd("DP0003");
-//        product3.setFinCoNo("SH001");
-//        product3.setKorCoNm("신한은행");
-//        product3.setFinPrdtNm("신한 플러스 정기예금");
-//        product3.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product3.setMtrtInt("만기 후 자동 해지");
-//        product3.setSpclCnd("신한은행 주거래 고객 우대금리 0.3% 적용");
-//        product3.setJoinMember("제한없음");
-//        product3.setJoinDeny("없음");
-//        product3.setJoinAmt(10000000L);
-//        product3.setDclsStrtDay("20230101");
-//
-//        // DP0003 옵션 정보
-//        List<DepositOptionDTO> options3 = new ArrayList<>();
-//        DepositOptionDTO option3 = new DepositOptionDTO();
-//        option3.setFinPrdtCd("DP0003");
-//        option3.setSaveTrm(36);
-//        option3.setIntrRateType("S");
-//        option3.setIntrRateTypeNm("단리");
-//        option3.setIntrRate(3.4);
-//        option3.setIntrRate2(3.9);
-//        options3.add(option3);
-//        product3.setOptions(options3);
-//
-//        depositProducts.put("DP0003", product3);
-//
-//        // 필요에 따라 더 많은 상품 추가...
-//
-//
-//        // 상품 ID로 조회
-//        return depositProducts.get(productId);
-//    }
-//
-//    /**
-//     * 모의 적금 상품 상세 정보 조회
-//     */
-//    private DepositProductDTO getMockSavingProduct(String productId) {
-//        // 적금 상품 데이터 맵 (ID -> 상품 객체)
-//        Map<String, DepositProductDTO> savingProducts = new HashMap<>();
-//
-//        // SV0001 상품 정보
-//        DepositProductDTO product1 = new DepositProductDTO();
-//        product1.setFinPrdtCd("SV0001");
-//        product1.setFinCoNo("WR001");
-//        product1.setKorCoNm("우리은행");
-//        product1.setFinPrdtNm("WR뱅크 자유적금");
-//        product1.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product1.setMtrtInt("만기 후 자동 해지");
-//        product1.setSpclCnd("우리은행 급여통장 보유 고객 우대금리 0.5% 적용");
-//        product1.setJoinMember("제한없음");
-//        product1.setJoinDeny("없음");
-//        product1.setJoinAmt(10000000L);
-//        product1.setDclsStrtDay("20230101");
-//
-//        // SV0001 옵션 정보
-//        List<DepositOptionDTO> options1 = new ArrayList<>();
-//        DepositOptionDTO option1 = new DepositOptionDTO();
-//        option1.setFinPrdtCd("SV0001");
-//        option1.setSaveTrm(12);
-//        option1.setIntrRateType("S");
-//        option1.setIntrRateTypeNm("단리");
-//        option1.setIntrRate(3.8);
-//        option1.setIntrRate2(4.3);
-//        options1.add(option1);
-//        product1.setOptions(options1);
-//
-//        savingProducts.put("SV0001", product1);
-//
-//        // 상품 ID로 조회
-//        return savingProducts.get(productId);
-//    }
-//
-//    /**
-//     * 모의 연금 상품 상세 정보 조회
-//     */
-//    private DepositProductDTO getMockPensionProduct(String productId) {
-//        // 연금 상품 데이터 맵 (ID -> 상품 객체)
-//        Map<String, DepositProductDTO> pensionProducts = new HashMap<>();
-//
-//        // PN0001 상품 정보
-//        DepositProductDTO product1 = new DepositProductDTO();
-//        product1.setFinPrdtCd("PN0001");
-//        product1.setFinCoNo("WR001");
-//        product1.setKorCoNm("우리은행");
-//        product1.setFinPrdtNm("WR뱅크 연금저축");
-//        product1.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product1.setMtrtInt("만기 후 자동 해지");
-//        product1.setSpclCnd("우리은행 급여통장 보유 고객 우대금리 0.5% 적용");
-//        product1.setJoinMember("제한없음");
-//        product1.setJoinDeny("없음");
-//        product1.setJoinAmt(10000000L);
-//        product1.setDclsStrtDay("20230101");
-//
-//        // PN0001 옵션 정보
-//        List<DepositOptionDTO> options1 = new ArrayList<>();
-//        DepositOptionDTO option1 = new DepositOptionDTO();
-//        option1.setFinPrdtCd("PN0001");
-//        option1.setSaveTrm(12);
-//        option1.setIntrRateType("S");
-//        option1.setIntrRateTypeNm("단리");
-//        option1.setIntrRate(4.0);
-//        option1.setIntrRate2(4.5);
-//        options1.add(option1);
-//        product1.setOptions(options1);
-//
-//        pensionProducts.put("PN0001", product1);
-//
-//        // PN0002 상품 정보
-//        DepositProductDTO product2 = new DepositProductDTO();
-//        product2.setFinPrdtCd("PN0002");
-//        product2.setFinCoNo("KB001");
-//        product2.setKorCoNm("국민은행");
-//        product2.setFinPrdtNm("KB Star 연금저축");
-//        product2.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
-//        product2.setMtrtInt("만기 후 자동 해지");
-//        product2.setSpclCnd("국민은행 KB Star 멤버십 고객 우대금리 0.5% 적용");
-//        product2.setJoinMember("제한없음");
-//        product2.setJoinDeny("없음");
-//        product2.setJoinAmt(10000000L);
-//        product2.setDclsStrtDay("20230101");
-//
-//        // PN0002 옵션 정보
-//        List<DepositOptionDTO> options2 = new ArrayList<>();
-//        DepositOptionDTO option2 = new DepositOptionDTO();
-//        option2.setFinPrdtCd("PN0002");
-//        option2.setSaveTrm(24);
-//        option2.setIntrRateType("S");
-//        option2.setIntrRateTypeNm("단리");
-//        option2.setIntrRate(3.8);
-//        option2.setIntrRate2(4.3);
-//        options2.add(option2);
-//        product2.setOptions(options2);
-//
-//        pensionProducts.put("PN0002", product2);
-//
-//        // 상품 ID로 조회
-//        return pensionProducts.get(productId);
-//    }
 }

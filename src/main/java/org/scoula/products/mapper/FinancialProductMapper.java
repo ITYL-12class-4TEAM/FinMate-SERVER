@@ -21,6 +21,8 @@ public interface FinancialProductMapper {
     @MapKey("product_id")
     List<Map<String, Object>> findProducts(
             @Param("categoryName") String categoryName,
+            @Param("CategoryId") Long categoryId,
+            @Param("subCategoryId") Long subCategoryId,
             @Param("searchText") String searchText,
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
@@ -38,6 +40,8 @@ public interface FinancialProductMapper {
      */
     int countProducts(
             @Param("categoryName") String categoryName,
+            @Param("CategoryId") Long categoryId,
+            @Param("subCategoryId") Long subCategoryId,
             @Param("searchText") String searchText,
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
@@ -61,4 +65,11 @@ public interface FinancialProductMapper {
      * 고유 은행명 목록 조회
      */
     List<String> getDistinctBanks();
+
+    /**
+     * 카테고리 ID로 서브카테고리 목록 조회
+     */
+    @MapKey("subcategory_id")
+    List<Map<String, Object>> getSubcategoriesByCategoryId(@Param("categoryId") Long categoryId);
+
 }

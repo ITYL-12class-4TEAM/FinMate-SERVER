@@ -21,7 +21,7 @@ public interface PensionProductMapper {
      * @param productId 상품 ID(fin_prdt_cd)
      * @return 연금 상품 상세 정보
      */
-    PensionProductDTO findByProductId(String productId);
+    PensionProductDTO findByProductId(Long productId);
 
     /**
      * 상품 ID로 연금 상품 옵션 정보 조회
@@ -29,7 +29,7 @@ public interface PensionProductMapper {
      * @param productId 상품 ID(fin_prdt_cd)
      * @return 연금 상품 옵션 목록
      */
-    List<PensionOptionDTO> findOptionsByProductId(String productId);
+    List<PensionOptionDTO> findOptionsByProductId(Long productId);
 
     /**
      * 연금 상품 목록 조회 (필터링 적용)
