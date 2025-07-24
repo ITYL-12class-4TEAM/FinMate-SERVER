@@ -1519,7 +1519,7 @@ finmate|schema||jejupig|localhost|UPDATE|G</Grants>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="419" parent="300" name="product_id">
-      <AutoIncrement>1</AutoIncrement>
+      <AutoIncrement>1101</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
@@ -1556,7 +1556,6 @@ finmate|schema||jejupig|localhost|UPDATE|G</Grants>
     </column>
     <column id="426" parent="300" name="wishlist_count">
       <DefaultExpression>0</DefaultExpression>
-      <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>int|0s</StoredType>
     </column>
@@ -1571,19 +1570,21 @@ finmate|schema||jejupig|localhost|UPDATE|G</Grants>
       <StoredType>char(6)|0s</StoredType>
     </column>
     <column id="429" parent="300" name="subcategory_id">
+      <NotNull>1</NotNull>
       <Position>11</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
     <column id="430" parent="300" name="category_id">
+      <NotNull>1</NotNull>
       <Position>12</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="431" parent="300" name="FK_product_subcategory_TO_financial_product_1">
+    <foreign-key id="431" parent="300" name="fk_financial_product_subcategory">
       <ColNames>subcategory_id</ColNames>
       <RefColNames>subcategory_id</RefColNames>
       <RefTableName>product_subcategory</RefTableName>
     </foreign-key>
-    <foreign-key id="432" parent="300" name="FK_product_category_TO_financial_product_1">
+    <foreign-key id="432" parent="300" name="fk_financial_product_category">
       <ColNames>category_id</ColNames>
       <RefColNames>category_id</RefColNames>
       <RefTableName>product_category</RefTableName>
@@ -1599,11 +1600,11 @@ fin_prdt_cd</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="435" parent="300" name="FK_product_subcategory_TO_financial_product_1">
+    <index id="435" parent="300" name="fk_financial_product_subcategory">
       <ColNames>subcategory_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="436" parent="300" name="FK_product_category_TO_financial_product_1">
+    <index id="436" parent="300" name="fk_financial_product_category">
       <ColNames>category_id</ColNames>
       <Type>btree</Type>
     </index>
