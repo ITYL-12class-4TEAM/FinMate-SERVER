@@ -47,3 +47,8 @@ bin/
 /.idea/vcs.xml
 !/.idea/dataSources/
 !/server-submodule/.idea/
+!/.idea/dataSources.local.xml
+!/.idea/misc.xml
+!/.idea/workspace.xml
+!/.idea/misc.xml
+!/.idea/dataSources.local.xml
