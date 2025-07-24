@@ -1281,7 +1281,7 @@ yesg|schema||admin||UPDATE|G</Grants>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="291" parent="1" name="finmate">
-      <LastIntrospectionLocalTimestamp>2025-07-23.08:06:43</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-07-24.00:29:15</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="292" parent="1" name="information_schema">
@@ -2904,716 +2904,724 @@ social_id</ColNames>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="648" parent="343" name="created_at">
-      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+    <column id="648" parent="343" name="post_id">
+      <NotNull>1</NotNull>
       <Position>2</Position>
-      <StoredType>datetime|0s</StoredType>
+      <StoredType>bigint|0s</StoredType>
     </column>
     <column id="649" parent="343" name="member_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="650" parent="343" name="post_id">
+    <column id="650" parent="343" name="is_liked">
+      <DefaultExpression>1</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StoredType>bigint|0s</StoredType>
+      <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <foreign-key id="651" parent="343" name="post_like_ibfk_1">
-      <ColNames>member_id</ColNames>
-      <RefColNames>member_id</RefColNames>
-      <RefTableName>member</RefTableName>
-    </foreign-key>
-    <foreign-key id="652" parent="343" name="post_like_ibfk_2">
+    <column id="651" parent="343" name="created_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <Position>5</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="652" parent="343" name="post_like_ibfk_1">
       <ColNames>post_id</ColNames>
+      <OnDelete>cascade</OnDelete>
       <RefColNames>post_id</RefColNames>
       <RefTableName>post</RefTableName>
     </foreign-key>
-    <index id="653" parent="343" name="PRIMARY">
+    <foreign-key id="653" parent="343" name="post_like_ibfk_2">
+      <ColNames>member_id</ColNames>
+      <OnDelete>cascade</OnDelete>
+      <RefColNames>member_id</RefColNames>
+      <RefTableName>member</RefTableName>
+    </foreign-key>
+    <index id="654" parent="343" name="PRIMARY">
       <ColNames>post_like_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="654" parent="343" name="uq_post_like">
+    <index id="655" parent="343" name="uq_post_like">
       <ColNames>member_id
 post_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="655" parent="343" name="post_id">
+    <index id="656" parent="343" name="post_id">
       <ColNames>post_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="656" parent="343" name="PRIMARY">
+    <key id="657" parent="343" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="657" parent="343" name="uq_post_like">
+    <key id="658" parent="343" name="uq_post_like">
       <UnderlyingIndexName>uq_post_like</UnderlyingIndexName>
     </key>
-    <column id="658" parent="344" name="code">
+    <column id="659" parent="344" name="code">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="659" parent="344" name="label">
+    <column id="660" parent="344" name="label">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <index id="660" parent="344" name="PRIMARY">
+    <index id="661" parent="344" name="PRIMARY">
       <ColNames>code</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="661" parent="344" name="PRIMARY">
+    <key id="662" parent="344" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="662" parent="345" name="tag_id">
+    <column id="663" parent="345" name="tag_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="663" parent="345" name="post_id">
+    <column id="664" parent="345" name="post_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="664" parent="345" name="post_tag_ibfk_1">
+    <foreign-key id="665" parent="345" name="post_tag_ibfk_1">
       <ColNames>tag_id</ColNames>
       <RefColNames>tag_id</RefColNames>
       <RefTableName>tag</RefTableName>
     </foreign-key>
-    <foreign-key id="665" parent="345" name="post_tag_ibfk_2">
+    <foreign-key id="666" parent="345" name="post_tag_ibfk_2">
       <ColNames>post_id</ColNames>
       <RefColNames>post_id</RefColNames>
       <RefTableName>post</RefTableName>
     </foreign-key>
-    <index id="666" parent="345" name="PRIMARY">
+    <index id="667" parent="345" name="PRIMARY">
       <ColNames>tag_id
 post_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="667" parent="345" name="post_id">
+    <index id="668" parent="345" name="post_id">
       <ColNames>post_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="668" parent="345" name="PRIMARY">
+    <key id="669" parent="345" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="669" parent="346" name="category_id">
+    <column id="670" parent="346" name="category_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="670" parent="346" name="name">
+    <column id="671" parent="346" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="671" parent="346" name="description">
+    <column id="672" parent="346" name="description">
       <Position>3</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <index id="672" parent="346" name="PRIMARY">
+    <index id="673" parent="346" name="PRIMARY">
       <ColNames>category_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="673" parent="346" name="uq_category_name">
+    <index id="674" parent="346" name="uq_category_name">
       <ColNames>name</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="674" parent="346" name="PRIMARY">
+    <key id="675" parent="346" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="675" parent="346" name="uq_category_name">
+    <key id="676" parent="346" name="uq_category_name">
       <UnderlyingIndexName>uq_category_name</UnderlyingIndexName>
     </key>
-    <column id="676" parent="347" name="subcategory_id">
+    <column id="677" parent="347" name="subcategory_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="677" parent="347" name="category_id">
+    <column id="678" parent="347" name="category_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="678" parent="347" name="name">
+    <column id="679" parent="347" name="name">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="679" parent="347" name="description">
+    <column id="680" parent="347" name="description">
       <Position>4</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <foreign-key id="680" parent="347" name="fk_subcategory_to_category">
+    <foreign-key id="681" parent="347" name="fk_subcategory_to_category">
       <ColNames>category_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>category_id</RefColNames>
       <RefTableName>product_category</RefTableName>
     </foreign-key>
-    <index id="681" parent="347" name="PRIMARY">
+    <index id="682" parent="347" name="PRIMARY">
       <ColNames>subcategory_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="682" parent="347" name="uq_subcategory_name">
+    <index id="683" parent="347" name="uq_subcategory_name">
       <ColNames>category_id
 name</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="683" parent="347" name="PRIMARY">
+    <key id="684" parent="347" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="684" parent="347" name="uq_subcategory_name">
+    <key id="685" parent="347" name="uq_subcategory_name">
       <UnderlyingIndexName>uq_subcategory_name</UnderlyingIndexName>
     </key>
-    <column id="685" parent="348" name="report_id">
+    <column id="686" parent="348" name="report_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="686" parent="348" name="target_type">
+    <column id="687" parent="348" name="target_type">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>enum(&apos;post&apos;, &apos;comment&apos;)|0e</StoredType>
     </column>
-    <column id="687" parent="348" name="target_id">
+    <column id="688" parent="348" name="target_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="688" parent="348" name="reason">
+    <column id="689" parent="348" name="reason">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="689" parent="348" name="status">
+    <column id="690" parent="348" name="status">
       <DefaultExpression>&apos;PENDING&apos;</DefaultExpression>
       <Position>5</Position>
       <StoredType>enum(&apos;PENDING&apos;, &apos;RESOLVED&apos;, &apos;REJECTED&apos;)|0e</StoredType>
     </column>
-    <column id="690" parent="348" name="created_at">
+    <column id="691" parent="348" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>6</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="691" parent="348" name="resolved_at">
+    <column id="692" parent="348" name="resolved_at">
       <Position>7</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="692" parent="348" name="reporter_id">
+    <column id="693" parent="348" name="reporter_id">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="693" parent="348" name="admin_id">
+    <column id="694" parent="348" name="admin_id">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="694" parent="348" name="report_ibfk_1">
+    <foreign-key id="695" parent="348" name="report_ibfk_1">
       <ColNames>reporter_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <foreign-key id="695" parent="348" name="report_ibfk_2">
+    <foreign-key id="696" parent="348" name="report_ibfk_2">
       <ColNames>admin_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <index id="696" parent="348" name="PRIMARY">
+    <index id="697" parent="348" name="PRIMARY">
       <ColNames>report_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="697" parent="348" name="reporter_id">
+    <index id="698" parent="348" name="reporter_id">
       <ColNames>reporter_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="698" parent="348" name="admin_id">
+    <index id="699" parent="348" name="admin_id">
       <ColNames>admin_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="699" parent="348" name="PRIMARY">
+    <key id="700" parent="348" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="700" parent="349" name="post_scrap_id">
+    <column id="701" parent="349" name="post_scrap_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="701" parent="349" name="created_at">
+    <column id="702" parent="349" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>2</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="702" parent="349" name="member_id">
+    <column id="703" parent="349" name="member_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="703" parent="349" name="post_id">
+    <column id="704" parent="349" name="post_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="704" parent="349" name="scrap_ibfk_1">
+    <foreign-key id="705" parent="349" name="scrap_ibfk_1">
       <ColNames>member_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <foreign-key id="705" parent="349" name="scrap_ibfk_2">
+    <foreign-key id="706" parent="349" name="scrap_ibfk_2">
       <ColNames>post_id</ColNames>
       <RefColNames>post_id</RefColNames>
       <RefTableName>post</RefTableName>
     </foreign-key>
-    <index id="706" parent="349" name="PRIMARY">
+    <index id="707" parent="349" name="PRIMARY">
       <ColNames>post_scrap_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="707" parent="349" name="uq_scrap">
+    <index id="708" parent="349" name="uq_scrap">
       <ColNames>member_id
 post_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="708" parent="349" name="post_id">
+    <index id="709" parent="349" name="post_id">
       <ColNames>post_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="709" parent="349" name="PRIMARY">
+    <key id="710" parent="349" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="710" parent="349" name="uq_scrap">
+    <key id="711" parent="349" name="uq_scrap">
       <UnderlyingIndexName>uq_scrap</UnderlyingIndexName>
     </key>
-    <column id="711" parent="350" name="sms_verification_id">
+    <column id="712" parent="350" name="sms_verification_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="712" parent="350" name="phone_number">
+    <column id="713" parent="350" name="phone_number">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(11)|0s</StoredType>
     </column>
-    <column id="713" parent="350" name="code">
+    <column id="714" parent="350" name="code">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(6)|0s</StoredType>
     </column>
-    <column id="714" parent="350" name="created_at">
+    <column id="715" parent="350" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="715" parent="350" name="expired_at">
+    <column id="716" parent="350" name="expired_at">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="716" parent="350" name="verified">
+    <column id="717" parent="350" name="verified">
       <DefaultExpression>0</DefaultExpression>
       <Position>6</Position>
       <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <index id="717" parent="350" name="PRIMARY">
+    <index id="718" parent="350" name="PRIMARY">
       <ColNames>sms_verification_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="718" parent="350" name="PRIMARY">
+    <key id="719" parent="350" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="719" parent="351" name="tag_id">
+    <column id="720" parent="351" name="tag_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="720" parent="351" name="name">
+    <column id="721" parent="351" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="721" parent="351" name="tag_type">
+    <column id="722" parent="351" name="tag_type">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>enum(&apos;product&apos;, &apos;property&apos;)|0e</StoredType>
     </column>
-    <index id="722" parent="351" name="PRIMARY">
+    <index id="723" parent="351" name="PRIMARY">
       <ColNames>tag_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="723" parent="351" name="PRIMARY">
+    <key id="724" parent="351" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="724" parent="352" name="terms_id">
+    <column id="725" parent="352" name="terms_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="725" parent="352" name="code">
+    <column id="726" parent="352" name="code">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="726" parent="352" name="title">
+    <column id="727" parent="352" name="title">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="727" parent="352" name="content">
+    <column id="728" parent="352" name="content">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="728" parent="352" name="type">
+    <column id="729" parent="352" name="type">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>enum(&apos;필수&apos;, &apos;선택&apos;)|0e</StoredType>
     </column>
-    <column id="729" parent="352" name="version">
+    <column id="730" parent="352" name="version">
       <Position>6</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="730" parent="352" name="created_at">
+    <column id="731" parent="352" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>7</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="731" parent="352" name="PRIMARY">
+    <index id="732" parent="352" name="PRIMARY">
       <ColNames>terms_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="732" parent="352" name="PRIMARY">
+    <key id="733" parent="352" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="733" parent="353" name="agreement_id">
+    <column id="734" parent="353" name="agreement_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="734" parent="353" name="agreed_at">
+    <column id="735" parent="353" name="agreed_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>2</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="735" parent="353" name="agreed">
+    <column id="736" parent="353" name="agreed">
       <DefaultExpression>0</DefaultExpression>
       <Position>3</Position>
       <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <column id="736" parent="353" name="member_id">
+    <column id="737" parent="353" name="member_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="737" parent="353" name="terms_id">
+    <column id="738" parent="353" name="terms_id">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="738" parent="353" name="terms_agreement_ibfk_1">
+    <foreign-key id="739" parent="353" name="terms_agreement_ibfk_1">
       <ColNames>member_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <foreign-key id="739" parent="353" name="terms_agreement_ibfk_2">
+    <foreign-key id="740" parent="353" name="terms_agreement_ibfk_2">
       <ColNames>terms_id</ColNames>
       <RefColNames>terms_id</RefColNames>
       <RefTableName>terms</RefTableName>
     </foreign-key>
-    <index id="740" parent="353" name="PRIMARY">
+    <index id="741" parent="353" name="PRIMARY">
       <ColNames>agreement_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="741" parent="353" name="member_id">
+    <index id="742" parent="353" name="member_id">
       <ColNames>member_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="742" parent="353" name="terms_id">
+    <index id="743" parent="353" name="terms_id">
       <ColNames>terms_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="743" parent="353" name="PRIMARY">
+    <key id="744" parent="353" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="744" parent="354" name="view_id">
+    <column id="745" parent="354" name="view_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="745" parent="354" name="viewed_at">
+    <column id="746" parent="354" name="viewed_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>2</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="746" parent="354" name="member_id">
+    <column id="747" parent="354" name="member_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="747" parent="354" name="product_id">
+    <column id="748" parent="354" name="product_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="748" parent="354" name="viewed_product_ibfk_1">
+    <foreign-key id="749" parent="354" name="viewed_product_ibfk_1">
       <ColNames>member_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <foreign-key id="749" parent="354" name="viewed_product_ibfk_2">
+    <foreign-key id="750" parent="354" name="viewed_product_ibfk_2">
       <ColNames>product_id</ColNames>
       <RefColNames>product_id</RefColNames>
       <RefTableName>financial_product</RefTableName>
     </foreign-key>
-    <index id="750" parent="354" name="PRIMARY">
+    <index id="751" parent="354" name="PRIMARY">
       <ColNames>view_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="751" parent="354" name="member_id">
+    <index id="752" parent="354" name="member_id">
       <ColNames>member_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="752" parent="354" name="product_id">
+    <index id="753" parent="354" name="product_id">
       <ColNames>product_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="753" parent="354" name="PRIMARY">
+    <key id="754" parent="354" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="754" parent="355" name="history_id">
+    <column id="755" parent="355" name="history_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="755" parent="355" name="result_type">
+    <column id="756" parent="355" name="result_type">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="756" parent="355" name="age">
+    <column id="757" parent="355" name="age">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="757" parent="355" name="income">
+    <column id="758" parent="355" name="income">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="758" parent="355" name="fixed_cost">
+    <column id="759" parent="355" name="fixed_cost">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="759" parent="355" name="surplus_amount">
+    <column id="760" parent="355" name="surplus_amount">
       <Position>6</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="760" parent="355" name="period">
+    <column id="761" parent="355" name="period">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>enum(&apos;단기&apos;, &apos;중기&apos;, &apos;장기&apos;)|0e</StoredType>
     </column>
-    <column id="761" parent="355" name="purpose">
+    <column id="762" parent="355" name="purpose">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>enum(&apos;여행&apos;, &apos;결혼&apos;, &apos;자녀교육&apos;, &apos;은퇴준비&apos;, &apos;기타&apos;)|0e</StoredType>
     </column>
-    <column id="762" parent="355" name="W">
+    <column id="763" parent="355" name="W">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>enum(&apos;A&apos;, &apos;I&apos;)|0e</StoredType>
     </column>
-    <column id="763" parent="355" name="M">
+    <column id="764" parent="355" name="M">
       <NotNull>1</NotNull>
       <Position>10</Position>
       <StoredType>enum(&apos;P&apos;, &apos;B&apos;)|0e</StoredType>
     </column>
-    <column id="764" parent="355" name="T">
+    <column id="765" parent="355" name="T">
       <NotNull>1</NotNull>
       <Position>11</Position>
       <StoredType>enum(&apos;M&apos;, &apos;W&apos;)|0e</StoredType>
     </column>
-    <column id="765" parent="355" name="I">
+    <column id="766" parent="355" name="I">
       <NotNull>1</NotNull>
       <Position>12</Position>
       <StoredType>enum(&apos;L&apos;, &apos;C&apos;)|0e</StoredType>
     </column>
-    <column id="766" parent="355" name="risk_preference">
+    <column id="767" parent="355" name="risk_preference">
       <NotNull>1</NotNull>
       <Position>13</Position>
       <StoredType>enum(&apos;LOW&apos;, &apos;MEDIUM&apos;, &apos;HIGH&apos;)|0e</StoredType>
     </column>
-    <column id="767" parent="355" name="created_at">
+    <column id="768" parent="355" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>14</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="768" parent="355" name="member_id">
+    <column id="769" parent="355" name="member_id">
       <NotNull>1</NotNull>
       <Position>15</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="769" parent="355" name="wmti_history_ibfk_1">
+    <foreign-key id="770" parent="355" name="wmti_history_ibfk_1">
       <ColNames>member_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <index id="770" parent="355" name="PRIMARY">
+    <index id="771" parent="355" name="PRIMARY">
       <ColNames>history_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="771" parent="355" name="member_id">
+    <index id="772" parent="355" name="member_id">
       <ColNames>member_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="772" parent="355" name="PRIMARY">
+    <key id="773" parent="355" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="773" parent="356" name="wmti_id">
+    <column id="774" parent="356" name="wmti_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="774" parent="356" name="result_type">
+    <column id="775" parent="356" name="result_type">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="775" parent="356" name="age">
+    <column id="776" parent="356" name="age">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="776" parent="356" name="income">
+    <column id="777" parent="356" name="income">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="777" parent="356" name="fixed_cost">
+    <column id="778" parent="356" name="fixed_cost">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="778" parent="356" name="surplus_amount">
+    <column id="779" parent="356" name="surplus_amount">
       <Position>6</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="779" parent="356" name="period">
+    <column id="780" parent="356" name="period">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>enum(&apos;단기&apos;, &apos;중기&apos;, &apos;장기&apos;)|0e</StoredType>
     </column>
-    <column id="780" parent="356" name="purpose">
+    <column id="781" parent="356" name="purpose">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StoredType>enum(&apos;여행&apos;, &apos;결혼&apos;, &apos;자녀교육&apos;, &apos;은퇴준비&apos;, &apos;기타&apos;)|0e</StoredType>
     </column>
-    <column id="781" parent="356" name="W">
+    <column id="782" parent="356" name="W">
       <NotNull>1</NotNull>
       <Position>9</Position>
       <StoredType>enum(&apos;A&apos;, &apos;I&apos;)|0e</StoredType>
     </column>
-    <column id="782" parent="356" name="M">
+    <column id="783" parent="356" name="M">
       <NotNull>1</NotNull>
       <Position>10</Position>
       <StoredType>enum(&apos;P&apos;, &apos;B&apos;)|0e</StoredType>
     </column>
-    <column id="783" parent="356" name="T">
+    <column id="784" parent="356" name="T">
       <NotNull>1</NotNull>
       <Position>11</Position>
       <StoredType>enum(&apos;M&apos;, &apos;W&apos;)|0e</StoredType>
     </column>
-    <column id="784" parent="356" name="I">
+    <column id="785" parent="356" name="I">
       <NotNull>1</NotNull>
       <Position>12</Position>
       <StoredType>enum(&apos;L&apos;, &apos;C&apos;)|0e</StoredType>
     </column>
-    <column id="785" parent="356" name="risk_preference">
+    <column id="786" parent="356" name="risk_preference">
       <NotNull>1</NotNull>
       <Position>13</Position>
       <StoredType>enum(&apos;안정형&apos;, &apos;안정추구형&apos;, &apos;위험중립형&apos;, &apos;적극투자형&apos;, &apos;공격투자형&apos;)|0e</StoredType>
     </column>
-    <column id="786" parent="356" name="created_at">
+    <column id="787" parent="356" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>14</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="787" parent="356" name="member_id">
+    <column id="788" parent="356" name="member_id">
       <NotNull>1</NotNull>
       <Position>15</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <foreign-key id="788" parent="356" name="wmti_profile_ibfk_1">
+    <foreign-key id="789" parent="356" name="wmti_profile_ibfk_1">
       <ColNames>member_id</ColNames>
       <RefColNames>member_id</RefColNames>
       <RefTableName>member</RefTableName>
     </foreign-key>
-    <index id="789" parent="356" name="PRIMARY">
+    <index id="790" parent="356" name="PRIMARY">
       <ColNames>wmti_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="790" parent="356" name="member_id">
+    <index id="791" parent="356" name="member_id">
       <ColNames>member_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="791" parent="356" name="PRIMARY">
+    <key id="792" parent="356" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
