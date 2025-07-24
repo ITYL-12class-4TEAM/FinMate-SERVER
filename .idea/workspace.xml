@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
