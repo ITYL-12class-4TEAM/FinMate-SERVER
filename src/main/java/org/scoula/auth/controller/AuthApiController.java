@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.scoula.auth.dto.FindIdResponseDTO;
 import org.scoula.auth.dto.TokenResponseDTO;
+import org.scoula.member.dto.SignupResponseDTO;
 import org.scoula.member.service.SignupService;
 import org.scoula.security.account.domain.MemberVO;
 import org.scoula.security.util.JwtProcessor;
@@ -102,6 +103,34 @@ public class AuthApiController {
         memberMapper.updatePassword(memberId, encodedPassword);
 
         return ResponseEntity.ok(new FindIdResponseDTO(true, "비밀번호가 성공적으로 변경되었습니다.", null));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<SignupResponseDTO> updateProfile(@RequestBody UpdateProfileRequest request) {
+        SignupResponseDTO result = signupService.updateProfile(
+                request.getMemberId(),
+                request.getNickname(),
+                request.getReceivePushNotification()
+        );
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    // 요청 DTO
+    public static class UpdateProfileRequest {
+        private Long memberId;
+        private String nickname;
+        private Boolean receivePushNotification;
+
+        public Long getMemberId() { return memberId; }
+        public void setMemberId(Long memberId) { this.memberId = memberId; }
+        public String getNickname() { return nickname; }
+        public void setNickname(String nickname) { this.nickname = nickname; }
+        public Boolean getReceivePushNotification() { return receivePushNotification; }
+        public void setReceivePushNotification(Boolean receivePushNotification) { this.receivePushNotification = receivePushNotification; }
     }
 
     // 요청 DTO
