@@ -8,12 +8,24 @@ import java.util.List;
 public class WMTICalculator {
 
     /**
-     * 설문 응답을 바탕으로 WMTI 코드를 계산하는 메서드
-     *
-     * @param answers 설문 응답
-     * @return 계산된 WMTI 코드
+     * WMTI 코드만 반환하는 메서드 (calculateScores 재활용)
      */
     public String calculateWMTICode(List<Integer> answers) {
+        WMTIScoreResult scores = calculateScores(answers);
+
+        StringBuilder code = new StringBuilder();
+        code.append(scores.getAScore() >= 50 ? "A" : "I");
+        code.append(scores.getPScore() >= 50 ? "P" : "B");
+        code.append(scores.getMScore() >= 50 ? "M" : "W");
+        code.append(scores.getLScore() >= 50 ? "L" : "C");
+
+        return code.toString();
+    }
+
+    /**
+     * A/P/M/L 점수만 계산하는 메서드 (공통 로직 분리)
+     */
+    public WMTIScoreResult calculateScores(List<Integer> answers) {
         double aScore = 65.0;
         double pScore = 60.0;
         double mScore = 60.0;
@@ -23,41 +35,37 @@ public class WMTICalculator {
             int qNum = i + 1;
             int score = answers.get(i);
 
-            switch (qNum) {
-                case 1:
-                    // A vs I
-                    if (score == 1) aScore = 65.0;
-                    else if (score == 2) aScore = 60.0;
-                    else if (score == 3) aScore = 50.0;
-                    else if (score == 4) aScore = 45.0;
-                    else if (score == 5) aScore = 40.0;
-                    break;
-                case 2: case 4: case 10: case 11: case 15: case 17: case 20:
-                    // P vs B
-                    pScore += getDelta(score, 6.0, 3.0);
-                    break;
-                case 3: case 5: case 7: case 8: case 13: case 14: case 16: case 18:
-                    // M vs W
-                    mScore += getDelta(score, 5.0, 2.5);
-                    break;
-                case 6: case 9: case 12: case 19:
-                    // L vs C
-                    lScore += getDelta(score, 10.0, 5.0);
-                    break;
+            if (qNum == 1) {
+                aScore = convertAScore(score);
+            } else if (isPQuestion(qNum)) {
+                pScore += getDelta(score, 6.0, 3.0);
+            } else if (isMQuestion(qNum)) {
+                mScore += getDelta(score, 5.0, 2.5);
+            } else if (isLQuestion(qNum)) {
+                lScore += getDelta(score, 10.0, 5.0);
             }
         }
 
-        // 성향 결정
-        StringBuilder code = new StringBuilder();
-        code.append(aScore >= 50 ? "A" : "I");
-        code.append(pScore >= 50 ? "P" : "B");
-        code.append(mScore >= 50 ? "M" : "W");
-        code.append(lScore >= 50 ? "L" : "C");
-
-        return code.toString();
+        return new WMTIScoreResult(aScore, pScore, mScore, lScore);
     }
 
-    // 가중치 설정
+    /**
+     * A형 성향 점수 변환 (1번 문항만 해당)
+     */
+    private double convertAScore(int score) {
+        switch (score) {
+            case 1: return 65.0;
+            case 2: return 60.0;
+            case 3: return 50.0;
+            case 4: return 45.0;
+            case 5: return 40.0;
+            default: return 50.0;
+        }
+    }
+
+    /**
+     * 점수 변화 계산 (공통)
+     */
     private double getDelta(int score, double high, double mid) {
         switch (score) {
             case 1: return high;
@@ -67,5 +75,18 @@ public class WMTICalculator {
             case 5: return -high;
             default: return 0.0;
         }
+    }
+
+    // 각 성향 문항 판단
+    private boolean isPQuestion(int q) {
+        return q == 2 || q == 4 || q == 10 || q == 11 || q == 15 || q == 17 || q == 20;
+    }
+
+    private boolean isMQuestion(int q) {
+        return q == 3 || q == 5 || q == 7 || q == 8 || q == 13 || q == 14 || q == 16 || q == 18;
+    }
+
+    private boolean isLQuestion(int q) {
+        return q == 6 || q == 9 || q == 12 || q == 19;
     }
 }
