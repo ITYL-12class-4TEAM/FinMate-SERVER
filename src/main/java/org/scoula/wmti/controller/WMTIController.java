@@ -75,4 +75,15 @@ public class WMTIController {
 
         return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, wmtiHistoryDTO);
     }
+    // 성향 코드에 따른 분석 및 추천 상품 제공 (GET)
+    @GetMapping("/analysis/{wmtiCode}")
+    public ApiResponse<Map<String, Object>> getAnalysis(@PathVariable String wmtiCode) {
+        Map<String, Object> analysisResult = wmtiService.getAnalysisByWMTICode(wmtiCode);
+
+        if (analysisResult == null || analysisResult.isEmpty()) {
+            return ApiResponse.fail(ResponseCode.미정, "분석 결과를 찾을 수 없습니다.");
+        }
+
+        return ApiResponse.success(ResponseCode.미정, analysisResult);
+    }
 }

@@ -5,6 +5,7 @@ import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
 import org.scoula.wmti.entity.SurveyResult;
 
 import java.util.List;
+import java.util.Map;
 
 public interface WMTIService {
     /**
@@ -14,7 +15,8 @@ public interface WMTIService {
      * @return 계산된 WMTI 코드
      */
     String calculateWMTICode(List<Integer> answers);
-
+    // WMTIAnalysis에서 처리된 분석 및 추천 상품 반환
+    Map<String, Object> getAnalysisByWMTICode(String wmtiCode);
     /**
      * 설문 결과를 DB에 저장하는 메서드
      *

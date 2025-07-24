@@ -1,6 +1,5 @@
 package org.scoula.wmti.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.scoula.wmti.domain.WMTIAnalysis;
 import org.scoula.wmti.domain.WMTICalculator;
@@ -15,6 +14,7 @@ import org.scoula.wmti.mapper.WMTIHistoryMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,12 +25,16 @@ public class WMTIServiceImpl implements WMTIService {
     private final WMTICalculator wmtiCalculator;
     private final WMTIAnalysis wmtiAnalysis;
     private final WMTIHistoryMapper wmtiHistoryMapper;
-    private final ObjectMapper objectMapper;  // Jackson ObjectMapper
 
     @Override
     public String calculateWMTICode(List<Integer> answers) {
         // WMTI 코드 계산
         return wmtiCalculator.calculateWMTICode(answers);
+    }
+    @Override
+    public Map<String, Object> getAnalysisByWMTICode(String wmtiCode) {
+        // WMTIAnalysis에서 처리된 분석 및 추천 상품 반환
+        return wmtiAnalysis.getAnalysisByWMTICode(wmtiCode);
     }
 
     @Override
