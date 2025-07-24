@@ -43,4 +43,13 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
         return commentLikeMapper.countByCommentId(commentId);
     }
+
+    @Override
+    public boolean isLikedByMember(Long commentId, Long memberId) {
+        if (!commentMapper.existsById(commentId)) {
+            throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
+        }
+        CommentLikeVO like = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
+        return like != null && like.isLiked();
+    }
 }

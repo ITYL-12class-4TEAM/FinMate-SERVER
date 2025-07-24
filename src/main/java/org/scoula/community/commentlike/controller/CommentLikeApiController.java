@@ -41,4 +41,12 @@ public class CommentLikeApiController {
     public ApiResponse<?> getLikeCount(@PathVariable Long commentId) {
         return ApiResponse.success(ResponseCode.COMMENT_LIKE_COUNT_SUCCESS, commentLikeService.getLikeCount(commentId));
     }
+
+    @GetMapping("/{commentId}/me")
+    @ApiOperation("해당 댓글 좋아요 여부 조회")
+    public ApiResponse<?> getMyLikeStatus(@PathVariable Long commentId,
+                                          @RequestParam("memberId") Long memberId) {
+        boolean liked = commentLikeService.isLikedByMember(commentId, memberId);
+        return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
+    }
 }
