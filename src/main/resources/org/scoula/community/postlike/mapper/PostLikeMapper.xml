@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.community.postlike.mapper.PostLikeMapper">
+
+    <select id="findByPostIdAndMemberId" resultType="org.scoula.community.postlike.domain.PostLikeVO">
+        SELECT * FROM post_like
+        WHERE post_id = #{postId} AND member_id = #{memberId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO post_like (post_id, member_id, is_liked)
+        VALUES (#{postId}, #{memberId}, #{isLiked})
+    </insert>
+
+    <update id="update">
+        UPDATE post_like
+        SET is_liked = #{isLiked}
+        WHERE post_id = #{postId} AND member_id = #{memberId}
+    </update>
+
+    <select id="countByPostId" resultType="int">
+        SELECT COUNT(*) FROM post_like
+        WHERE post_id = #{postId} AND is_liked = true
+    </select>
+
+</mapper>

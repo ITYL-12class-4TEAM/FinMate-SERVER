@@ -17,7 +17,7 @@ public class SignupApiController {
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDTO> register(@Validated @RequestBody RegisterDTO dto) {
-        SignupResponseDTO response = signupService.register(dto);
+        SignupResponseDTO response = signupService.register(dto, dto.getPhoneNumber());
         return ResponseEntity.ok(response);
     }
 }
