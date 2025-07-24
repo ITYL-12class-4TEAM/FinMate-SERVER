@@ -45,6 +45,14 @@ public enum ResponseCode {
     POST_LIKE_COUNT_SUCCESS(HttpStatus.OK, "게시글 좋아요 개수 조회 성공"),
 
     /**
+     * Community - CommentLike
+     */
+    COMMENT_LIKE_CREATE_SUCCESS(HttpStatus.OK, "좋아요를 눌렀습니다."),
+    COMMENT_LIKE_CANCEL_SUCCESS(HttpStatus.OK, "좋아요를 취소했습니다."),
+    COMMENT_LIKE_COUNT_SUCCESS(HttpStatus.OK, "댓글 좋아요 개수 조회 성공"),
+    COMMENT_LIKE_STATUS_SUCCESS(HttpStatus.OK, "댓글 좋아요 여부 조회 성공"),
+
+    /**
      *  ChatBot response
      */
     CHATBOT_SESSION_CREATED(HttpStatus.OK, "챗봇 세션이 생성되었습니다."),

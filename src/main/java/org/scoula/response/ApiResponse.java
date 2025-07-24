@@ -30,6 +30,13 @@ public class ApiResponse <T> {
         return new ApiResponse<T>(new ApiHeader(responseCode.getHttpStatus(), responseCode.getMessage()), new ApiBody(message));
     }
 
+    public static <T> ApiResponse<T> fail(ResponseCode responseCode, T data) {
+        return new ApiResponse<T>(
+                new ApiHeader(responseCode.getHttpStatus(), responseCode.getMessage()),
+                new ApiBody<>(data)
+        );
+    }
+
     public ApiHeader getHeader() {
         return header;
     }
