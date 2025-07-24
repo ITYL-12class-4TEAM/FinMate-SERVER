@@ -88,38 +88,38 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.Build FinMate-SERVER.executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.DepositFetcherRunner.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.DepositProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.PensionProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [:org.scoula.product.SavingProductFetcher.main()].executor": "Run",
-    "Gradle.FinMate-SERVER [build].executor": "Run",
-    "Gradle.FinMate-SERVER 빌드.executor": "Run",
-    "Gradle.FinMate-SERVER.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Tomcat Server.Tomcat 9.0.105.executor": "Run",
-    "Tomcat 서버.Tomcat 9.0.105.executor": "Run",
-    "git-widget-placeholder": "85c9e5fe",
-    "grid.search.filter.rows": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build FinMate-SERVER.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.DepositFetcherRunner.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.DepositProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.PensionProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [:org.scoula.product.SavingProductFetcher.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER 빌드.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.FinMate-SERVER.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Tomcat Server.Tomcat 9.0.105.executor&quot;: &quot;Run&quot;,
+    &quot;Tomcat 서버.Tomcat 9.0.105.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;85c9e5fe&quot;,
+    &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\dys11\Desktop\Finmate\FinMate-SERVER\src\main\resources\org\scoula\mapper" />

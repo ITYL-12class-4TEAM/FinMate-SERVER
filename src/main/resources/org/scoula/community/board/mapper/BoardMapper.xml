@@ -15,20 +15,20 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
     <insert id="create">
-        INSERT INTO board(title, member_id, type, created_at)
+        INSERT INTO finmate.board(title, member_id, board_type, created_at)
         VALUES (#{title}, #{memberId}, #{type, typeHandler=org.scoula.community.board.handler.BoardTypeHandler}, now())
     </insert>
 
     <select id="get" resultMap="boardResultMap">
         SELECT
-            board_id, title, member_id, type AS type, created_at, updated_at
-        FROM board
-        WHERE board_id = #{no}
+            board_id, title, member_id, board_type AS type, created_at, updated_at
+        FROM finmate.board
+        WHERE board_id = #{boardId}
     </select>
 
     <select id="getList" resultMap="boardResultMap">
         <![CDATA[
-        select * from board
+        select * from finmate.board
         order by board_id desc
         ]]>
     </select>

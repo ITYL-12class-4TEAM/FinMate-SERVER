@@ -6,13 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LogoutResponseDTO {
-    private boolean success;
-    private String message;
-    private DataDTO data;
-
-    @Data
-    @AllArgsConstructor
-    public static class DataDTO {
-        private String logoutAt;
-    }
+    private String logoutAt;
 }

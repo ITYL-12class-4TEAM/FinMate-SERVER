@@ -2,7 +2,6 @@ package org.scoula.community.post.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import org.scoula.community.board.domain.BoardVO;
 import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostVO;
 
@@ -14,6 +13,7 @@ public interface PostMapper {
     public void create(PostVO board);
     public int update(PostVO board);
     public int delete(Long no);
+    boolean existsById(Long postId);
 
     public void createAttachment(PostAttachmentVO attach);
     public List<PostAttachmentVO> getAttachmentList(Long bno);
