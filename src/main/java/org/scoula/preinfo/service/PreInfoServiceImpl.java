@@ -17,11 +17,12 @@ public class PreInfoServiceImpl implements PreInfoService {
     private final PreInfoMapper preInfoMapper;
     private final JwtProcessor jwtUtil; // 토큰 생성기
 
+    //입력된 사전정보 조회
     @Override
     public PreInformation getUserProfile(Long memberId) {
         return preInfoMapper.findById(memberId);
     }
-
+    //사전정보 등록/저장.
     @Override
     public PreInfoResponseDTO savePreInfoAndResponse(Long userId, PreInfoRequestDTO dto) {
         //현재시간 저장
@@ -88,7 +89,7 @@ public class PreInfoServiceImpl implements PreInfoService {
                 .estimatedTime("15분") //예상소요시간 안내(고정문자열)
                 .build();
     }
-
+    //입력양식에 따른 PREINFO_ID 명명
     private String generatePreInfoId(Long userId, LocalDateTime timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         return "PRE_" + userId + "_" + timestamp.format(formatter);
