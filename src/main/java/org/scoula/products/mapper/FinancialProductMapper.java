@@ -11,6 +11,7 @@ import org.scoula.products.dto.response.pension.PensionProductDTO;
 
 import java.util.List;
 import java.util.Map;
+
 @Mapper
 public interface FinancialProductMapper {
 
@@ -29,7 +30,8 @@ public interface FinancialProductMapper {
             @Param("sortBy") String sortBy,
             @Param("sortDirection") String sortDirection,
             @Param("limit") Integer limit,
-            @Param("offset") Integer offset);
+            @Param("offset") Integer offset,
+            @Param("banksStr") String banksStr);
 
     /**
      * 필터 조건에 맞는 금융 상품 총 개수 조회
@@ -41,7 +43,8 @@ public interface FinancialProductMapper {
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
             @Param("joinWay") String joinWay,
-            @Param("minAmount") Integer minAmount);
+            @Param("minAmount") Integer minAmount,
+            @Param("banksStr") String banksStr);
 
     /**
      * 검색어에 맞는 상품명 자동완성 목록 조회
@@ -53,4 +56,9 @@ public interface FinancialProductMapper {
      */
     @MapKey("product_id")
     Map<String, Object> findProductDetail(@Param("productId") String productId);
+
+    /**
+     * 고유 은행명 목록 조회
+     */
+    List<String> getDistinctBanks();
 }

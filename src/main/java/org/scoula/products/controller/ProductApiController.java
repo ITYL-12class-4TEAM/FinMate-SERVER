@@ -52,19 +52,21 @@ public class ProductApiController {
     public ResponseEntity<ApiResponse<ProductListResponse>> getProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String banks, // 은행명 파라미터 추가
             @RequestParam(required = false) String interestRateType,
             @RequestParam(required = false) String saveTerm,
             @RequestParam(required = false) String joinMethod,
             @RequestParam(required = false) Double minIntrRate,
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
         // 필터 파라미터 구성
         Map<String, String> filters = new HashMap<>();
         if (category != null) filters.put("category", category);
+        if (banks != null) filters.put("banks", banks); // 은행명 필터 추가
         if (interestRateType != null) filters.put("interestRateType", interestRateType);
-        if (saveTerm != null) filters.put("saveTerm", saveTerm.toString());
+        if (saveTerm != null) filters.put("saveTerm", saveTerm);
         if (joinMethod != null) filters.put("joinMethod", joinMethod);
         if (minIntrRate != null) filters.put("minIntrRate", minIntrRate.toString());
         if (sort != null) filters.put("sort", sort);
@@ -111,18 +113,42 @@ public class ProductApiController {
             notes = "특정 카테고리에 속한 하위 카테고리 목록을 제공합니다.")
     @GetMapping("/categories/{categoryCode}/subcategories")
     public ApiResponse<?> getSubcategories(@PathVariable String categoryCode) {
-        // 카테고리 코드로 카테고리 정보 조회
-        Map<String, Object> category = categoryService.getCategoryByCode(categoryCode);
+        // 카테고리 ID 직접 매핑 (가장 안전한 방법)
+        Long categoryId = mapCategoryCodeToId(categoryCode);
 
-        if (category == null) {
+        if (categoryId == null) {
             return ApiResponse.fail(ResponseCode.CATEGORY_NOT_FOUND);
         }
 
         // 카테고리 ID로 하위 카테고리 목록 조회
-        Long categoryId = Long.valueOf(category.get("id").toString());
         List<Map<String, Object>> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
 
         return ApiResponse.success(ResponseCode.SUBCATEGORY_SUCCESS, subcategories);
+    }
+
+    // 영문 코드를 카테고리 ID로 직접 매핑하는 메소드
+    private Long mapCategoryCodeToId(String categoryCode) {
+        switch (categoryCode.toLowerCase()) {
+            case "deposit":
+                return 1L;  // 예금 카테고리 ID
+            case "loan":
+                return 2L;  // 대출 카테고리 ID
+            case "fund":
+                return 3L;  // 펀드 카테고리 ID
+            case "insurance":
+                return 4L;  // 보험 카테고리 ID
+            case "pension":
+                return 5L;  // 연금 카테고리 ID
+            case "realestate":
+                return 6L;  // 부동산 카테고리 ID
+            default:
+                try {
+                    // 숫자로 입력된 경우 직접 ID로 사용
+                    return Long.valueOf(categoryCode);
+                } catch (NumberFormatException e) {
+                    return null;  // 매핑 실패
+                }
+        }
     }
 
     @ApiOperation(value = "필터 옵션 조회",

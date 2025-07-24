@@ -20,5 +20,6 @@ public class FilterOptionsResponse {
     private List<String> joinMethods;
     private List<Map<String, String>> pensionTypes;  // 연금 유형
     private List<Double> guaranteeRates;  // 보장 수익률
+    private List<String> banks; // 은행명
     private Map<String, Object> depositAmountOptions;  // 예치 금액 또는 월 납입금 옵션
 }

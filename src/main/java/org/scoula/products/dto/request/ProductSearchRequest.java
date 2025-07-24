@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,5 +30,6 @@ public class ProductSearchRequest {
     private String joinWay;        // 가입 방법 (인터넷뱅킹, 스마트폰뱅킹, 창구 등)
     private Boolean isOnline;      // 온라인 가입 여부
     private Long depositAmount;    // 예치 금액
-    private String bankName;       // 은행명
+    private List<String> banks;       // 은행명
+    private String bankStr;
 }

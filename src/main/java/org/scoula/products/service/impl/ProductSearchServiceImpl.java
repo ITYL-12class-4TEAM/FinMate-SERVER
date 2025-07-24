@@ -96,6 +96,19 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             }
         }
 
+        // 은행명 필터 처리 추가
+        if (filters.containsKey("banks")) {
+            String banksStr = filters.get("banks");
+            System.out.println("Banks 파라미터 (원본): " + banksStr);
+            if (banksStr != null && !banksStr.equals("전체")) {
+                request.setBankStr(banksStr);
+
+                List<String> banks = Arrays.asList(banksStr.split(","));
+                System.out.println("Banks 파라미터 (변환 후): " + banks);
+                request.setBanks(banks);
+            }
+        }
+
         // 기존 메서드 호출하여 검색 수행
         return searchProducts(request);
     }
@@ -173,6 +186,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             Integer minAmount = request.getDepositAmount() != null ?
                     request.getDepositAmount().intValue() : null;
 
+            // banks 리스트를 콤마로 구분된 문자열로 변환
+            String banksStr = (request.getBanks() != null && !request.getBanks().isEmpty())
+                    ? String.join(",", request.getBanks())
+                    : null;
+
             // 데이터베이스에서 이미 페이징된 결과 가져오기
             List<Map<String, Object>> products = financialProductMapper.findProducts(
                     mappedProductType,
@@ -185,7 +203,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     request.getSortBy(),
                     request.getSortDirection(),
                     pageSize,
-                    offset
+                    offset,
+                    banksStr
             );
 
             // 전체 상품 수 조회 (별도 쿼리)
@@ -196,7 +215,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     request.getSaveTrm(),
                     request.getIntrRateType(),
                     request.getJoinWay(),
-                    minAmount
+                    minAmount,
+                    banksStr
             );
 
             List<ProductListResponse.ProductSummary> summaries = products.stream()
@@ -362,6 +382,16 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 depositAmountOptions.put("defaultValue", 100000);
 
                 builder.depositAmountOptions(depositAmountOptions);
+
+                // 은행 목록 조회 - DB에서 고유 은행명 가져오기
+                List<String> banks = financialProductMapper.getDistinctBanks();
+                if (banks == null || banks.isEmpty()) {
+                    banks = Arrays.asList(
+                            "국민은행", "신한은행", "우리은행", "하나은행", "농협은행",
+                            "기업은행", "SC제일은행", "케이뱅크", "카카오뱅크", "토스뱅크"
+                    );
+                }
+                builder.banks(banks);
                 break;
 
             case "saving":
