@@ -26,7 +26,7 @@ public class WishlistApiController {
             @ApiParam(value = "관심상품 등록 요청 DTO", required = true)
             @RequestBody FavoriteRequestDTO request) {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        favoriteProductService.addFavorite(memberId, request.getProductId());
+        favoriteProductService.addFavorite(memberId, request.getProductId(), request.getSaveTrm(), request.getRsrvType());
         return ResponseEntity.ok().build();
     }
 
@@ -44,7 +44,8 @@ public class WishlistApiController {
     @GetMapping
     public ResponseEntity<List<FavoriteProductDto>> getFavorites() {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(favoriteProductService.getFavorites(memberId));
+        List<FavoriteProductDto> favorites = favoriteProductService.getFavorites(memberId); // saveTrm 없이
+        return ResponseEntity.ok(favorites);
     }
 
     @ApiOperation(value = "관심상품 여부 확인", notes = "특정 상품이 사용자의 관심상품인지 여부를 반환합니다.")

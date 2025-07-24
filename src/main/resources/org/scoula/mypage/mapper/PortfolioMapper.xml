@@ -50,16 +50,7 @@
         WHERE portfolio_id = #{portfolioId}
     </delete>
 
-    <resultMap id="PortfolioSummaryMap" type="org.scoula.mypage.dto.PortfolioSummaryDTO">
-        <result property="categoryName" column="category_name"/>
-        <result property="totalAmount" column="category_total"/>
-        <result property="ratio" column="category_ratio"/>
-        <collection property="subcategories" ofType="org.scoula.mypage.dto.SubcategorySummaryDTO">
-            <result property="subcategoryName" column="subcategory_name"/>
-            <result property="totalAmount" column="subcategory_total"/>
-            <result property="ratio" column="subcategory_ratio"/>
-        </collection>
-    </resultMap>
+
 
     <select id="getPortfolioSummary" resultType="map">
         SELECT

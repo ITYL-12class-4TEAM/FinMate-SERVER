@@ -8,6 +8,7 @@ import org.scoula.mypage.mapper.FavoriteProductMapper;
 import org.scoula.mypage.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +22,9 @@ public class FavoriteProductService {
     /**
      * 즐겨찾기 추가
      */
-    public void addFavorite(Long memberId, Long productId) {
-        favoriteProductMapper.insertFavorite(memberId, productId);
+    public void addFavorite(Long memberId, Long productId, Integer saveTrm, String rsrvType) {
+        favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
         favoriteProductMapper.increaseWishlistCount(productId);
-
     }
 
     /**
@@ -39,8 +39,19 @@ public class FavoriteProductService {
      * 즐겨찾기 목록 조회
      */
     public List<FavoriteProductDto> getFavorites(Long memberId) {
-        return favoriteProductMapper.selectFavoritesByMemberId(memberId);
+        List<FavoriteProductDto> favorites = favoriteProductMapper.selectFavoritesByMemberId(memberId);
+
+        for (FavoriteProductDto dto : favorites) {
+            if ("연금".equals(dto.getCategoryName())) {
+                BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
+                dto.setBaseRate(pensionRate);
+                dto.setMaxRate(null);
+            }
+        }
+
+        return favorites;
     }
+
 
     /**
      * 특정 상품이 즐겨찾기에 등록되어 있는지 확인

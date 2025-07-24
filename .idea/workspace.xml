@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API" />
+    <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/PortfolioApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/PortfolioApiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/controller/WishlistApiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteProductDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/dto/FavoriteRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/FavoriteProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/PortfolioMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/mapper/PortfolioMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/FavoriteProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/PortfolioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/mypage/service/PortfolioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/response/ResponseCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/response/ResponseCode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/FavoriteProductMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/PortfolioMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/mypage/mapper/PortfolioMapper.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -57,6 +71,7 @@
         <option value="Interface" />
         <option value="spring-beans.schema" />
         <option value="Class" />
+        <option value="Exception" />
       </list>
     </option>
   </component>

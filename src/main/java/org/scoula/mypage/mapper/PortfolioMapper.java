@@ -1,5 +1,6 @@
 package org.scoula.mypage.mapper;
 
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.scoula.mypage.dto.PortfolioCreateDTO;
@@ -33,5 +34,6 @@ public interface PortfolioMapper {
     void deletePortfolioItem(@Param("portfolioId") Long portfolioId);
 
     // 포트폴리오 요약 정보 조회
+    @MapKey("categoryName")
     List<Map<String, Object>> getPortfolioSummary(@Param("memberId") Long memberId);
 }

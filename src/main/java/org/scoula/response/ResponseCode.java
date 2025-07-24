@@ -31,7 +31,20 @@ public enum ResponseCode {
     CHATGPT_REQUEST_PARSING_FAILED(HttpStatus.BAD_REQUEST, "올바른 금융 상품 내용을 요청해주세요."),
     CHATGPT_JSON_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
     CHATGPT_RETRIEVAL_FAILED(HttpStatus.UNAUTHORIZED, "금융 상품 분석 요청에 실패했습니다."),
-    CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다.");
+    CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다."),
+
+    /**
+     * Portfolio response
+     */
+    PORTFOLIO_READ_SUCCESS(HttpStatus.OK, "포트폴리오 목록 조회 성공"),
+    PORTFOLIO_CREATE_SUCCESS(HttpStatus.CREATED, "포트폴리오 생성 성공"),
+    PORTFOLIO_UPDATE_SUCCESS(HttpStatus.OK, "포트폴리오 수정 성공"),
+    PORTFOLIO_DELETE_SUCCESS(HttpStatus.OK, "포트폴리오 삭제 성공"),
+    PORTFOLIO_SUMMARY_SUCCESS(HttpStatus.OK, "포트폴리오 요약 조회 성공"),
+
+    PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "포트폴리오를 찾을 수 없습니다"),
+    PORTFOLIO_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 포트폴리오에 대한 접근 권한이 없습니다"),
+    INVALID_INPUT_FORMAT(HttpStatus.BAD_REQUEST, "입력 형식이 올바르지 않습니다");
 
     private final HttpStatus httpStatus;
     private final String message;
