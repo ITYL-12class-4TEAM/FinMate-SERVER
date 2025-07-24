@@ -23,7 +23,7 @@ public class WMTIHistory {
     private WMTIDimension A;             // A/I 성향
     private WMTIDimension P;             // P/B 성향
     private WMTIDimension M;             // M/W 성향
-    private WMTIDimension T;             // L/C 성향
+    private WMTIDimension L;             // L/C 성향
 
     private LocalDateTime createdAt; // 설문 저장일
     private RiskPreference riskPreference; // 파생된 위험 성향 ENUM(’안정형’, ‘안정추구형’, ‘위험중립형’, ‘적극투자형’, ‘공격투자형’)

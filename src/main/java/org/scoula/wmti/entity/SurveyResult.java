@@ -29,7 +29,7 @@ public class SurveyResult {
     private WMTIDimension A;   // A/I 성향
     private WMTIDimension P;   // P/B 성향
     private WMTIDimension M;   // M/W 성향
-    private WMTIDimension T;   // L/C 성향
+    private WMTIDimension L;   // L/C 성향
 
     private LocalDateTime createdAt; //설문검사 시각
 }

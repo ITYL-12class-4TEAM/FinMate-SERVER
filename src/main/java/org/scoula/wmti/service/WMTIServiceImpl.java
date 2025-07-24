@@ -77,7 +77,7 @@ public class WMTIServiceImpl implements WMTIService {
             wmtiHistory.setA(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(0, 1))); // A/I 성향
             wmtiHistory.setP(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(1, 2))); // P/B 성향
             wmtiHistory.setM(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(2, 3))); // M/W 성향
-            wmtiHistory.setT(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(3, 4))); // L/C 성향
+            wmtiHistory.setL(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(3, 4))); // L/C 성향
 
             // 위험 성향 (여기서는 간단히 예시로 설정)
             // 실제 로직은 성향에 따라 분류하는 방식으로 변경 가능
@@ -124,7 +124,7 @@ public class WMTIServiceImpl implements WMTIService {
                     wmtiHistoryDTO.setA(wmtiHistory.getA());
                     wmtiHistoryDTO.setP(wmtiHistory.getP());
                     wmtiHistoryDTO.setM(wmtiHistory.getM());
-                    wmtiHistoryDTO.setT(wmtiHistory.getT());
+                    wmtiHistoryDTO.setL(wmtiHistory.getL());
                     wmtiHistoryDTO.setRiskPreference(wmtiHistory.getRiskPreference());
                     wmtiHistoryDTO.setCreatedAt(wmtiHistory.getCreatedAt()); // createdAt 추가
                     return wmtiHistoryDTO;
@@ -149,7 +149,7 @@ public class WMTIServiceImpl implements WMTIService {
         wmtiHistoryDTO.setA(wmtiHistory.getA());
         wmtiHistoryDTO.setP(wmtiHistory.getP());
         wmtiHistoryDTO.setM(wmtiHistory.getM());
-        wmtiHistoryDTO.setT(wmtiHistory.getT());
+        wmtiHistoryDTO.setL(wmtiHistory.getL());
         wmtiHistoryDTO.setRiskPreference(wmtiHistory.getRiskPreference());
         wmtiHistoryDTO.setCreatedAt(wmtiHistory.getCreatedAt()); // createdAt 추가
 
