@@ -58,5 +58,7 @@
         WHERE comment_id = #{commentId}
            OR parent_comment = #{commentId}
     </delete>
-
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM finmate.comment WHERE comment_id = #{commentId}
+    </select>
 </mapper>
