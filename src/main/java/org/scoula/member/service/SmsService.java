@@ -45,7 +45,10 @@ public class SmsService {
         }
         return false;
     }
-
+    public void markPhoneAsVerified(String phoneNumber) {
+        String verificationKey = "phone_verified:" + phoneNumber;
+        redisService.save(verificationKey, "true", 30); // 30분 유효
+    }
     @Transactional
     public void certificateSMS(String phoneNumber) {
         // DefaultMessageService로 생성
