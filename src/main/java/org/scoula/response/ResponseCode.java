@@ -43,6 +43,7 @@ public enum ResponseCode {
     POST_LIKE_CREATE_SUCCESS(HttpStatus.OK, "좋아요를 눌렀습니다."),
     POST_LIKE_CANCEL_SUCCESS(HttpStatus.OK, "좋아요를 취소했습니다."),
     POST_LIKE_COUNT_SUCCESS(HttpStatus.OK, "게시글 좋아요 개수 조회 성공"),
+    POST_LIKE_STATUS_SUCCESS(HttpStatus.OK, "게시글 좋아요 여부 조회 성공"),
 
     /**
      * Community - CommentLike

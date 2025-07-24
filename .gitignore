@@ -45,3 +45,5 @@ bin/
 /.idea/uiDesigner.xml
 /.idea/gradle.xml
 /.idea/vcs.xml
+!/.idea/dataSources/
+!/server-submodule/.idea/
