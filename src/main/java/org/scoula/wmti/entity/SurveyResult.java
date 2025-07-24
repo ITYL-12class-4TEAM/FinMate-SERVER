@@ -29,10 +29,10 @@ public class SurveyResult {
 
     //설문결과인자
     private String wmtiCode; //검사결과 도출된 4자리 wmti코드
-    private WMTIDimension A;   // A/I 성향
-    private WMTIDimension P;   // P/B 성향
-    private WMTIDimension M;   // M/W 성향
-    private WMTIDimension L;   // L/C 성향
+    private WMTIDimension a;   // A/I 성향
+    private WMTIDimension p;   // P/B 성향
+    private WMTIDimension m;   // M/W 성향
+    private WMTIDimension l;   // L/C 성향
 
     private LocalDateTime createdAt; //설문 제출 시각
 }

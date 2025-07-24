@@ -3,6 +3,7 @@ package org.scoula.wmti.service;
 import lombok.RequiredArgsConstructor;
 import org.scoula.wmti.domain.WMTIAnalysis;
 import org.scoula.wmti.domain.WMTICalculator;
+import org.scoula.wmti.domain.WMTIScoreResult;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
 import org.scoula.wmti.entity.SurveyResult;
@@ -13,6 +14,7 @@ import org.scoula.wmti.mapper.SurveyResultMapper;
 import org.scoula.wmti.mapper.WMTIHistoryMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,27 +41,71 @@ public class WMTIServiceImpl implements WMTIService {
 
     @Override
     public SurveyResult saveSurveyResult(Long memberId, List<Integer> answers) {
-        // WMTI 코드 계산
-        String wmtiCode = calculateWMTICode(answers);
+        // 1. WMTI 코드 계산
+        String wmtiCode = wmtiCalculator.calculateWMTICode(answers);
 
-        // 설문 결과 DTO 객체 생성
-        SurveyResultDTO surveyResultDTO = new SurveyResultDTO();
-        surveyResultDTO.setMemberId(memberId);
-        surveyResultDTO.setWmtiCode(wmtiCode);
-        surveyResultDTO.setAnswersJson(answers.toString());
-        surveyResultDTO.setCreatedAt(java.time.LocalDateTime.now());
+        // 2. 성향 점수 계산 및 코드 분리
+        WMTIScoreResult scoreResult = wmtiCalculator.calculateScores(answers);
+        double aScore = scoreResult.getAScore();
+        double pScore = scoreResult.getPScore();
+        double mScore = scoreResult.getMScore();
+        double lScore = scoreResult.getLScore();
 
-        // 설문 결과를 DB에 저장하기 전에 이전 결과를 wmti_history에 백업
+        // 3. 각 자리 문자 → WMTIDimension 변환
+        WMTIDimension A = WMTIDimension.valueOf(wmtiCode.substring(0, 1));
+        WMTIDimension P = WMTIDimension.valueOf(wmtiCode.substring(1, 2));
+        WMTIDimension M = WMTIDimension.valueOf(wmtiCode.substring(2, 3));
+        WMTIDimension L = WMTIDimension.valueOf(wmtiCode.substring(3, 4));
+
+        // 4. 사전정보 연산값 불러오기(투자자유형, 리스크수용성, (+userName))
+        //PreInfo preInfo = getPreInfoByMemberId(memberId); // (예시 메서드)
+        //    String resultType = preInfo.getResultType();
+        //    String riskPreference = preInfo.getriskPreference();
+        //    String userName = preInfo.getUserName();
+        // 5. 설문 결과 DTO 객체 생성
+        SurveyResultDTO surveyResultDTO = SurveyResultDTO.builder()
+                .memberId(memberId)
+                .wmtiCode(wmtiCode)
+                .answersJson(answers.toString())
+                .aScore(aScore)
+                .pScore(pScore)
+                .mScore(mScore)
+                .lScore(lScore)
+                .A(A)
+                .P(P)
+                .M(M)
+                .L(L)
+                //.resultType(riskPreference.getLabel()) // 혹은 별도 로직
+                //.riskPreference(riskPreference)
+                //.userName(userName)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        // 6. 설문 결과를 DB에 저장하기 전에 이전 결과를 wmti_history에 백업
         backupSurveyResultToHistory(memberId);
 
-        // SurveyResultDTO -> SurveyResult (Entity)로 변환
-        SurveyResult surveyResult = new SurveyResult();
-        surveyResult.setMemberId(surveyResultDTO.getMemberId());
-        surveyResult.setWmtiCode(surveyResultDTO.getWmtiCode());
-        surveyResult.setAnswersJson(surveyResultDTO.getAnswersJson());
-        surveyResult.setCreatedAt(surveyResultDTO.getCreatedAt());
+        // 7. SurveyResultDTO -> SurveyResult (Entity)로 변환
+        SurveyResult surveyResult = SurveyResult.builder()
+                .wmtiId(surveyResultDTO.getWmtiId())
+                .memberId(surveyResultDTO.getMemberId())
+                //.resultType(surveyResultDTO.getResultType())
+                //.riskPreference(surveyResultDTO.getRiskPreference())
+                //.userName(surveyResultDTO.getUserName())
+                .answersJson(surveyResultDTO.getAnswersJson())
+                .aScore(surveyResultDTO.getAScore())
+                .pScore(surveyResultDTO.getPScore())
+                .mScore(surveyResultDTO.getMScore())
+                .lScore(surveyResultDTO.getLScore())
+                .wmtiCode(surveyResultDTO.getWmtiCode())
+                .a(surveyResultDTO.getA())
+                .p(surveyResultDTO.getP())
+                .m(surveyResultDTO.getM())
+                .l(surveyResultDTO.getL())
+                .createdAt(surveyResultDTO.getCreatedAt())
+                .build();
 
-        // 설문결과 DTO를 DB에 저장
+
+        // 8. 설문결과 DTO를 DB에 저장
         surveyResultMapper.saveSurveyResult(surveyResult);
 
         return surveyResult;
@@ -70,22 +116,26 @@ public class WMTIServiceImpl implements WMTIService {
         SurveyResult existingResult = surveyResultMapper.findByMemberId(memberId);
 
         if (existingResult != null) {
-            // SurveyResult -> WMTIHistory 엔티티로 변환
-            WMTIHistory wmtiHistory = new WMTIHistory();
-            wmtiHistory.setMemberId(existingResult.getMemberId());
-            wmtiHistory.setWmtiCode(existingResult.getWmtiCode());
-            wmtiHistory.setAnswersJson(existingResult.getAnswersJson());
-            wmtiHistory.setCreatedAt(existingResult.getCreatedAt());
+            // SurveyResult → WMTIHistory 변환
+            WMTIHistory wmtiHistory = WMTIHistory.builder()
+                    .memberId(existingResult.getMemberId())
+                    .wmtiCode(existingResult.getWmtiCode())
+                    .answersJson(existingResult.getAnswersJson())
+                    .createdAt(existingResult.getCreatedAt())
 
-            // 성향 분석 (가장 최근 설문 결과에서 성향을 추출하여 설정)
-            wmtiHistory.setA(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(0, 1))); // A/I 성향
-            wmtiHistory.setP(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(1, 2))); // P/B 성향
-            wmtiHistory.setM(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(2, 3))); // M/W 성향
-            wmtiHistory.setL(WMTIDimension.valueOf(existingResult.getWmtiCode().substring(3, 4))); // L/C 성향
+                    // 추가된 필드 반영
+                    //.resultType(existingResult.getResultType())
+                    //.riskPreference(existingResult.getRiskPreference())
+                    .aScore(existingResult.getAScore())
+                    .pScore(existingResult.getPScore())
+                    .mScore(existingResult.getMScore())
+                    .lScore(existingResult.getLScore())
+                    .a(existingResult.getA())
+                    .p(existingResult.getP())
+                    .m(existingResult.getM())
+                    .l(existingResult.getL())
 
-            // 위험 성향 (여기서는 간단히 예시로 설정)
-            // 실제 로직은 성향에 따라 분류하는 방식으로 변경 가능
-            wmtiHistory.setRiskPreference(RiskPreference.valueOf("적극투자형")); // 예시
+                    .build();
 
             // WMTIHistory 엔티티를 wmti_history 테이블에 저장
             wmtiHistoryMapper.saveWMTIHistory(wmtiHistory);
@@ -94,70 +144,89 @@ public class WMTIServiceImpl implements WMTIService {
 
     @Override
     public SurveyResultDTO getSurveyResultByMemberId(Long memberId) {
-        //SurveyResult 엔티티 조회
+        // 1. SurveyResult 엔티티 조회
         SurveyResult surveyResult = surveyResultMapper.findByMemberId(memberId);
+
         if (surveyResult == null) {
-            return null; //설문결과가 없으면 null 반환
+            return null; // 설문 결과가 없으면 null 반환
         }
 
-        // SurveyResult -> SurveyResultDTO 변환
-        SurveyResultDTO surveyResultDTO = new SurveyResultDTO();
-        surveyResultDTO.setWmtiCode(surveyResult.getWmtiCode());
-        surveyResultDTO.setAnswersJson(surveyResult.getAnswersJson());
-        surveyResultDTO.setCreatedAt(surveyResult.getCreatedAt());
-
-        return surveyResultDTO;
+        // 2. Entity → DTO 변환 (Builder 사용)
+        return SurveyResultDTO.builder()
+                .wmtiId(surveyResult.getWmtiId())
+                .memberId(surveyResult.getMemberId())
+                //.resultType(surveyResult.getResultType())
+                //.riskPreference(surveyResult.getRiskPreference())
+                .userName(surveyResult.getUserName())
+                .answersJson(surveyResult.getAnswersJson())
+                .aScore(surveyResult.getAScore())
+                .pScore(surveyResult.getPScore())
+                .mScore(surveyResult.getMScore())
+                .lScore(surveyResult.getLScore())
+                .wmtiCode(surveyResult.getWmtiCode())
+                .A(surveyResult.getA())
+                .P(surveyResult.getP())
+                .M(surveyResult.getM())
+                .L(surveyResult.getL())
+                .createdAt(surveyResult.getCreatedAt())
+                .build();
     }
 
     @Override
     public List<WMTIHistoryDTO> getSurveyHistoryByMemberId(Long memberId) {
-        // WMTIHistory 이력 조회 (전체이력)
+        // 1. 이력 목록 조회
         List<WMTIHistory> wmtiHistoryList = wmtiHistoryMapper.findAllByMemberId(memberId);
 
         if (wmtiHistoryList == null || wmtiHistoryList.isEmpty()) {
-            return null;// 설문 이력이 없으면 null 반환
+            return null;
         }
 
+        // 2. Builder 패턴을 사용하여 DTO 변환
         return wmtiHistoryList.stream()
-                .map(wmtiHistory -> {
-                    WMTIHistoryDTO wmtiHistoryDTO = new WMTIHistoryDTO();
-                    wmtiHistoryDTO.setHistoryId(wmtiHistory.getHistoryId());
-                    wmtiHistoryDTO.setWmtiCode(wmtiHistory.getWmtiCode());
-                    wmtiHistoryDTO.setAnswersJson(wmtiHistory.getAnswersJson());
-                    wmtiHistoryDTO.setResultType(wmtiHistory.getResultType());
-                    wmtiHistoryDTO.setA(wmtiHistory.getA());
-                    wmtiHistoryDTO.setP(wmtiHistory.getP());
-                    wmtiHistoryDTO.setM(wmtiHistory.getM());
-                    wmtiHistoryDTO.setL(wmtiHistory.getL());
-                    wmtiHistoryDTO.setRiskPreference(wmtiHistory.getRiskPreference());
-                    wmtiHistoryDTO.setCreatedAt(wmtiHistory.getCreatedAt()); // createdAt 추가
-                    return wmtiHistoryDTO;
-                })
+                .map(history -> WMTIHistoryDTO.builder()
+                        .historyId(history.getHistoryId())
+                        .wmtiCode(history.getWmtiCode())
+                        .answersJson(history.getAnswersJson())
+                        //.resultType(history.getResultType())
+                        //.riskPreference(history.getRiskPreference())
+                        .aScore(history.getAScore())
+                        .pScore(history.getPScore())
+                        .mScore(history.getMScore())
+                        .lScore(history.getLScore())
+                        .A(history.getA())
+                        .P(history.getP())
+                        .M(history.getM())
+                        .L(history.getL())
+                        .createdAt(history.getCreatedAt())
+                        .build())
                 .collect(Collectors.toList());
     }
     @Override
     public WMTIHistoryDTO getSurveyHistoryByHistoryId(Long historyId) {
-        // WMTIHistory 이력 조회 (단일 이력)
+        // 1. 단일 이력 조회
         WMTIHistory wmtiHistory = wmtiHistoryMapper.findByHistoryId(historyId);
 
         if (wmtiHistory == null) {
             return null; // 이력 없으면 null 반환
         }
 
-        // WMTIHistory -> WMTIHistoryDTO 변환
-        WMTIHistoryDTO wmtiHistoryDTO = new WMTIHistoryDTO();
-        wmtiHistoryDTO.setHistoryId(wmtiHistory.getHistoryId());
-        wmtiHistoryDTO.setWmtiCode(wmtiHistory.getWmtiCode());
-        wmtiHistoryDTO.setAnswersJson(wmtiHistory.getAnswersJson());
-        wmtiHistoryDTO.setResultType(wmtiHistory.getResultType());
-        wmtiHistoryDTO.setA(wmtiHistory.getA());
-        wmtiHistoryDTO.setP(wmtiHistory.getP());
-        wmtiHistoryDTO.setM(wmtiHistory.getM());
-        wmtiHistoryDTO.setL(wmtiHistory.getL());
-        wmtiHistoryDTO.setRiskPreference(wmtiHistory.getRiskPreference());
-        wmtiHistoryDTO.setCreatedAt(wmtiHistory.getCreatedAt()); // createdAt 추가
-
-        return wmtiHistoryDTO;
+        // 2. Builder를 사용해 DTO 변환
+        return WMTIHistoryDTO.builder()
+                .historyId(wmtiHistory.getHistoryId())
+                .wmtiCode(wmtiHistory.getWmtiCode())
+                .answersJson(wmtiHistory.getAnswersJson())
+                //.resultType(wmtiHistory.getResultType())
+                //.riskPreference(wmtiHistory.getRiskPreference())
+                .aScore(wmtiHistory.getAScore())
+                .pScore(wmtiHistory.getPScore())
+                .mScore(wmtiHistory.getMScore())
+                .lScore(wmtiHistory.getLScore())
+                .A(wmtiHistory.getA())
+                .P(wmtiHistory.getP())
+                .M(wmtiHistory.getM())
+                .L(wmtiHistory.getL())
+                .createdAt(wmtiHistory.getCreatedAt())
+                .build();
     }
 
     @Override

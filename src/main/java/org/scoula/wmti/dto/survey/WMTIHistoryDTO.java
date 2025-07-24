@@ -1,23 +1,38 @@
 package org.scoula.wmti.dto.survey;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.scoula.wmti.enums.RiskPreference;
 import org.scoula.wmti.enums.WMTIDimension;
 
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class WMTIHistoryDTO {
     private Long historyId;    // 이력 고유 ID
-    private String wmtiCode;   // 도출된 4자리 WMTI 코드
-    private String answersJson; // 설문 응답 데이터 (JSON 형태)
-    private String resultType;  // 설문 유형 (필요시 추가)
+    private Long memberId;   //FK: 로그인 사용자 고유식별자 As member_id
+    private String resultType;  //Fk 사전정보입력 결과 도출된 투자자유형
+    private RiskPreference riskPreference; // FK: 사전정보입력 결과 도출된 위험 성향 ENUM(’안정형’, ‘안정추구형’, ‘위험중립형’, ‘적극투자형’, ‘공격투자형’)
+    private String userName;    //사용자 실명 또는 표기이름
 
+    //설문연산인자
+    private String answersJson; // 20문항 설문응답 데이터를 JSON문자열 형태로 저장
+    private double aScore; //  A지향성 (%)
+    private double pScore; //  P지향성 (%)
+    private double mScore; //  M지향성 (%)
+    private double lScore; //  L지향성 (%)
+
+    //설문결과인자
+    private String wmtiCode; //검사결과 도출된 4자리 wmti코드
     private WMTIDimension A;   // A/I 성향
     private WMTIDimension P;   // P/B 성향
     private WMTIDimension M;   // M/W 성향
     private WMTIDimension L;   // L/C 성향
 
-    private RiskPreference riskPreference; // 파생된 위험 성향
     private LocalDateTime createdAt; // 설문 저장일
 }

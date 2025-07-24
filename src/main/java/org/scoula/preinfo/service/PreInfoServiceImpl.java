@@ -17,10 +17,10 @@ public class PreInfoServiceImpl implements PreInfoService {
     private final PreInfoMapper preInfoMapper;
     private final JwtProcessor jwtUtil; // 토큰 생성기
 
-    //입력된 사전정보 조회
+    //입력된 사전정보 조회 by memberId
     @Override
     public PreInformation getUserProfile(Long memberId) {
-        return preInfoMapper.findById(memberId);
+        return preInfoMapper.findByMemberId(memberId);
     }
     //사전정보 등록/저장.
     @Override
@@ -62,11 +62,11 @@ public class PreInfoServiceImpl implements PreInfoService {
                 .build();
 
         // DB 저장 -> insert/update 분기
-        PreInformation existing = preInfoMapper.findById(userId);
+        PreInformation existing = preInfoMapper.findByMemberId(userId);
         if (existing == null) {
-            preInfoMapper.insertUserProfile(profile);
+            preInfoMapper.insertPreInfo(profile);
         } else {
-            preInfoMapper.updateUserProfile(profile);
+            preInfoMapper.updatePreInfo(profile);
         }
 
         // DTO 로 응답 구성

@@ -28,10 +28,10 @@ public class WMTIHistory {
 
     //설문결과인자
     private String wmtiCode;
-    private WMTIDimension A;             // A/I 성향
-    private WMTIDimension P;             // P/B 성향
-    private WMTIDimension M;             // M/W 성향
-    private WMTIDimension L;             // L/C 성향
+    private WMTIDimension a;             // A/I 성향
+    private WMTIDimension p;             // P/B 성향
+    private WMTIDimension m;             // M/W 성향
+    private WMTIDimension l;             // L/C 성향
 
     private LocalDateTime createdAt; // 설문 저장일
 }

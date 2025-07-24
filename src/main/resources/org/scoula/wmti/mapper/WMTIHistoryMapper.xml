@@ -1,67 +1,70 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="org.scoula.wmti.mapper.WMTIHistoryMapper">
+    <!-- 결과 매핑 -->
+    <resultMap id="WMTIHistoryMap" type="org.scoula.wmti.entity.WMTIHistory">
+        <id property="historyId" column="history_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="resultType" column="result_type"/>
+        <result property="riskPreference" column="risk_preference"/>
+        <result property="answersJson" column="answers_json"/>
+        <result property="aScore" column="a_score"/>
+        <result property="pScore" column="p_score"/>
+        <result property="mScore" column="m_score"/>
+        <result property="lScore" column="l_score"/>
+        <result property="wmtiCode" column="wmti_code"/>
+        <result property="a" column="AvsI"/>
+        <result property="p" column="PvsB"/>
+        <result property="m" column="MvsW"/>
+        <result property="l" column="LvsC"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
 
     <!-- 설문 이력 저장 -->
-    <insert id="saveWMTIHistory" parameterType="org.scoula.wmti.entity.WMTIHistory">
-        INSERT INTO wmti_history (member_id, answers_json, result_type, wmti_code,
-                                  a, p, m, t, risk_preference, created_at)
-        VALUES (#{memberId}, #{answersJson}, #{resultType}, #{wmtiCode},
-                #{a}, #{p}, #{m}, #{t}, #{riskPreference}, #{createdAt});
+    <insert id="saveWMTIHistory" parameterType="org.scoula.wmti.entity.WMTIHistory"
+            useGeneratedKeys="true" keyProperty="historyId">
+        INSERT INTO wmti_history (
+            member_id,
+            result_type,
+            risk_preference,
+            answers_json,
+            a_score,
+            p_score,
+            m_score,
+            l_score,
+            wmti_code,
+            a, p, m, l,
+            created_at
+        ) VALUES (
+                     #{memberId},
+                     #{resultType},
+                     #{riskPreference},
+                     #{answersJson},
+                     #{aScore},
+                     #{pScore},
+                     #{mScore},
+                     #{lScore},
+                     #{wmtiCode},
+                     #{A}, #{P}, #{M}, #{L},
+                     #{createdAt}
+                 )
     </insert>
 
     <!-- 사용자 ID로 설문 이력 조회 (최근1개)-->
-    <select id="findByMemberId" parameterType="long" resultType="org.scoula.wmti.entity.WMTIHistory">
-        SELECT history_id AS historyId,
-        member_id AS memberId,
-        answers_json AS answersJson,
-        result_type AS resultType,
-        wmti_code AS wmtiCode,
-        a AS a,
-        p AS p,
-        m AS m,
-        t AS t,
-        risk_preference AS riskPreference,
-        created_at AS createdAt
+    <!-- 단일 이력 조회 -->
+    <select id="findByHistoryId" resultMap="WMTIHistoryMap">
+        SELECT *
         FROM wmti_history
-        WHERE member_id = #{memberId}
-        ORDER BY created_at DESC
-        LIMIT 1;
+        WHERE history_id = #{historyId}
     </select>
 
     <!--사용자 ID로 모든 설문이력조회 (전체 리스트)    -->
-    <select id="findAllByMemberId" parameterType="long" resultType="org.scoula.wmti.entity.WMTIHistory">
-        SELECT history_id AS historyId,
-        member_id AS memberId,
-        answers_json AS answersJson,
-        result_type AS resultType,
-        wmti_code AS wmtiCode,
-        a AS a,
-        p AS p,
-        m AS m,
-        t AS t,
-        risk_preference AS riskPreference,
-        created_at AS createdAt
+    <select id="findAllByMemberId" resultMap="WMTIHistoryMap">
+        SELECT *
         FROM wmti_history
         WHERE member_id = #{memberId}
-        ORDER BY created_at DESC;
-    </select>
-
-    <!-- 사용자 ID와 이력 ID로 설문 이력 조회(특정 이력 조회용) -->
-    <select id="findByHistoryId" parameterType="long" resultType="org.scoula.wmti.entity.WMTIHistory">
-        SELECT history_id AS historyId,
-        member_id AS memberId,
-        answers_json AS answersJson,
-        result_type AS resultType,
-        wmti_code AS wmtiCode,
-        a AS a,
-        p AS p,
-        m AS m,
-        t AS t,
-        risk_preference AS riskPreference,
-        created_at AS createdAt
-        FROM wmti_history
-        WHERE history_id = #{historyId}
+        ORDER BY created_at DESC
     </select>
 
     <!-- 설문 이력 삭제 -->
