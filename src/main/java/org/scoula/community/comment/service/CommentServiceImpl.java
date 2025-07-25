@@ -3,6 +3,7 @@ package org.scoula.community.comment.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.domain.CommentVO;
 import org.scoula.community.comment.dto.CommentCreateRequestDTO;
 import org.scoula.community.comment.dto.CommentResponseDTO;
@@ -11,6 +12,7 @@ import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.response.ResponseCode;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,22 +55,17 @@ public class CommentServiceImpl implements CommentService {
         return CommentResponseDTO.of(comment);
     }
 
-    @Override
-    public List<CommentResponseDTO> getList() {
-        log.info("getList..........");
-        return commentMapper.getList().stream()
-                .map(CommentResponseDTO::of)
-                .toList();
-    }
-
     @Transactional
     public void delete(Long commentId) {
+        String email = getCurrentUserId();
         log.info("delete........." + commentId);
         CommentVO comment = commentMapper.get(commentId);
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
-
+        if (!comment.getMemberId().toString().equals(email)) {
+            throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
+        }
         int deleteCount;
         if (comment.getParentComment() == null) {
             deleteCount = commentMapper.countAllByParentOrSelf(commentId);
@@ -80,5 +77,35 @@ public class CommentServiceImpl implements CommentService {
         }
 
         postMapper.decrementCommentCountBy(comment.getPostId(), deleteCount);
+    }
+
+    @Override
+    public List<CommentResponseDTO> getListByPostId(Long postId) {
+        log.info("getListByPostId..........");
+        List<CommentVO> comments = commentMapper.getListByPostId(postId);
+        if (comments == null || comments.isEmpty()) {
+            return List.of();
+        }
+        return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+
+    @Override
+    public List<CommentResponseDTO> getParentAndReplies(Long parentCommentId) {
+        log.info("getParentAndReplies..........");
+        // 부모 댓글과 그에 대한 대댓글을 조회
+        List<CommentVO> comments = commentMapper.getParentAndReplies(parentCommentId);
+        if (comments == null || comments.isEmpty()) {
+            return List.of();
+        }
+        return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+
+    private String getCurrentUserId() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return email;
     }
 }

@@ -1,5 +1,8 @@
 package org.scoula.community.post.domain;
 
+import org.scoula.community.post.exception.InvalidTagException;
+import org.scoula.response.ResponseCode;
+
 public enum ProductTag {
     DEPOSIT("deposit", "예금"),
     SAVINGS("savings", "적금"),
@@ -28,6 +31,14 @@ public enum ProductTag {
                 return tag;
             }
         }
-        throw new IllegalArgumentException("Invalid ProductTag code: " + code);
+        throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
+    }
+    public static boolean isValidCode(String code) {
+        for (CategoryTag tag : CategoryTag.values()) {
+            if (tag.getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

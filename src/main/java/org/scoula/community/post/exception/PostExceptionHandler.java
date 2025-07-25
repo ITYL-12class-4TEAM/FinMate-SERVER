@@ -62,4 +62,21 @@ public class PostExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
+
+    @ExceptionHandler(InvalidTagException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleInvalidTagException(
+            InvalidTagException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
 }

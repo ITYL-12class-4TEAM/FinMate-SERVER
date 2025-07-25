@@ -44,24 +44,24 @@
     </select>
 
 
-    <!-- 댓글 전체 조회 -->
-    <select id="getList" resultType="org.scoula.community.comment.domain.CommentVO">
-        SELECT
-            c.comment_id,
-            c.post_id,
-            c.member_id,
-            c.content,
-            c.is_anonymous,
-            c.parent_comment,
-            c.created_at,
-            (
-                SELECT COUNT(*)
-                FROM finmate.comment_like cl
-                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true
-            ) AS like_count
-        FROM finmate.comment c
-        ORDER BY c.created_at ASC
-    </select>
+<!--    &lt;!&ndash; 댓글 전체 조회 &ndash;&gt;-->
+<!--    <select id="getList" resultType="org.scoula.community.comment.domain.CommentVO">-->
+<!--        SELECT-->
+<!--            c.comment_id,-->
+<!--            c.post_id,-->
+<!--            c.member_id,-->
+<!--            c.content,-->
+<!--            c.is_anonymous,-->
+<!--            c.parent_comment,-->
+<!--            c.created_at,-->
+<!--            (-->
+<!--                SELECT COUNT(*)-->
+<!--                FROM finmate.comment_like cl-->
+<!--                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true-->
+<!--            ) AS like_count-->
+<!--        FROM finmate.comment c-->
+<!--        ORDER BY c.created_at ASC-->
+<!--    </select>-->
     <!-- 댓글 삭제 (부모 댓글 및 자식 댓글 모두 물리 삭제) -->
     <!-- 부모댓글인지 체크 (대댓글이 있는지 확인) -->
     <select id="hasChildren" parameterType="long" resultType="boolean">
@@ -100,5 +100,56 @@
         SELECT COUNT(*) FROM comment
         WHERE comment_id = #{commentId}
            OR parent_comment = #{commentId}
+    </select>
+    <select id="findById" parameterType="long" resultType="org.scoula.community.comment.domain.CommentVO">
+        SELECT
+            c.comment_id,
+            c.post_id,
+            c.member_id,
+            c.content,
+            c.is_anonymous,
+            c.parent_comment,
+            c.created_at
+        FROM finmate.comment c
+        WHERE c.comment_id = #{commentId}
+    </select>
+    <select id="getListByPostId" parameterType="long" resultType="org.scoula.community.comment.domain.CommentVO">
+        SELECT
+            c.comment_id,
+            c.post_id,
+            c.member_id,
+            c.content,
+            c.is_anonymous,
+            c.parent_comment,
+            c.created_at,
+            (
+                SELECT COUNT(*)
+                FROM finmate.comment_like cl
+                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true
+            ) AS like_count
+        FROM finmate.comment c
+        WHERE c.post_id = #{postId}
+        ORDER BY c.created_at ASC
+    </select>
+
+    <!-- 부모 댓글과 그에 대한 대댓글 조회 -->
+    <select id="getParentAndReplies" parameterType="long" resultType="org.scoula.community.comment.domain.CommentVO">
+        SELECT
+            c.comment_id,
+            c.post_id,
+            c.member_id,
+            c.content,
+            c.is_anonymous,
+            c.parent_comment,
+            c.created_at,
+            (
+                SELECT COUNT(*)
+                FROM finmate.comment_like cl
+                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true
+            ) AS like_count
+        FROM finmate.comment c
+        WHERE c.parent_comment = #{parentCommentId}
+           OR c.comment_id = #{parentCommentId}
+        ORDER BY c.created_at ASC
     </select>
 </mapper>

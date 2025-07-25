@@ -1,6 +1,8 @@
 package org.scoula.community.post.domain;
 
 import java.util.Arrays;
+import org.scoula.community.post.exception.InvalidTagException;
+import org.scoula.response.ResponseCode;
 
 public enum CategoryTag {
     RECOMMEND("recommend", "추천"),
@@ -27,7 +29,14 @@ public enum CategoryTag {
         return Arrays.stream(values())
                 .filter(tag -> tag.code.equalsIgnoreCase(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid CategoryTag code: " + code));
+                .orElseThrow(() -> new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG));
     }
-
+    public static boolean isValidCode(String code) {
+        for (CategoryTag tag : CategoryTag.values()) {
+            if (tag.getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
