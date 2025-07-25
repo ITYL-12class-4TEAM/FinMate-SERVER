@@ -57,8 +57,7 @@ public class PostApiController {
     public ApiResponse<PostDetailsResponseDTO> update(
             @PathVariable Long postId,
             @RequestBody PostUpdateRequestDTO postUpdateRequestDTO) {
-        postUpdateRequestDTO.setPostId(postId);
-        PostDetailsResponseDTO updated = postService.update(postUpdateRequestDTO);
+        PostDetailsResponseDTO updated = postService.update(postId, postUpdateRequestDTO);
         return ApiResponse.success(ResponseCode.POST_UPDATE_SUCCESS, updated);
     }
 

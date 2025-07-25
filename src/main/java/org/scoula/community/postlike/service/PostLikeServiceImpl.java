@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeMapper postLikeMapper;
     private final PostMapper postMapper;
+
     public boolean toggleLike(Long postId, Long memberId) {
         if (!postMapper.existsById(postId)) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
@@ -27,14 +28,18 @@ public class PostLikeServiceImpl implements PostLikeService {
                     .memberId(memberId)
                     .isLiked(true)
                     .build());
-            return true;
         } else {
             boolean newStatus = !existing.isLiked();
             existing.setLiked(newStatus);
             postLikeMapper.update(existing);
-            return newStatus;
         }
+
+        postMapper.updateLikeCount(postId);
+
+        PostLikeVO finalLike = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
+        return finalLike != null && finalLike.isLiked();
     }
+
 
     public int getLikeCount(Long postId) {
         if (!postMapper.existsById(postId)) {
@@ -47,7 +52,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public boolean isLikedByMember(Long postId, Long memberId) {
         if (!postMapper.existsById(postId)) {
-            throw new CommentNotFoundException(ResponseCode.POST_NOT_FOUND);
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();

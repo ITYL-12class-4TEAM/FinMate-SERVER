@@ -27,38 +27,78 @@
     <!-- 댓글 단일 조회 -->
     <select id="get" parameterType="long" resultType="org.scoula.community.comment.domain.CommentVO">
         SELECT
-            comment_id,
-            post_id,
-            member_id,
-            content,
-            is_anonymous,
-            parent_comment,
-            created_at
-        FROM finmate.comment
-        WHERE comment_id = #{commentId}
+            c.comment_id,
+            c.post_id,
+            c.member_id,
+            c.content,
+            c.is_anonymous,
+            c.parent_comment,
+            c.created_at,
+            (
+                SELECT COUNT(*)
+                FROM finmate.comment_like cl
+                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true
+            ) AS like_count
+        FROM finmate.comment c
+        WHERE c.comment_id = #{commentId}
     </select>
+
 
     <!-- 댓글 전체 조회 -->
     <select id="getList" resultType="org.scoula.community.comment.domain.CommentVO">
         SELECT
-            comment_id,
-            post_id,
-            member_id,
-            content,
-            is_anonymous,
-            parent_comment,
-            created_at
-        FROM finmate.comment
-        ORDER BY created_at ASC
+            c.comment_id,
+            c.post_id,
+            c.member_id,
+            c.content,
+            c.is_anonymous,
+            c.parent_comment,
+            c.created_at,
+            (
+                SELECT COUNT(*)
+                FROM finmate.comment_like cl
+                WHERE cl.comment_id = c.comment_id AND cl.is_liked = true
+            ) AS like_count
+        FROM finmate.comment c
+        ORDER BY c.created_at ASC
+    </select>
+    <!-- 댓글 삭제 (부모 댓글 및 자식 댓글 모두 물리 삭제) -->
+    <!-- 부모댓글인지 체크 (대댓글이 있는지 확인) -->
+    <select id="hasChildren" parameterType="long" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM finmate.comment WHERE parent_comment = #{commentId}
+        )
     </select>
 
-    <!-- 댓글 삭제 (부모 댓글 및 자식 댓글 모두 물리 삭제) -->
-    <delete id="delete" parameterType="long">
+
+    <!-- 부모 댓글 + 자식 댓글 모두 삭제 -->
+    <delete id="deleteParentAndChildren" parameterType="long">
+        DELETE FROM finmate.comment
+        WHERE comment_id = #{commentId} OR parent_comment = #{commentId}
+    </delete>
+
+    <!-- 자식 댓글만 삭제 -->
+    <delete id="deleteChild" parameterType="long">
         DELETE FROM finmate.comment
         WHERE comment_id = #{commentId}
-           OR parent_comment = #{commentId}
     </delete>
+
     <select id="existsById" resultType="boolean">
         SELECT COUNT(*) > 0 FROM finmate.comment WHERE comment_id = #{commentId}
+    </select>
+    <update id="updateLikeCount">
+        UPDATE comment
+        SET like_count = (
+            SELECT COUNT(*)
+            FROM comment_like
+            WHERE comment.comment_id = #{commentId}
+              AND is_liked = true
+        )
+        WHERE comment_id = #{commentId}
+    </update>
+    <select id="countAllByParentOrSelf" resultType="int">
+        SELECT COUNT(*) FROM comment
+        WHERE comment_id = #{commentId}
+           OR parent_comment = #{commentId}
     </select>
 </mapper>

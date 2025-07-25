@@ -5,6 +5,8 @@ import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.mapper.CommentMapper;
 import org.scoula.community.commentlike.domain.CommentLikeVO;
 import org.scoula.community.commentlike.mapper.CommentLikeMapper;
+import org.scoula.community.post.exception.PostNotFoundException;
+import org.scoula.community.postlike.domain.PostLikeVO;
 import org.scoula.response.ResponseCode;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +29,16 @@ public class CommentLikeServiceImpl implements CommentLikeService {
                     .memberId(memberId)
                     .isLiked(true)
                     .build());
-            return true;
         } else {
             boolean newStatus = !existing.isLiked();
             existing.setLiked(newStatus);
             commentLikeMapper.update(existing);
-            return newStatus;
         }
+
+        commentMapper.updateLikeCount(commentId);
+
+        CommentLikeVO finalLike = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
+        return finalLike != null && finalLike.isLiked();
     }
 
     public int getLikeCount(Long commentId) {
