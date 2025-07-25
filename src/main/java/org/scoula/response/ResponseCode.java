@@ -69,6 +69,7 @@ public enum ResponseCode {
     COMMENT_DETAILS_SUCCESS(HttpStatus.OK, "댓글 상세 정보 조회가 성공되었습니다"),
     COMMENT_DELETE_SUCCESS(HttpStatus.OK, "댓글 삭제가 성공되었습니다"),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
+    COMMENT_PARENT_MISMATCH(HttpStatus.BAD_REQUEST, "부모 댓글이 존재하지 않거나 게시글이 일치하지 않습니다."),
 
     /**
      * Community - PostLike

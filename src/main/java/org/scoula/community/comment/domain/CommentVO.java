@@ -15,6 +15,7 @@ public class CommentVO {
     private Long postId;
     private Long memberId;
     private String content;
+    private int likeCount;
     private boolean isAnonymous;
     private Long parentComment;
     private LocalDateTime createdAt;

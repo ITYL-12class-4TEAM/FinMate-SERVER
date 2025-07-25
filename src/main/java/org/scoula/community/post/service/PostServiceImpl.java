@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.common.util.UploadFiles;
+import org.scoula.community.comment.domain.CommentVO;
 import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.dto.PostCreateRequestDTO;
@@ -42,7 +43,12 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
-        return PostDetailsResponseDTO.of(post);
+
+        List<CommentVO> comments = postMapper.getCommentsByPostId(no);
+        int commentCount = postMapper.countCommentsByPostId(no);
+        post.setCommentCount(commentCount);
+
+        return PostDetailsResponseDTO.of(post, comments);
     }
 
     @Override
@@ -52,7 +58,6 @@ public class PostServiceImpl implements PostService {
 
         PostVO vo = postCreateRequestDTO.toVo();
         postMapper.create(vo);
-        postCreateRequestDTO.setPostId(vo.getPostId());
         List<MultipartFile> files = postCreateRequestDTO.getFiles();
         if (files != null && !files.isEmpty()) {
             upload(vo.getPostId(), files);
@@ -61,15 +66,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDetailsResponseDTO update(PostUpdateRequestDTO postCreateRequestDTO) {
-        log.info("update........." + postCreateRequestDTO);
+    public PostDetailsResponseDTO update(Long postId, PostUpdateRequestDTO postUpdateRequestDTO) {
+        log.info("update........." + postUpdateRequestDTO);
 
-        if (postMapper.get(postCreateRequestDTO.getPostId()) == null) {
+        if (postMapper.get(postId) == null) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
 
-        postMapper.update(postCreateRequestDTO.toVo());
-        return get(postCreateRequestDTO.getPostId());
+        postMapper.update(postUpdateRequestDTO.toVo());
+        return get(postId);
     }
 
 

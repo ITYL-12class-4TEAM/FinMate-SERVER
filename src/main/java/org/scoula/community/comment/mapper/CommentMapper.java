@@ -9,6 +9,9 @@ public interface CommentMapper {
     public List<CommentVO> getList();
     public CommentVO get(Long no);
     public void create(CommentVO comment);
-    public int delete(Long no);
+    int deleteChild(Long commentId);
+    int deleteParentAndChildren(Long commentId);
     boolean existsById(Long commentId);
+    void updateLikeCount(Long commentId);
+    int countAllByParentOrSelf(Long commentId);
 }

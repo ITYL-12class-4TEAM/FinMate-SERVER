@@ -25,5 +25,4 @@
         SELECT COUNT(*) FROM post_like
         WHERE post_id = #{postId} AND is_liked = true
     </select>
-
 </mapper>

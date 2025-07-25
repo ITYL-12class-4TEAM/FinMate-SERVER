@@ -1,6 +1,7 @@
 package org.scoula.community.comment.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,8 @@ public class CommentResponseDTO {
     private boolean isAnonymous;
     private Long parentComment;
     private LocalDateTime createdAt;
+    @ApiModelProperty(value = "좋아요 수", example = "15", position = 11)
+    private int likeCount;
 
     public static CommentResponseDTO of(CommentVO vo) {
         return vo == null ? null : CommentResponseDTO.builder()
@@ -31,6 +34,7 @@ public class CommentResponseDTO {
                 .isAnonymous(vo.isAnonymous())
                 .parentComment(vo.getParentComment())
                 .createdAt(vo.getCreatedAt())
+                .likeCount(vo.getLikeCount())
                 .build();
     }
 
@@ -43,6 +47,7 @@ public class CommentResponseDTO {
                 .isAnonymous(isAnonymous)
                 .parentComment(parentComment)
                 .createdAt(createdAt)
+                .likeCount(likeCount)
                 .build();
     }
 }
