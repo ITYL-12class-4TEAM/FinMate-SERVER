@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.scoula.wmti.enums.RiskPreference;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +32,8 @@ public class PreInfoResponseDTO {
         private Integer financialHealthScore;
         private String investmentCapacity;
         private Long recommendedMonthlyInvestment;
+        private String resultType;  //사전정보입력 결과 도출된 투자자유형
+        private RiskPreference riskPreference; //사전정보입력 결과 도출된 위험 성향 ENUM(’안정형’, ‘안정추구형’, ‘위험중립형’, ‘적극투자형’, ‘공격투자형’
     }
 
     @Data
