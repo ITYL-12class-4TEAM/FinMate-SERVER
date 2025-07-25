@@ -1,6 +1,5 @@
 package org.scoula.wmti.enums;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
@@ -18,20 +17,8 @@ public enum RiskPreference {
         this.label = label;
     }
 
-    //RiskPreference enum의 label이 JSON 응답에 직접 노출되도록 설정
-    @JsonValue
-    public String toJson() {
+    public String getLabel() {
         return label;
-    }
-
-    @JsonCreator
-    public static RiskPreference fromLabel(String input) {
-        for (RiskPreference r : values()) {
-            if (r.label.equals(input)) {
-                return r;
-            }
-        }
-        throw new IllegalArgumentException("Unknown RiskPreference: " + input);
     }
 }
 

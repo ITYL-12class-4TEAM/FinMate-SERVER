@@ -10,7 +10,7 @@
         <result property="memberId" column="member_id"/>
         <result property="resultType" column="result_type"/>
         <result property="riskPreference" column="risk_preference"/>
-        <result property="userName" column="user_name"/>
+        <result property="userName" column="username"/>
         <result property="answersJson" column="answers_json"/>
         <result property="aScore" column="a_score"/>
         <result property="iScore" column="i_score"/>
@@ -34,7 +34,7 @@
             member_id,
             result_type,
             risk_preference,
-            user_name,
+            username,
             answers_json,
             a_score,
             i_score,
@@ -45,7 +45,7 @@
             l_score,
             c_score,
             wmti_code,
-            a, p, m, l,
+            AvsI, PvsB, MvsW, LvsC,
             created_at
         ) VALUES (
                      #{memberId},
@@ -62,7 +62,7 @@
                      #{lScore},
                      #{cScore},
                      #{wmtiCode},
-                     #{A}, #{P}, #{M}, #{L},
+                     #{a}, #{p}, #{m}, #{l},
                      #{createdAt}
                  )
     </insert>
@@ -79,10 +79,10 @@
             w_score = #{wScore},
             l_score = #{lScore},
             c_score = #{cScore},
-            a = #{a},
-            p = #{p},
-            m = #{m},
-            l = #{l},
+            AvsI = #{a},
+            PvsB = #{p},
+            MvsW = #{m},
+            LvsC = #{l},
             created_at = #{createdAt}
         WHERE member_id = #{memberId}
     </update>

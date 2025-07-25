@@ -1,10 +1,6 @@
 package org.scoula.preinfo.enums;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
 
-@Getter
 public enum PurposeCategory {
     EMERGENCY("비상자금 마련"),
     TRAVEL("여행자금"),
@@ -16,18 +12,12 @@ public enum PurposeCategory {
     OTHER("기타");
 
     private final String label;
+
     PurposeCategory(String label) {
         this.label = label;
     }
 
-    @JsonValue
-    public String getLabel() { return label; }
-
-    @JsonCreator
-    public static PurposeCategory fromLabel(String value) {
-        for (PurposeCategory c : values()) {
-            if (c.label.equals(value)) return c;
-        }
-        throw new IllegalArgumentException("Invalid purposeCategory: " + value);
+    public String getLabel() {
+        return label;
     }
 }

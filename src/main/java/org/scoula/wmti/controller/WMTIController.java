@@ -4,6 +4,7 @@ import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
+import org.scoula.wmti.entity.SurveyResult;
 import org.scoula.wmti.service.WMTIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,13 +32,17 @@ public class WMTIController {
         if (!wmtirequest.isValid()) {
             return ApiResponse.fail(ResponseCode.WMTI_INCOMPLETE_ANSWERS, "20개 문항이 모두 응답되어야 합니다.");
         }
+        //JWT기반 인증에서 memberId 따오기
+        //Long memberrId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = 1L;  //임시
 
-        // 설문 응답에 대한 WMTI 코드 계산
-        String wmtiCode = wmtiService.calculateWMTICode(wmtirequest.getAnswers());
+        // 설문 응답에 대한 WMTI 코드 계산 + 저장
+        //String wmtiCode = wmtiService.calculateWMTICode(wmtirequest.getAnswers()); //단순연산
+        SurveyResult saved = wmtiService.saveSurveyResult(memberId, wmtirequest.getAnswers());
 
         // 응답 결과 및 메시지를 담을 Map 객체 생성
         Map<String, Object> response = new HashMap<>();
-        response.put("wmtiCode", wmtiCode);
+        response.put("wmtiCode", saved.getWmtiCode());
         response.put("message", "검사완료");
 
         // 성공적인 설문 제출 응답 반환

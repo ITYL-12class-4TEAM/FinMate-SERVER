@@ -6,6 +6,7 @@
     <resultMap id="WMTIHistoryMap" type="org.scoula.wmti.entity.WMTIHistory">
         <id property="historyId" column="history_id"/>
         <result property="memberId" column="member_id"/>
+        <result property="userName" column="username"/>
         <result property="resultType" column="result_type"/>
         <result property="riskPreference" column="risk_preference"/>
         <result property="answersJson" column="answers_json"/>
@@ -30,6 +31,7 @@
             useGeneratedKeys="true" keyProperty="historyId">
         INSERT INTO wmti_history (
             member_id,
+            username,
             result_type,
             risk_preference,
             answers_json,
@@ -42,10 +44,11 @@
             l_score,
             c_score,
             wmti_code,
-            a, p, m, l,
+            AvsI, PvsB, MvsW, LvsC,
             created_at
         ) VALUES (
                      #{memberId},
+                     #{userName},
                      #{resultType},
                      #{riskPreference},
                      #{answersJson},
@@ -58,7 +61,7 @@
                      #{lScore},
                      #{cScore},
                      #{wmtiCode},
-                     #{A}, #{P}, #{M}, #{L},
+                     #{a}, #{p}, #{m}, #{l},
                      #{createdAt}
                  )
     </insert>

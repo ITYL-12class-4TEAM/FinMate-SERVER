@@ -37,15 +37,15 @@
             result_type, risk_preference,
             platform, user_agent, screen_size, created_at
         ) VALUES (
-                     #{preInfoId}, #{memberId}, #{username}, #{age}, #{monthlyIncome}, #{fixedCost}, #{period.label}, #{purpose}, #{purposeCategory.label},
+                     #{preInfoId}, #{memberId}, #{username}, #{age}, #{monthlyIncome}, #{fixedCost}, #{period}, #{purpose}, #{purposeCategory},
                      #{surplusAmount}, #{savingsRate}, #{financialHealthScore}, #{investmentCapacity}, #{recommendedMonthlyInvestment},
-                     #{resultType}, #{riskPreference.label},
+                     #{resultType}, #{riskPreference},
                      #{platform}, #{userAgent}, #{screenSize}, #{createdAt}
                  )
     </insert>
 
     <!-- SELECT: memberId로 조회 -->
-    <select id="findByMemberId" parameterType="long" resultType="org.scoula.preinfo.entity.PreInformation">
+    <select id="findByMemberId" parameterType="long" resultMap="PreInfoResultMap">
         SELECT * FROM pre_info WHERE member_id = #{memberId}
     </select>
 
@@ -62,16 +62,16 @@
             age = #{age},
             monthly_income = #{monthlyIncome},
             fixed_cost = #{fixedCost},
-            period = #{period.label},
+            period = #{period},
             purpose = #{purpose},
-            purpose_category = #{purposeCategory.label},
+            purpose_category = #{purposeCategory},
             surplus_amount = #{surplusAmount},
             saving_rate = #{savingsRate},
             financial_health_score = #{financialHealthScore},
             investment_capacity = #{investmentCapacity},
             recommended_monthly_investment = #{recommendedMonthlyInvestment},
             result_type = #{resultType},
-            risk_preference = #{riskPreference.label},
+            risk_preference = #{riskPreference},
             platform = #{platform},
             user_agent = #{userAgent},
             screen_size = #{screenSize},
