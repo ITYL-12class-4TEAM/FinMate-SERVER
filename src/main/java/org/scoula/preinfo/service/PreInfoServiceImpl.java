@@ -1,11 +1,13 @@
 package org.scoula.preinfo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.preinfo.domain.PreInfoCalculator;
 import org.scoula.preinfo.dto.PreInfoRequestDTO;
 import org.scoula.preinfo.dto.PreInfoResponseDTO;
 import org.scoula.preinfo.entity.PreInformation;
 import org.scoula.preinfo.mapper.PreInfoMapper;
 import org.scoula.security.util.JwtProcessor;
+import org.scoula.wmti.enums.RiskPreference;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 public class PreInfoServiceImpl implements PreInfoService {
     private final PreInfoMapper preInfoMapper;
     private final JwtProcessor jwtUtil; // 토큰 생성기
+    private final PreInfoCalculator calculator;
 
     //입력된 사전정보 조회 by memberId
     @Override
@@ -28,12 +31,16 @@ public class PreInfoServiceImpl implements PreInfoService {
         //현재시간 저장
         LocalDateTime now = LocalDateTime.now();
 
-        //계산
+        //계산 -임시로직
         Long surplus = dto.getMonthlyIncome() - dto.getFixedCost();
         int savingsRate = (int) ((double) surplus / dto.getMonthlyIncome() * 100);
-        String investmentCapacity = savingsRate >= 50 ? "양호" : (savingsRate >= 30 ? "보통" : "부족");
         int score = Math.min(100, savingsRate * 2); // 예시 점수 로직
         long recommendedMonthlyInvestment = (long) (surplus * 0.3); // 예시: 잉여자산의 30%
+
+        String investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate);
+        RiskPreference riskPreference = calculator.calculateRiskPreference(dto, surplus, savingsRate);
+        String resultType = calculator.calculateResultType(score);
+
 
         //고유 ID + 토큰생성
         String preInfoId = generatePreInfoId(userId, now);
@@ -55,6 +62,8 @@ public class PreInfoServiceImpl implements PreInfoService {
                 .financialHealthScore(score)
                 .investmentCapacity(investmentCapacity)
                 .recommendedMonthlyInvestment(recommendedMonthlyInvestment)
+                .resultType(resultType)
+                .riskPreference(riskPreference)
                 .platform(dto.getPlatform())
                 .userAgent(dto.getUserAgent())
                 .screenSize(dto.getScreenSize())
@@ -81,6 +90,8 @@ public class PreInfoServiceImpl implements PreInfoService {
                         .financialHealthScore(score)
                         .investmentCapacity(investmentCapacity)
                         .recommendedMonthlyInvestment(recommendedMonthlyInvestment)
+                        .resultType(resultType)
+                        .riskPreference(riskPreference)
                         .build())
                 .nextStep(PreInfoResponseDTO.NextStep.builder()
                         .url("/survey/questionnaire")
