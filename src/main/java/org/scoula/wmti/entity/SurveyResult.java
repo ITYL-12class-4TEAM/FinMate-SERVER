@@ -38,5 +38,7 @@ public class SurveyResult {
     private WMTIDimension m;   // M/W 성향
     private WMTIDimension l;   // L/C 성향
 
+    //@Builder.Default
+    //private boolean isPublic= false; // ✅ 공개 여부 (기본 false)
     private LocalDateTime createdAt; //설문 제출 시각
 }

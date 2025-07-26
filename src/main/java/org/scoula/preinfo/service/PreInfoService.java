@@ -7,4 +7,6 @@ import org.scoula.preinfo.entity.PreInformation;
 public interface PreInfoService {
     PreInformation getUserProfile(Long memberId);
     PreInfoResponseDTO savePreInfoAndResponse(Long userId, PreInfoRequestDTO dto);
+    PreInformation getPreInfoById(String preInfoId);
+
 }

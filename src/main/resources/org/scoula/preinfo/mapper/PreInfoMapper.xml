@@ -49,7 +49,7 @@
         SELECT * FROM pre_info WHERE member_id = #{memberId}
     </select>
 
-    <!-- SELECT by preInfoId -->
+    <!-- SELECT by preInfoId로 조회 -->
     <select id="findByPreInfoId" parameterType="string" resultMap="PreInfoResultMap">
         SELECT * FROM pre_info WHERE preinfo_id = #{preInfoId}
     </select>

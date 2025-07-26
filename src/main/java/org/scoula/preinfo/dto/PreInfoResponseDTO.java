@@ -42,8 +42,8 @@ public class PreInfoResponseDTO {
     @AllArgsConstructor
     public static class NextStep {
         //사전정보 입력이 끝나면 wmti설문조사 페이지url로 자동연결
-        private String url;
-        private String description;
+        private String url;         //WMTI설문조사 페이지로 연결
+        private String description; //
     }
 }
 

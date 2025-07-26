@@ -25,6 +25,13 @@ public class PreInfoServiceImpl implements PreInfoService {
     public PreInformation getUserProfile(Long memberId) {
         return preInfoMapper.findByMemberId(memberId);
     }
+
+    //입력된 사전정보 조회 by preInfoId
+    @Override
+    public PreInformation getPreInfoById(String preInfoId) {
+        return preInfoMapper.findByPreInfoId(preInfoId);
+    }
+
     //사전정보 등록/저장.
     @Override
     public PreInfoResponseDTO savePreInfoAndResponse(Long userId, PreInfoRequestDTO dto) {
@@ -100,6 +107,7 @@ public class PreInfoServiceImpl implements PreInfoService {
                 .estimatedTime("15분") //예상소요시간 안내(고정문자열)
                 .build();
     }
+
     //입력양식에 따른 PREINFO_ID 명명
     private String generatePreInfoId(Long userId, LocalDateTime timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
