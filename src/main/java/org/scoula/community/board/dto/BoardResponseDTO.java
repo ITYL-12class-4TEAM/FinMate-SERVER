@@ -14,16 +14,16 @@ import org.scoula.community.board.domain.BoardVO;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BoardDTO {
+public class BoardResponseDTO {
     private Long boardId;
     private String title;
     private Long memberId;
     private String boardType;
     private Date createdAt;
 
-    public static BoardDTO of(BoardVO vo) {
+    public static BoardResponseDTO of(BoardVO vo) {
         System.out.println("vo.getType() = " + vo.getType());
-        return vo == null ? null : BoardDTO.builder()
+        return vo == null ? null : BoardResponseDTO.builder()
                 .boardId(vo.getBoardId())
                 .title(vo.getTitle())
                 .memberId(vo.getMemberId())

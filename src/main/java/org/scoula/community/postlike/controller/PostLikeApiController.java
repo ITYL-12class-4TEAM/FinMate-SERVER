@@ -27,10 +27,9 @@ public class PostLikeApiController {
 
     @PostMapping("/{postId}/toggle")
     @ApiOperation("게시글 좋아요 토글")
-    public ApiResponse<?> toggleLike(@PathVariable("postId") Long postId,
-                                     @RequestParam("memberId") Long memberId) {
-        log.info("Toggle like - postId: {}, memberId: {}", postId, memberId);
-        boolean liked = postLikeService.toggleLike(postId, memberId);
+    public ApiResponse<?> toggleLike(@PathVariable("postId") Long postId) {
+        log.info("Toggle like - postId: {}", postId);
+        boolean liked = postLikeService.toggleLike(postId);
         return ApiResponse.success(
                 liked ? ResponseCode.POST_LIKE_CREATE_SUCCESS : ResponseCode.POST_LIKE_CANCEL_SUCCESS,
                 new PostLikeToggleResponseDTO(liked)

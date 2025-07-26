@@ -27,8 +27,6 @@ public class PostCreateRequestDTO {
     @ApiModelProperty(value = "게시판 ID (연관관계)", example = "1", required = true, position = 2)
     private Long boardId;
 
-    @ApiModelProperty(value = "작성자 회원 ID", example = "100", required = true, position = 4)
-    private Long memberId;
 
     @ApiModelProperty(value = "게시글 제목", example = "게시글 제목 예시", required = true, position = 5)
     private String title;
@@ -57,7 +55,6 @@ public class PostCreateRequestDTO {
     public static PostCreateRequestDTO of(PostVO vo) {
         return vo == null ? null : PostCreateRequestDTO.builder()
                 .boardId(vo.getBoardId())
-                .memberId(vo.getMemberId())
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .isAnonymous(vo.isAnonymous())
@@ -75,7 +72,6 @@ public class PostCreateRequestDTO {
 
         return PostVO.builder()
                 .boardId(boardId)
-                .memberId(memberId)
                 .title(title)
                 .content(content)
                 .isAnonymous(isAnonymous)

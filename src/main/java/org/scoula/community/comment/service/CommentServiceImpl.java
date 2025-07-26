@@ -3,6 +3,7 @@ package org.scoula.community.comment.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.domain.CommentVO;
 import org.scoula.community.comment.dto.CommentCreateRequestDTO;
 import org.scoula.community.comment.dto.CommentResponseDTO;
@@ -10,7 +11,9 @@ import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final PostMapper postMapper;
+    private final MemberMapper memberMapper;
 
     @Override
     @Transactional
@@ -35,8 +39,8 @@ public class CommentServiceImpl implements CommentService {
             }
         }
 
-
         CommentVO vo = commentCreateRequestDTO.toVo();
+        vo.setMemberId(getCurrentUserIdAsLong());
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
 
@@ -53,14 +57,6 @@ public class CommentServiceImpl implements CommentService {
         return CommentResponseDTO.of(comment);
     }
 
-    @Override
-    public List<CommentResponseDTO> getList() {
-        log.info("getList..........");
-        return commentMapper.getList().stream()
-                .map(CommentResponseDTO::of)
-                .toList();
-    }
-
     @Transactional
     public void delete(Long commentId) {
         log.info("delete........." + commentId);
@@ -68,7 +64,10 @@ public class CommentServiceImpl implements CommentService {
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
-
+        Long memberId = getCurrentUserIdAsLong();
+        if (comment.getMemberId()!= memberId) {
+            throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
+        }
         int deleteCount;
         if (comment.getParentComment() == null) {
             deleteCount = commentMapper.countAllByParentOrSelf(commentId);
@@ -80,5 +79,35 @@ public class CommentServiceImpl implements CommentService {
         }
 
         postMapper.decrementCommentCountBy(comment.getPostId(), deleteCount);
+    }
+
+    @Override
+    public List<CommentResponseDTO> getListByPostId(Long postId) {
+        log.info("getListByPostId..........");
+        List<CommentVO> comments = commentMapper.getListByPostId(postId);
+        if (comments == null || comments.isEmpty()) {
+            return List.of();
+        }
+        return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+
+    @Override
+    public List<CommentResponseDTO> getParentAndReplies(Long parentCommentId) {
+        log.info("getParentAndReplies..........");
+        // 부모 댓글과 그에 대한 대댓글을 조회
+        List<CommentVO> comments = commentMapper.getParentAndReplies(parentCommentId);
+        if (comments == null || comments.isEmpty()) {
+            return List.of();
+        }
+        return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+
+    private Long getCurrentUserIdAsLong() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
 }

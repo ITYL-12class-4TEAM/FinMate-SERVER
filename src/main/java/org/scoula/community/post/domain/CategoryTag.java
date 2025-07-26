@@ -1,7 +1,11 @@
 package org.scoula.community.post.domain;
 
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
+import org.scoula.community.post.exception.InvalidTagException;
+import org.scoula.response.ResponseCode;
 
+@Slf4j
 public enum CategoryTag {
     RECOMMEND("recommend", "추천"),
     QUESTION("question", "질문"),
@@ -27,7 +31,16 @@ public enum CategoryTag {
         return Arrays.stream(values())
                 .filter(tag -> tag.code.equalsIgnoreCase(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid CategoryTag code: " + code));
+                .orElseThrow(() -> new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG));
     }
+    public static boolean isValidCode(String code) {
+        for (CategoryTag tag : CategoryTag.values()) {
 
+            if (tag.getCode().equalsIgnoreCase(code)) {
+                return true;
+            }
+            System.out.println("1false");
+        }
+        return false;
+    }
 }

@@ -10,4 +10,5 @@ public interface CommentLikeMapper {
     void insert(CommentLikeVO commentLike);
     void update(CommentLikeVO commentLike);
     int countByCommentId(@Param("commentId") Long commentId);
+    void deleteByCommentIdAndMemberId(@Param("commentId") Long commentId, @Param("memberId") Long memberId);
 }
