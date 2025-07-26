@@ -77,4 +77,8 @@
             receive_push_notification = #{receivePushNotification}
         WHERE member_id = #{memberId}
     </update>
+    <select id="getMemberIdByEmail" resultType="long">
+        SELECT member_id FROM member WHERE email = #{email}
+    </select>
+
 </mapper>

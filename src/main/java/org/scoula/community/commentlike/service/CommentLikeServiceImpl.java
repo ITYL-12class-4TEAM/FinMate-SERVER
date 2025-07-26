@@ -9,45 +9,40 @@ import org.scoula.community.commentlike.domain.CommentLikeVO;
 import org.scoula.community.commentlike.mapper.CommentLikeMapper;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.postlike.domain.PostLikeVO;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CommentLikeServiceImpl implements CommentLikeService {
     private final CommentLikeMapper commentLikeMapper;
     private final CommentMapper commentMapper;
+    private final MemberMapper memberMapper;
 
-    public boolean toggleLike(Long commentId, Long memberId) {
-        CommentVO comment = commentMapper.findById(commentId);
-        if (comment == null) {
-            throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
-        }
-        String email = getCurrentUserId();
-        if (!comment.getMemberId().toString().equals(email)) {
-            throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
-        }
-        CommentLikeVO existing = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
+    @Override
+    @Transactional
+    public boolean toggleLike(Long commentId) {
+        Long memberId = getCurrentUserIdAsLong();
 
-        if (existing == null) {
+        CommentLikeVO like = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
+
+        if (like == null) {
             commentLikeMapper.insert(CommentLikeVO.builder()
                     .commentId(commentId)
                     .memberId(memberId)
                     .isLiked(true)
                     .build());
+            return true;
         } else {
-            boolean newStatus = !existing.isLiked();
-            existing.setLiked(newStatus);
-            commentLikeMapper.update(existing);
+            commentLikeMapper.deleteByCommentIdAndMemberId(commentId, memberId);
+            return false;
         }
-
-        commentMapper.updateLikeCount(commentId);
-
-        CommentLikeVO finalLike = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
-        return finalLike != null && finalLike.isLiked();
     }
 
+    @Override
     public int getLikeCount(Long commentId) {
         if (!commentMapper.existsById(commentId)) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
@@ -64,8 +59,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
         CommentLikeVO like = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
         return like != null && like.isLiked();
     }
-    private String getCurrentUserId() {
+    private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return email;
+        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
 }

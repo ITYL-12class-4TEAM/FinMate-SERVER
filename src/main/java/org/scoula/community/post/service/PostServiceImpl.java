@@ -21,6 +21,7 @@ import org.scoula.community.post.exception.InvalidTagException;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.exception.UploadFailException;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostServiceImpl implements PostService {
     private final static String BASE_DIR = "/Users/yerong/documents/board";
     final private PostMapper postMapper;
+    private final MemberMapper memberMapper;
+
     @Override
     public List<PostListResponseDTO> getList() {
         log.info("getList..........");
@@ -63,6 +66,7 @@ public class PostServiceImpl implements PostService {
         validateTags(postCreateRequestDTO.getCategoryTag(), postCreateRequestDTO.getProductTag());
 
         PostVO vo = postCreateRequestDTO.toVo();
+        vo.setMemberId(getCurrentUserIdAsLong());
         postMapper.create(vo);
         List<MultipartFile> files = postCreateRequestDTO.getFiles();
         if (files != null && !files.isEmpty()) {
@@ -80,8 +84,8 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
-        String email = getCurrentUserId();
-        if (!post.getMemberId().toString().equals(email)) {
+        Long memberId = getCurrentUserIdAsLong();
+        if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
         postMapper.update(postUpdateRequestDTO.toVo());
@@ -97,8 +101,8 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
-        String email = getCurrentUserId();
-        if (!post.getMemberId().toString().equals(email)) {
+        Long memberId = getCurrentUserIdAsLong();
+        if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
         postMapper.delete(postId);
@@ -136,19 +140,19 @@ public class PostServiceImpl implements PostService {
             }
         }
     }
-    private String getCurrentUserId() {
+    private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return email;
+        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
     private void validateTags(String categoryTag, String productTag) {
-        // 카테고리 태그 유효성 검증
         if (categoryTag != null && !CategoryTag.isValidCode(categoryTag)) {
+            System.out.println("1!false");
             throw new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG);
         }
 
-        // 상품 태그 유효성 검증
         if (productTag != null && !ProductTag.isValidCode(productTag)) {
-            throw new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG);
+            System.out.println("2!false");
+            throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
         }
     }
 }

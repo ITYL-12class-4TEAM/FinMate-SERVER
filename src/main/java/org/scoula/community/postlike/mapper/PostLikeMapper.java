@@ -10,4 +10,5 @@ public interface PostLikeMapper {
     void insert(PostLikeVO postLike);
     void update(PostLikeVO postLike);
     int countByPostId(@Param("postId") Long postId);
+    void deleteByPostIdAndMemberId(@Param("postId") Long postId, @Param("memberId") Long memberId);
 }

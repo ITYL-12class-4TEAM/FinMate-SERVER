@@ -21,9 +21,6 @@ public class CommentCreateRequestDTO {
     @ApiModelProperty(value = "게시글 ID", example = "1", required = true)
     private Long postId;
 
-    @ApiModelProperty(value = "회원 ID", example = "1", required = true)
-    private Long memberId;
-
     @ApiModelProperty(value = "댓글 내용", example = "이 글 정말 좋아요!", required = true)
     private String content;
 
@@ -39,7 +36,6 @@ public class CommentCreateRequestDTO {
     public static CommentCreateRequestDTO of(CommentVO vo) {
         return vo == null ? null : CommentCreateRequestDTO.builder()
                 .postId(vo.getPostId())
-                .memberId(vo.getMemberId())
                 .content(vo.getContent())
                 .isAnonymous(vo.isAnonymous())
                 .parentComment(vo.getParentComment())
@@ -49,7 +45,6 @@ public class CommentCreateRequestDTO {
     public CommentVO toVo() {
         return CommentVO.builder()
                 .postId(postId)
-                .memberId(memberId)
                 .content(content)
                 .isAnonymous(isAnonymous)
                 .parentComment((parentComment != null && parentComment == 0) ? null : parentComment)

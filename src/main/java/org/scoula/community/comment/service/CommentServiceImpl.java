@@ -11,6 +11,7 @@ import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final PostMapper postMapper;
+    private final MemberMapper memberMapper;
 
     @Override
     @Transactional
@@ -37,8 +39,8 @@ public class CommentServiceImpl implements CommentService {
             }
         }
 
-
         CommentVO vo = commentCreateRequestDTO.toVo();
+        vo.setMemberId(getCurrentUserIdAsLong());
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
 
@@ -57,13 +59,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     public void delete(Long commentId) {
-        String email = getCurrentUserId();
         log.info("delete........." + commentId);
         CommentVO comment = commentMapper.get(commentId);
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
-        if (!comment.getMemberId().toString().equals(email)) {
+        Long memberId = getCurrentUserIdAsLong();
+        if (comment.getMemberId()!= memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
         int deleteCount;
@@ -104,8 +106,8 @@ public class CommentServiceImpl implements CommentService {
                 .toList();
     }
 
-    private String getCurrentUserId() {
+    private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return email;
+        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
 }

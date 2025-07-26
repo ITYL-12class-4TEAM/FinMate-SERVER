@@ -1,8 +1,10 @@
 package org.scoula.community.post.domain;
 
+import lombok.extern.log4j.Log4j2;
 import org.scoula.community.post.exception.InvalidTagException;
 import org.scoula.response.ResponseCode;
 
+@Log4j2
 public enum ProductTag {
     DEPOSIT("deposit", "예금"),
     SAVINGS("savings", "적금"),
@@ -34,11 +36,14 @@ public enum ProductTag {
         throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
     }
     public static boolean isValidCode(String code) {
-        for (CategoryTag tag : CategoryTag.values()) {
-            if (tag.getCode().equals(code)) {
+        for (ProductTag tag : ProductTag.values()) {
+            log.info("tag : " + tag);
+            log.info("code : " + code);
+            if (tag.getCode().equalsIgnoreCase(code)) { // 대소문자 구분 없이 비교
                 return true;
             }
         }
+        System.out.println("2false");
         return false;
     }
 }
