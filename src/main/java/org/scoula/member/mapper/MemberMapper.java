@@ -35,4 +35,7 @@ int updatePassword(@Param("memberId") Long memberId,
 long getMemberIdByEmail(@Param("email") String email);
 
 int deleteMember(@Param("memberId") Long memberId);
+
+void updateProfileImage(@Param("memberId") Long memberId,
+                        @Param("profileImage") String profileImage);
 }

@@ -80,6 +80,11 @@
     <select id="getMemberIdByEmail" resultType="long">
         SELECT member_id FROM member WHERE email = #{email}
     </select>
+    <update id="updateProfileImage">
+        UPDATE member
+        SET profile_image = #{profileImage}
+        WHERE member_id = #{memberId}
+    </update>
 
     <delete id="deleteMember">
         DELETE FROM member WHERE member_id = #{memberId}

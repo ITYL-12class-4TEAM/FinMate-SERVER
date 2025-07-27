@@ -136,6 +136,11 @@ dependencies {
     //redis
     implementation 'org.springframework.data:spring-data-redis:2.6.6'
     implementation 'io.lettuce:lettuce-core:6.1.10.RELEASE'
+
+    // 파일 업로드 관련 의존성
+    implementation 'commons-fileupload:commons-fileupload:1.5'
+    implementation 'commons-io:commons-io:2.11.0'
+
     //validation 관련 의존성
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
@@ -145,6 +150,7 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
         exclude group: 'ch.qos.logback'
         exclude group: 'org.slf4j', module: 'slf4j-simple'
+
     }
 }
 // 테스트 실행 설정
