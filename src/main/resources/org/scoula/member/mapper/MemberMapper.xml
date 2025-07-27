@@ -46,8 +46,8 @@
     </select>
 
     <insert id="insert" parameterType="org.scoula.security.account.domain.MemberVO">
-        INSERT INTO member (username, password, nickname, email, phone_number, birth_date, gender)
-        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender})
+        INSERT INTO member (username, password, nickname, email, phone_number, birth_date, gender, receive_push_notification)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender}, #{receivePushNotification})
     </insert>
 
     <!-- MemberMapper.xml -->
