@@ -1,10 +1,6 @@
 package org.scoula.auth.service;
 
-import org.scoula.auth.dto.FindIdRequest;
-import org.scoula.auth.dto.FindIdResponseDTO;
-import org.scoula.auth.dto.ResetPasswordRequest;
-import org.scoula.auth.dto.TokenResponseDTO;
-import org.scoula.auth.dto.UpdateProfileRequest;
+import org.scoula.auth.dto.*;
 
 public interface AuthService {
     TokenResponseDTO refreshToken(String refreshToken);
@@ -12,4 +8,5 @@ public interface AuthService {
     FindIdResponseDTO findPassword(FindIdRequest request);
     void resetPassword(ResetPasswordRequest request);
     void updateProfile(UpdateProfileRequest request);
+    void withdrawMember(WithdrawRequest request);
 }

@@ -9,9 +9,11 @@ import org.scoula.auth.dto.RefreshRequest;
 import org.scoula.auth.dto.ResetPasswordRequest;
 import org.scoula.auth.dto.TokenResponseDTO;
 import org.scoula.auth.dto.UpdateProfileRequest;
+import org.scoula.auth.dto.WithdrawRequest;
 import org.scoula.auth.service.AuthService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,5 +61,12 @@ public class AuthApiController {
     public ApiResponse<?> updateProfile(@RequestBody UpdateProfileRequest request) {
         authService.updateProfile(request);
         return ApiResponse.success(ResponseCode.PROFILE_UPDATE_SUCCESS);
+    }
+
+    @ApiOperation("회원탈퇴")
+    @DeleteMapping("/withdraw")
+    public ApiResponse<?> withdrawMember(@RequestBody WithdrawRequest request) {
+        authService.withdrawMember(request);
+        return ApiResponse.success(ResponseCode.MEMBER_WITHDRAW_SUCCESS);
     }
 }
