@@ -49,6 +49,10 @@
         DELETE FROM finmate.post_attachment WHERE bno = #{postId}
     </delete>
 
+    <delete id="deleteAttachmentsByPostId" parameterType="long">
+        DELETE FROM finmate.post_attachment WHERE bno = #{postId}
+    </delete>
+
     <!-- 게시글 목록 조회 -->
     <select id="getList" resultType="org.scoula.community.post.domain.PostVO">
         SELECT

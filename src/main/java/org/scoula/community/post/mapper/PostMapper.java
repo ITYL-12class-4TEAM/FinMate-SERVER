@@ -29,4 +29,5 @@ public interface PostMapper {
     void incrementCommentCount(Long postId);
     void decrementCommentCountBy(@Param("postId") Long postId, @Param("count") int count);
 
+    void deleteAttachmentsByPostId(Long postId);
 }

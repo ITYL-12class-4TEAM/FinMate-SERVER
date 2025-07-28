@@ -51,6 +51,8 @@ public class PostServiceImpl implements PostService {
         if (post == null) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
+        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(no);
+        post.setAttachments(attachments);
 
         List<CommentVO> comments = postMapper.getCommentsByPostId(no);
         int commentCount = postMapper.countCommentsByPostId(no);
@@ -88,7 +90,13 @@ public class PostServiceImpl implements PostService {
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
-        postMapper.update(postUpdateRequestDTO.toVo());
+        List<MultipartFile> files = postUpdateRequestDTO.getFiles();
+        if (files != null && !files.isEmpty()) {
+            upload(post.getPostId(), files);
+        }
+        PostVO updateVO = postUpdateRequestDTO.toVo();
+        updateVO.setPostId(postId);
+        postMapper.update(updateVO);
         return get(postId);
     }
 
@@ -105,6 +113,16 @@ public class PostServiceImpl implements PostService {
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
+        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(postId);
+        for (PostAttachmentVO attachment : attachments) {
+            try {
+                UploadFiles.deleteFile(attachment.getPath());
+                log.info("파일 삭제 성공: {}", attachment.getPath());
+            } catch (Exception e) {
+                log.warn("파일 삭제 실패: {}", attachment.getPath(), e);
+            }
+        }
+        postMapper.deleteAttachmentsByPostId(postId);
         postMapper.delete(postId);
     }
 
@@ -119,11 +137,33 @@ public class PostServiceImpl implements PostService {
 
     // 첨부파일 삭제
     @Override
+    @Transactional
     public boolean deleteAttachment(Long no) {
+        // 첨부파일 정보 조회
+        PostAttachmentVO attachment = postMapper.getAttachment(no);
+        if (attachment == null) {
+            throw new AttachmentNotFound(ResponseCode.ATTACHMENT_NOT_FOUND);
+        }
+
+        PostVO post = postMapper.get(attachment.getBno());
+        Long memberId = getCurrentUserIdAsLong();
+        if (!post.getMemberId().equals(memberId)) {
+            throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
+        }
+
+        try {
+            UploadFiles.deleteFile(attachment.getPath());
+            log.info("첨부파일 삭제 성공: {}", attachment.getPath());
+        } catch (Exception e) {
+            log.warn("첨부파일 삭제 실패: {}", attachment.getPath(), e);
+        }
+
+        // DB 레코드 삭제
         boolean result = postMapper.deleteAttachment(no) == 1;
         if (!result) {
             throw new AttachmentNotFound(ResponseCode.ATTACHMENT_NOT_FOUND);
         }
+
         return true;
     }
 
@@ -132,26 +172,36 @@ public class PostServiceImpl implements PostService {
             if (part == null || part.isEmpty()) continue;
 
             try {
+                String originalFileName = UploadFiles.sanitizeFilename(part.getOriginalFilename());
+
+                if (part.getSize() > 50 * 1024 * 1024) {
+                    log.warn("파일 크기 초과: {} ({}bytes)", originalFileName, part.getSize());
+                    continue;
+                }
+
                 String uploadPath = UploadFiles.upload(BASE_DIR, part);
                 PostAttachmentVO attach = PostAttachmentVO.of(part, bno, uploadPath);
                 postMapper.createAttachment(attach);
+
+                log.info("파일 업로드 성공: {} -> {}", originalFileName, uploadPath);
+
             } catch (IOException e) {
+                log.error("파일 업로드 실패: {}", part.getOriginalFilename(), e);
                 throw new UploadFailException(ResponseCode.FILE_UPLOAD_FAIL);
             }
         }
     }
+
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
     private void validateTags(String categoryTag, String productTag) {
         if (categoryTag != null && !CategoryTag.isValidCode(categoryTag)) {
-            System.out.println("1!false");
             throw new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG);
         }
 
         if (productTag != null && !ProductTag.isValidCode(productTag)) {
-            System.out.println("2!false");
             throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
         }
     }
