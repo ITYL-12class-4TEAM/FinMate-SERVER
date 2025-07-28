@@ -25,8 +25,7 @@ public class WishlistApiController {
     public ResponseEntity<Void> addFavorite(
             @ApiParam(value = "관심상품 등록 요청 DTO", required = true)
             @RequestBody FavoriteRequestDTO request) {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        favoriteProductService.addFavorite(memberId, request.getProductId(), request.getSaveTrm(), request.getRsrvType());
+        favoriteProductService.addFavorite(request.getProductId(), request.getSaveTrm(), request.getRsrvType());
         return ResponseEntity.ok().build();
     }
 
@@ -35,16 +34,14 @@ public class WishlistApiController {
     public ResponseEntity<Void> removeFavorite(
             @ApiParam(value = "삭제할 상품 ID", required = true)
             @PathVariable Long productId) {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        favoriteProductService.removeFavorite(memberId, productId);
+        favoriteProductService.removeFavorite(productId);
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "관심상품 목록 조회", notes = "사용자가 등록한 모든 관심상품 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<FavoriteProductDto>> getFavorites() {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<FavoriteProductDto> favorites = favoriteProductService.getFavorites(memberId); // saveTrm 없이
+        List<FavoriteProductDto> favorites = favoriteProductService.getFavorites(); // saveTrm 없이
         return ResponseEntity.ok(favorites);
     }
 
@@ -53,8 +50,7 @@ public class WishlistApiController {
     public ResponseEntity<Boolean> checkFavorite(
             @ApiParam(value = "조회할 상품 ID", required = true)
             @PathVariable Long productId) {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(favoriteProductService.isFavorite(memberId, productId));
+        return ResponseEntity.ok(favoriteProductService.isFavorite(productId));
     }
 
     @ApiOperation(value = "인기 관심상품 조회", notes = "카테고리별로 최근 N일 간의 인기 관심상품을 조회합니다.")

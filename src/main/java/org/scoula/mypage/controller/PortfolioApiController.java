@@ -31,7 +31,7 @@ public class PortfolioApiController {
     @ApiOperation(value = "포트폴리오 목록 조회", notes = "로그인한 사용자의 포트폴리오 목록을 조회합니다.")
     @GetMapping
     public ApiResponse<List<PortfolioItemDTO>> getPortfolio() {
-        List<PortfolioItemDTO> result = portfolioService.getPortfolioList(getLoginMemberId());
+        List<PortfolioItemDTO> result = portfolioService.getPortfolioList();
         return ApiResponse.success(ResponseCode.PORTFOLIO_READ_SUCCESS, result);
     }
 
@@ -40,7 +40,7 @@ public class PortfolioApiController {
     public ApiResponse<?> addPortfolio(
             @ApiParam(value = "포트폴리오 생성 정보", required = true)
             @RequestBody PortfolioCreateDTO dto) {
-        portfolioService.addPortfolio(getLoginMemberId(), dto);
+        portfolioService.addPortfolio(dto);
         return ApiResponse.success(ResponseCode.PORTFOLIO_CREATE_SUCCESS);
     }
 
@@ -67,7 +67,7 @@ public class PortfolioApiController {
     @ApiOperation(value = "포트폴리오 요약 조회", notes = "로그인한 사용자의 포트폴리오 통계 정보를 조회합니다.")
     @GetMapping("/summary")
     public ApiResponse<List<PortfolioSummaryDTO>> getSummary() {
-        List<PortfolioSummaryDTO> result = portfolioService.getSummary(getLoginMemberId());
+        List<PortfolioSummaryDTO> result = portfolioService.getSummary();
         return ApiResponse.success(ResponseCode.PORTFOLIO_SUMMARY_SUCCESS, result);
     }
 }

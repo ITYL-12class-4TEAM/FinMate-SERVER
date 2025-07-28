@@ -1,7 +1,9 @@
 package org.scoula.mypage.service;
 import lombok.RequiredArgsConstructor;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.mypage.dto.*;
 import org.scoula.mypage.mapper.PortfolioMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,12 +17,17 @@ import java.util.Map;
 public class PortfolioService {
 
     private final PortfolioMapper portfolioMapper;
+    private final MemberMapper memberMapper;
 
-    public List<PortfolioItemDTO> getPortfolioList(Long memberId) {
+    public List<PortfolioItemDTO> getPortfolioList() {
+        Long memberId = getCurrentUserIdAsLong();
+
         return portfolioMapper.getPortfolioItems(memberId);
     }
 
-    public void addPortfolio(Long memberId, PortfolioCreateDTO dto) {
+    public void addPortfolio(PortfolioCreateDTO dto) {
+        Long memberId = getCurrentUserIdAsLong();
+
         Long categoryId = portfolioMapper.findCategoryIdByProductId(dto.getProductId());
         Long subcategoryId = portfolioMapper.findSubcategoryIdByProductId(dto.getProductId());
 
@@ -38,7 +45,9 @@ public class PortfolioService {
         portfolioMapper.deletePortfolioItem(portfolioId);
     }
 
-    public List<PortfolioSummaryDTO> getSummary(Long memberId) {
+    public List<PortfolioSummaryDTO> getSummary() {
+        Long memberId = getCurrentUserIdAsLong();
+
         List<Map<String, Object>> rawData = portfolioMapper.getPortfolioSummary(memberId);
 
         Map<String, PortfolioSummaryDTO> grouped = new LinkedHashMap<>();
@@ -76,5 +85,9 @@ public class PortfolioService {
         }
 
         return new ArrayList<>(grouped.values());
+    }
+    private Long getCurrentUserIdAsLong() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
 }

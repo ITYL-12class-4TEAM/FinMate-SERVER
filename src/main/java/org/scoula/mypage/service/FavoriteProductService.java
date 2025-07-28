@@ -1,11 +1,13 @@
 package org.scoula.mypage.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.mypage.dto.FavoriteProductDto;
 import org.scoula.mypage.dto.PopularProductGroupDto;
 import org.scoula.mypage.dto.SubcategoryDto;
 import org.scoula.mypage.mapper.FavoriteProductMapper;
 import org.scoula.mypage.mapper.ProductMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,11 +20,13 @@ public class FavoriteProductService {
 
     private final FavoriteProductMapper favoriteProductMapper;
     private final ProductMapper productMapper;
+    private final MemberMapper memberMapper;
 
     /**
      * 즐겨찾기 추가
      */
-    public void addFavorite(Long memberId, Long productId, Integer saveTrm, String rsrvType) {
+    public void addFavorite(Long productId, Integer saveTrm, String rsrvType) {
+        Long memberId = getCurrentUserIdAsLong();
         favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
         favoriteProductMapper.increaseWishlistCount(productId);
     }
@@ -30,7 +34,9 @@ public class FavoriteProductService {
     /**
      * 즐겨찾기 삭제
      */
-    public void removeFavorite(Long memberId, Long productId) {
+    public void removeFavorite(Long productId) {
+        Long memberId = getCurrentUserIdAsLong();
+
         favoriteProductMapper.deleteFavorite(memberId, productId);
         favoriteProductMapper.decreaseWishlistCount(productId);
     }
@@ -38,7 +44,9 @@ public class FavoriteProductService {
     /**
      * 즐겨찾기 목록 조회
      */
-    public List<FavoriteProductDto> getFavorites(Long memberId) {
+    public List<FavoriteProductDto> getFavorites() {
+        Long memberId = getCurrentUserIdAsLong();
+
         List<FavoriteProductDto> favorites = favoriteProductMapper.selectFavoritesByMemberId(memberId);
 
         for (FavoriteProductDto dto : favorites) {
@@ -56,7 +64,9 @@ public class FavoriteProductService {
     /**
      * 특정 상품이 즐겨찾기에 등록되어 있는지 확인
      */
-    public boolean isFavorite(Long memberId, Long productId) {
+    public boolean isFavorite(Long productId) {
+        Long memberId = getCurrentUserIdAsLong();
+
         return favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId);
     }
 
@@ -79,6 +89,10 @@ public class FavoriteProductService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+    private Long getCurrentUserIdAsLong() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
 }
 

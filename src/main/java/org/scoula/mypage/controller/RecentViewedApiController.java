@@ -26,16 +26,14 @@ public class RecentViewedApiController {
     public ResponseEntity<Void> saveRecentView(
             @ApiParam(value = "최근 본 상품 등록 요청 DTO", required = true)
             @RequestBody ViewedProductRequestDTO request) {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        viewedProductService.saveRecentView(memberId, request.getProductId(), request.getSaveTrm(), request.getRsrvType());
+        viewedProductService.saveRecentView(request.getProductId(), request.getSaveTrm(), request.getRsrvType());
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "최근 본 상품 목록 조회", notes = "로그인한 사용자의 최근 본 상품 목록을 최신순으로 조회합니다.")
     @GetMapping
     public ResponseEntity<List<ViewedProductResponseDTO>> getRecentViews() {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<ViewedProductResponseDTO> recentView = viewedProductService.getRecentViews(memberId); // saveTrm 없이
+        List<ViewedProductResponseDTO> recentView = viewedProductService.getRecentViews(); // saveTrm 없이
         return ResponseEntity.ok(recentView);
     }
 
@@ -44,16 +42,14 @@ public class RecentViewedApiController {
     public ResponseEntity<Void> deleteRecentView(
             @ApiParam(value = "삭제할 상품 ID", required = true)
             @PathVariable Long productId) {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        viewedProductService.deleteRecentView(memberId, productId);
+        viewedProductService.deleteRecentView( productId);
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "최근 본 상품 전체 삭제", notes = "로그인한 사용자의 모든 최근 본 상품 기록을 삭제합니다.")
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAllRecentViews() {
-        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        viewedProductService.deleteAllRecentViews(memberId);
+        viewedProductService.deleteAllRecentViews();
         return ResponseEntity.ok().build();
     }
 }

@@ -210,8 +210,9 @@ public class PostServiceImpl implements PostService {
 
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        return memberMapper.getMemberIdByEmail(email);
     }
+
     private void validateTags(String categoryTag, String productTag) {
         if (categoryTag != null && !CategoryTag.isValidCode(categoryTag)) {
             throw new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG);
