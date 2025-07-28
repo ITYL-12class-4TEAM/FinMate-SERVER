@@ -2,7 +2,6 @@ package org.scoula.community.post.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.auth.exception.AccessDeniedException;

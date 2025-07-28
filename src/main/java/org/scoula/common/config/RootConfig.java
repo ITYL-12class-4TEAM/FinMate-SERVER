@@ -37,7 +37,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
         "org.scoula.community.comment.mapper",
         "org.scoula.community.postlike.mapper",
         "org.scoula.community.commentlike.mapper",
-        "org.scoula.member.mapper"
+        "org.scoula.member.mapper",
+        "org.scoula.community.scrap.mapper"
 })
 public class RootConfig {
 

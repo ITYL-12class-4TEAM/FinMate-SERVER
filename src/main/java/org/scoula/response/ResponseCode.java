@@ -67,6 +67,13 @@ public enum ResponseCode {
     ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
 
     /**
+     * Community - Scrap
+     */
+    SCRAP_ADD_SUCCESS(HttpStatus.CREATED, "스크랩 추가 성공"),
+    SCRAP_REMOVE_SUCCESS(HttpStatus.OK, "스크랩 해제 성공"),
+    SCRAP_LIST_SUCCESS(HttpStatus.OK, "스크랩 목록 조회 성공"),
+    SCRAP_COUNT_SUCCESS(HttpStatus.OK, "스크랩 수 조회 성공"),
+    /**
      * Community - Comment
      */
     COMMENT_CREATE_SUCCESS(HttpStatus.OK, "댓글이 생성되었습니다"),
