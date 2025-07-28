@@ -26,6 +26,9 @@ public class PreInfoViewDTO {
     @ApiModelProperty(value = "나이", example = "28")
     private Integer age;
 
+    @ApiModelProperty(value = "기혼여부", example = "true")
+    private Boolean married;
+
     @ApiModelProperty(value = "월 소득", example = "3000000")
     private Long monthlyIncome;
 
@@ -62,6 +65,7 @@ public class PreInfoViewDTO {
                 .memberId(e.getMemberId())
                 .username(e.getUsername())
                 .age(e.getAge())
+                .married(e.getMarried())
                 .monthlyIncome(e.getMonthlyIncome())
                 .fixedCost(e.getFixedCost())
                 .surplusAmount(e.getSurplusAmount())

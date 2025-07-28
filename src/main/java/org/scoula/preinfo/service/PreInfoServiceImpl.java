@@ -38,15 +38,14 @@ public class PreInfoServiceImpl implements PreInfoService {
         //현재시간 저장
         LocalDateTime now = LocalDateTime.now();
 
-        //계산 -임시로직
-        Long surplus = dto.getMonthlyIncome() - dto.getFixedCost();
-        int savingsRate = (int) ((double) surplus / dto.getMonthlyIncome() * 100);
-        int score = Math.min(100, savingsRate * 2); // 예시 점수 로직
-        long recommendedMonthlyInvestment = (long) (surplus * 0.3); // 예시: 잉여자산의 30%
-
-        String investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate);
+        //입력값 -> 산출값 계산 : PreInfoCalculator
+        long surplus = calculator.calculateSurplusAmount(dto.getMonthlyIncome(), dto.getFixedCost());
+        int savingsRate = calculator.calculateSavingsRate(dto.getMonthlyIncome(), surplus);
+        int score = calculator.calculateFinancialHealthScore(savingsRate);
+        String investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate, surplus, dto.getMonthlyIncome(), dto.getAge(), dto.getMarried());
         RiskPreference riskPreference = calculator.calculateRiskPreference(dto, surplus, savingsRate);
         String resultType = calculator.calculateResultType(score);
+        long recommendedMonthlyInvestment = calculator.calculateRecommendedMonthlyInvestment(dto.getPeriod(), riskPreference, surplus);
 
 
         //고유 ID + 토큰생성
@@ -59,11 +58,11 @@ public class PreInfoServiceImpl implements PreInfoService {
                 .memberId(userId)
                 .username(dto.getUsername())
                 .age(dto.getAge())
+                .married(dto.getMarried())
                 .monthlyIncome(dto.getMonthlyIncome())
                 .fixedCost(dto.getFixedCost())
                 .surplusAmount(surplus)
                 .period(dto.getPeriod())
-                .purpose(dto.getPurpose())
                 .purposeCategory(dto.getPurposeCategory())
                 .savingsRate(savingsRate)
                 .financialHealthScore(score)

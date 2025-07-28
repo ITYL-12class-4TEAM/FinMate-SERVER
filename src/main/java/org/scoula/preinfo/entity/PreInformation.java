@@ -21,10 +21,10 @@ public class PreInformation {
 
     //사용자 입력정보
     private Integer age;        //사용자의 나이
+    private Boolean married;    //기혼여부
     private Long monthlyIncome; //사용자 월수입
-    private Long fixedCost;     //사용자의 월 고정지출
+    private Long fixedCost;     //사용자의 월 고정지출 (고정생활비 + 정기 납입부채)
     private InvestmentPeriod period;      // ENUM ('단기', '중기', '장기')
-    private String purpose;
     private PurposeCategory purposeCategory; // ENUM('여행', '결혼', '자녀교육', '은퇴준비', '기타')
 
     //분석결과 (연산값)

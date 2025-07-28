@@ -11,10 +11,10 @@
         <result property="memberId" column="member_id"/>
         <result property="username" column="username"/>
         <result property="age" column="age"/>
+        <result property="married" column="married"/>
         <result property="monthlyIncome" column="monthly_income"/>
         <result property="fixedCost" column="fixed_cost"/>
         <result property="period" column="period"/>
-        <result property="purpose" column="purpose"/>
         <result property="purposeCategory" column="purpose_category"/>
         <result property="surplusAmount" column="surplus_amount"/>
         <result property="savingsRate" column="saving_rate"/>
@@ -32,12 +32,12 @@
     <!-- INSERT 사용자 프로필 -->
     <insert id="insertPreInfo" parameterType="org.scoula.preinfo.entity.PreInformation">
         INSERT INTO pre_info (
-            preinfo_id, member_id, username, age, monthly_income, fixed_cost, period, purpose, purpose_category,
+            preinfo_id, member_id, username, age, married, monthly_income, fixed_cost, period, purpose_category,
             surplus_amount, saving_rate, financial_health_score, investment_capacity, recommended_monthly_investment,
             result_type, risk_preference,
             platform, user_agent, screen_size, created_at
         ) VALUES (
-                     #{preInfoId}, #{memberId}, #{username}, #{age}, #{monthlyIncome}, #{fixedCost}, #{period}, #{purpose}, #{purposeCategory},
+                     #{preInfoId}, #{memberId}, #{username}, #{age}, #{married},#{monthlyIncome}, #{fixedCost}, #{period}, #{purposeCategory},
                      #{surplusAmount}, #{savingsRate}, #{financialHealthScore}, #{investmentCapacity}, #{recommendedMonthlyInvestment},
                      #{resultType}, #{riskPreference},
                      #{platform}, #{userAgent}, #{screenSize}, #{createdAt}
@@ -60,10 +60,10 @@
         SET
             username = #{username},
             age = #{age},
+            married = #{married},
             monthly_income = #{monthlyIncome},
             fixed_cost = #{fixedCost},
             period = #{period},
-            purpose = #{purpose},
             purpose_category = #{purposeCategory},
             surplus_amount = #{surplusAmount},
             saving_rate = #{savingsRate},
