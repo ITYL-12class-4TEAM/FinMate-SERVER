@@ -167,6 +167,13 @@ public class PostServiceImpl implements PostService {
         return true;
     }
 
+    @Override
+    public List<PostListResponseDTO> getListByBoard(Long boardId) {
+        log.info("getListByBoard......... boardId={}", boardId);
+        return postMapper.getListByBoard(boardId).stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+    }
     private void upload(Long bno, List<MultipartFile> files) {
         for (MultipartFile part : files) {
             if (part == null || part.isEmpty()) continue;

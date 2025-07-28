@@ -10,6 +10,7 @@ import org.scoula.community.post.domain.PostVO;
 
 @Mapper
 public interface PostMapper {
+    List<PostVO> getListByBoard(Long boardId);
     public List<PostVO> getList();
     public PostVO get(Long no);
     public void create(PostVO board);

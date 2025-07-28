@@ -39,7 +39,6 @@ public enum CategoryTag {
             if (tag.getCode().equalsIgnoreCase(code)) {
                 return true;
             }
-            System.out.println("1false");
         }
         return false;
     }
