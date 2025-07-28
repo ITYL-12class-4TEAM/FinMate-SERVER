@@ -1,9 +1,11 @@
 package org.scoula.community.postlike.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.post.domain.PostVO;
+import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.domain.PostLikeVO;
@@ -24,6 +26,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     @Transactional
     public boolean toggleLike(Long postId) {
+        validatePostExists(postId);
         Long memberId = getCurrentUserIdAsLong();
 
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
@@ -43,23 +46,33 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public boolean isLikedByMember(Long postId, Long memberId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+        validatePostExists(postId);
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
     }
 
     @Override
+    public List<PostListResponseDTO> getMyLikedPosts() {
+        Long memberId = getCurrentUserIdAsLong();
+        return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+    }
+
+    @Override
     public int getLikeCount(Long postId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+        validatePostExists(postId);
 
         return postLikeMapper.countByPostId(postId);
     }
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        return memberMapper.getMemberIdByEmail(email);
+    }
+
+    private void validatePostExists(Long postId) {
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
     }
 }

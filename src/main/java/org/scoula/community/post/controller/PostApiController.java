@@ -87,4 +87,10 @@ public class PostApiController {
         postService.deleteAttachment(no);
         return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
     }
+
+    @ApiOperation(value = "내가 쓴 글 조회", notes = "현재 로그인한 사용자가 작성한 게시글 목록을 조회합니다.")
+    @GetMapping("/my")
+    public ApiResponse<List<PostListResponseDTO>> getMyPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getMyPosts());
+    }
 }

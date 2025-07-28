@@ -10,6 +10,8 @@ import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
+import org.scoula.community.post.dto.PostListResponseDTO;
+import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
@@ -29,6 +31,9 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponseDTO create(CommentCreateRequestDTO commentCreateRequestDTO) {
         log.info("create........." + commentCreateRequestDTO);
+        if (!postMapper.existsById(commentCreateRequestDTO.getPostId())) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
         if (commentCreateRequestDTO.getParentComment() != null) {
             CommentVO parent = commentMapper.get(commentCreateRequestDTO.getParentComment());
             if (parent == null) {
@@ -50,6 +55,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDTO get(Long commentId) {
         log.info("get..........");
+
         CommentVO comment = commentMapper.get(commentId);
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
@@ -84,6 +90,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDTO> getListByPostId(Long postId) {
         log.info("getListByPostId..........");
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
         List<CommentVO> comments = commentMapper.getListByPostId(postId);
         if (comments == null || comments.isEmpty()) {
             return List.of();
@@ -96,12 +105,24 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDTO> getParentAndReplies(Long parentCommentId) {
         log.info("getParentAndReplies..........");
-        // 부모 댓글과 그에 대한 대댓글을 조회
+        CommentVO parent = commentMapper.get(parentCommentId);
+        if (parent == null) {
+            throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
+        }
+
         List<CommentVO> comments = commentMapper.getParentAndReplies(parentCommentId);
         if (comments == null || comments.isEmpty()) {
             return List.of();
         }
         return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+    @Override
+    public List<CommentResponseDTO> getMyComments() {
+        log.info("getMyComments..........");
+        Long currentUserId = getCurrentUserIdAsLong();
+        return commentMapper.getCommentsByMemberId(currentUserId).stream()
                 .map(CommentResponseDTO::of)
                 .toList();
     }

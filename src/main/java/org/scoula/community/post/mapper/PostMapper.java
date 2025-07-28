@@ -1,11 +1,13 @@
 package org.scoula.community.post.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.scoula.community.comment.domain.CommentVO;
 import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostVO;
+import org.scoula.community.post.dto.PostListResponseDTO;
 
 
 @Mapper
@@ -31,4 +33,6 @@ public interface PostMapper {
     void decrementCommentCountBy(@Param("postId") Long postId, @Param("count") int count);
 
     void deleteAttachmentsByPostId(Long postId);
+
+    List<PostVO> getPostsByMemberId(Long currentUserId);
 }

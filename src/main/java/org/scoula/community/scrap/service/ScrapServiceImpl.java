@@ -3,12 +3,15 @@ package org.scoula.community.scrap.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.community.post.exception.PostNotFoundException;
+import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.scrap.domain.PostScrapVO;
 import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.scrap.dto.ScrapCountResponseDTO;
 import org.scoula.community.scrap.dto.ScrapResponseDTO;
 import org.scoula.community.scrap.mapper.ScrapMapper;
 import org.scoula.member.mapper.MemberMapper;
+import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +23,12 @@ public class ScrapServiceImpl implements ScrapService {
 
     private final ScrapMapper scrapMapper;
     private final MemberMapper memberMapper;
+    private final PostMapper postMapper;
 
     @Override
     @Transactional
     public ScrapResponseDTO toggleScrap(Long postId) {
+        validatePostExists(postId);
         Long memberId = getCurrentUserIdAsLong();
         boolean isScraped;
 
@@ -51,6 +56,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     @Override
     public boolean isScraped(Long postId, Long memberId) {
+        validatePostExists(postId);
         return scrapMapper.existsScrap(postId, memberId);
     }
 
@@ -64,6 +70,7 @@ public class ScrapServiceImpl implements ScrapService {
 
     @Override
     public ScrapCountResponseDTO getScrapCount(Long postId) {
+        validatePostExists(postId);
         int scrapCount = scrapMapper.countScrapsByPostId(postId);
         return ScrapCountResponseDTO.of(postId, scrapCount);
     }
@@ -78,5 +85,10 @@ public class ScrapServiceImpl implements ScrapService {
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberMapper.getMemberIdByEmail(email);
+    }
+    private void validatePostExists(Long postId) {
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
     }
 }

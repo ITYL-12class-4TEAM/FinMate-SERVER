@@ -114,6 +114,15 @@
     <select id="countCommentsByPostId" parameterType="long" resultType="int">
         SELECT COUNT(*) FROM comment WHERE post_id = #{postId}
     </select>
+    <select id="getPostsByMemberId" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT
+            post_id, board_id, member_id, title, content,
+            created_at, last_updated, hot_board_time,
+            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+        FROM finmate.post
+        WHERE member_id = #{memberId}
+        ORDER BY created_at DESC
+    </select>
     <update id="updateLikeCount">
         UPDATE post
         SET like_count = (
