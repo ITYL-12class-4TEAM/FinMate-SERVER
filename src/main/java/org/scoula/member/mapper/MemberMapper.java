@@ -16,8 +16,11 @@ Long findIdByUsername(String username);   // id 중복 체크시 사용
 
 String getRefreshToken(@Param("memberId") Long memberId);
 
-void insert(MemberVO member);  // 회원 정보 추가
+String findUsernameByNameAndPhone(@Param("username") String username,
+                                  @Param("phoneNumber") String phoneNumber);
 
+void insert(MemberVO member);  // 회원 정보 추가
+int updateProfile(MemberVO member);
 //    int insertAuth(AuthVO auth);        // 회원 권한 정보 추가
 
 //    int update(MemberVO member);
@@ -27,6 +30,7 @@ void updateTokens(@Param("username") String username,
 
 void clearRefreshToken(@Param("username") String username);
 
-//    int updatePassword(ChangePasswordDTO changePasswordDTO);
-
+int updatePassword(@Param("memberId") Long memberId,
+                   @Param("Password") String encodedPassword);
+long getMemberIdByEmail(@Param("email") String email);
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.community.commentlike.mapper.CommentLikeMapper">
+    <delete id="deleteByCommentIdAndMemberId">
+        DELETE FROM finmate.comment_like
+        WHERE comment_id = #{commentId} AND member_id = #{memberId}
+    </delete>
+
+    <select id="findByCommentIdAndMemberId" resultType="org.scoula.community.commentlike.domain.CommentLikeVO">
+        SELECT * FROM finmate.comment_like
+        WHERE comment_id = #{commentId} AND member_id = #{memberId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO finmate.comment_like (comment_id, member_id, is_liked)
+        VALUES (#{commentId}, #{memberId}, #{isLiked})
+    </insert>
+
+    <update id="update">
+        UPDATE finmate.comment_like
+        SET is_liked = #{isLiked}
+        WHERE comment_id = #{commentId} AND member_id = #{memberId}
+    </update>
+
+    <select id="countByCommentId" resultType="int">
+        SELECT COUNT(*) FROM finmate.comment_like
+        WHERE comment_id = #{commentId} AND is_liked = true
+    </select>
+
+</mapper>

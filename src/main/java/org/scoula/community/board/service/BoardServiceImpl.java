@@ -1,16 +1,14 @@
 package org.scoula.community.board.service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.scoula.community.board.domain.BoardType;
 import org.scoula.community.board.domain.BoardVO;
-import org.scoula.community.board.dto.BoardDTO;
+import org.scoula.community.board.dto.BoardResponseDTO;
+import org.scoula.community.board.exception.BoardNotFoundException;
 import org.scoula.community.board.mapper.BoardMapper;
+import org.scoula.response.ResponseCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Log4j2
@@ -19,28 +17,30 @@ public class BoardServiceImpl implements BoardService {
     private final BoardMapper boardMapper;
 
     @Override
-    public BoardDTO create(BoardDTO boardDTO) {
-        BoardVO vo = boardDTO.toVo();
+    public BoardResponseDTO create(BoardResponseDTO boardResponseDTO) {
+        BoardVO vo = boardResponseDTO.toVo();
         boardMapper.create(vo);
-        boardDTO.setNo(vo.getNo());
-        return get(vo.getNo());
+        boardResponseDTO.setBoardId(vo.getBoardId());
+        return get(vo.getBoardId());
     }
 
     @Override
-    public List<BoardDTO> getList() {
+    public List<BoardResponseDTO> getList() {
         log.info("getList..........");
         List<BoardVO> boardVOList = boardMapper.getList();
-        boardVOList.forEach(vo -> log.info("BoardVO: " + vo));
 
         return boardVOList.stream()
-                .map(BoardDTO::of)
+                .map(BoardResponseDTO::of)
                 .toList();
     }
 
 
-    private BoardDTO get(Long no) {
+    private BoardResponseDTO get(Long boardId) {
         log.info("get..........");
-        BoardDTO boardDTO = BoardDTO.of(boardMapper.get(no));
-        return Optional.ofNullable(boardDTO).orElseThrow(NoSuchElementException::new);
+        BoardVO boardVO = boardMapper.get(boardId);
+        if (boardVO == null) {
+            throw new BoardNotFoundException(ResponseCode.BOARD_NOT_FOUND);
+        }
+        return BoardResponseDTO.of(boardVO);
     }
 }
