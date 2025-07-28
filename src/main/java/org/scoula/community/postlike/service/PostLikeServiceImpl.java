@@ -26,6 +26,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     @Transactional
     public boolean toggleLike(Long postId) {
+        validatePostExists(postId);
         Long memberId = getCurrentUserIdAsLong();
 
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
@@ -45,9 +46,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     public boolean isLikedByMember(Long postId, Long memberId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+        validatePostExists(postId);
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
     }
@@ -58,19 +57,22 @@ public class PostLikeServiceImpl implements PostLikeService {
         return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
                 .map(PostListResponseDTO::of)
                 .toList();
-
     }
 
     @Override
     public int getLikeCount(Long postId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+        validatePostExists(postId);
 
         return postLikeMapper.countByPostId(postId);
     }
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        return memberMapper.getMemberIdByEmail(email);
+    }
+
+    private void validatePostExists(Long postId) {
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
     }
 }
