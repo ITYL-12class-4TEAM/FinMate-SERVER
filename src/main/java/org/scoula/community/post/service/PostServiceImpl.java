@@ -20,6 +20,7 @@ import org.scoula.community.post.exception.InvalidTagException;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.exception.UploadFailException;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.community.postlike.mapper.PostLikeMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ public class PostServiceImpl implements PostService {
     private final static String BASE_DIR = "/Users/yerong/documents/board";
     final private PostMapper postMapper;
     private final MemberMapper memberMapper;
+    private final PostLikeMapper postLikeMapper;
 
     @Override
     public List<PostListResponseDTO> getList() {
@@ -44,19 +46,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDetailsResponseDTO get(Long no) {
+    public PostDetailsResponseDTO get(Long postId) {
         log.info("get..........");
-        PostVO post = postMapper.get(no);
-        if (post == null) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
-        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(no);
+        PostVO post = postMapper.get(postId);
+        validatePostExists(postId);
+
+        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(postId);
         post.setAttachments(attachments);
 
-        List<CommentVO> comments = postMapper.getCommentsByPostId(no);
-        int commentCount = postMapper.countCommentsByPostId(no);
+        List<CommentVO> comments = postMapper.getCommentsByPostId(postId);
+        int commentCount = postMapper.countCommentsByPostId(postId);
         post.setCommentCount(commentCount);
-
+        int likeCount = postLikeMapper.countByPostId(postId);
+        log.info("likeCount: {}", likeCount);
+        post.setLikeCount(likeCount);
         return PostDetailsResponseDTO.of(post, comments);
     }
 
@@ -65,6 +68,7 @@ public class PostServiceImpl implements PostService {
     public PostDetailsResponseDTO create(PostCreateRequestDTO postCreateRequestDTO) {
         log.info("create........." + postCreateRequestDTO);
         validateTags(postCreateRequestDTO.getCategoryTag(), postCreateRequestDTO.getProductTag());
+
 
         PostVO vo = postCreateRequestDTO.toVo();
         vo.setMemberId(getCurrentUserIdAsLong());
@@ -79,12 +83,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDetailsResponseDTO update(Long postId, PostUpdateRequestDTO postUpdateRequestDTO) {
         log.info("update........." + postUpdateRequestDTO);
+        validatePostExists(postId);
         validateTags(postUpdateRequestDTO.getCategoryTag(), postUpdateRequestDTO.getProductTag());
-
         PostVO post = postMapper.get(postId);
-        if (post == null) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+
         Long memberId = getCurrentUserIdAsLong();
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
@@ -104,10 +106,9 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void delete(Long postId) {
         log.info("delete........." + postId);
+        validatePostExists(postId);
         PostVO post = postMapper.get(postId);
-        if (post == null) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+
         Long memberId = getCurrentUserIdAsLong();
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
@@ -168,8 +169,19 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostListResponseDTO> getListByBoard(Long boardId) {
+
         log.info("getListByBoard......... boardId={}", boardId);
-        return postMapper.getListByBoard(boardId).stream()
+
+        List<PostVO> posts = postMapper.getListByBoard(boardId);
+        for (PostVO post : posts) {
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            post.setCommentCount(commentCount);
+
+            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            post.setLikeCount(likeCount);
+        }
+
+        return posts.stream()
                 .map(PostListResponseDTO::of)
                 .toList();
     }
@@ -177,8 +189,18 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostListResponseDTO> getMyPosts() {
         log.info("getMyPosts..........");
-        Long currentUserId = getCurrentUserIdAsLong();
-        return postMapper.getPostsByMemberId(currentUserId).stream()
+        Long memberId = getCurrentUserIdAsLong();
+
+        List<PostVO> posts = postMapper.getPostsByMemberId(memberId);
+        for (PostVO post : posts) {
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            post.setCommentCount(commentCount);
+
+            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            post.setLikeCount(likeCount);
+        }
+
+        return posts.stream()
                 .map(PostListResponseDTO::of)
                 .toList();
     }
@@ -210,6 +232,7 @@ public class PostServiceImpl implements PostService {
 
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("email: {}", email);
         return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
     private void validateTags(String categoryTag, String productTag) {
@@ -219,6 +242,11 @@ public class PostServiceImpl implements PostService {
 
         if (productTag != null && !ProductTag.isValidCode(productTag)) {
             throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
+        }
+    }
+    private void validatePostExists(Long postId) {
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
     }
 }
