@@ -52,6 +52,9 @@ public class ProductCompareResponse {
 
         // 가입 대상이 넓은 상품 정보
         private ProductSummary widestTargetProduct;
+
+        // 수령 가능 나이가 가장 빠른 상품 정보
+        private ProductSummary earliestStartAgeProduct;
     }
 
     /**

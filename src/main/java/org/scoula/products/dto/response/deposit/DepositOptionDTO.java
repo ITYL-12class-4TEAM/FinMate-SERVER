@@ -49,4 +49,12 @@ public class DepositOptionDTO {
     public boolean isCompoundRate() {
         return "M".equals(intrRateType);
     }
+
+    // 납입 방식 (정액 적립식, 자유 적립식)
+    @JsonProperty("rsrv_type")
+    private String rsrvType;
+
+    // 납입 방식 명칭
+    @JsonProperty("rsrv_type_nm")
+    private String rsrvTypeNm;
 }

@@ -62,8 +62,12 @@ public class DepositProductDTO {
     private String joinDeny;
 
     // 최소 가입 금액
-    @JsonProperty("join_amt")
+    @JsonProperty("min_deposit")
     private Long joinAmt;
+
+    // 최대 가입 금액 (예금은 납입 전부, 적금은 월별 납입)
+    @JsonProperty("max_deposit")
+    private Long maxLimit;
 
     // 공시 시작일
     @JsonProperty("dcls_strt_day")

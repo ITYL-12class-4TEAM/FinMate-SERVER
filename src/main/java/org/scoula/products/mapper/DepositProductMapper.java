@@ -44,6 +44,8 @@ public interface DepositProductMapper {
             @Param("intrRateType") String intrRateType,
             @Param("minIntrRate") Double minIntrRate);
 
+    // 상품 코드로 상품 정보 조회
+        DepositProductDTO findByProductCode(@Param("productCode") String productCode);
 
     /**
      * 카테고리별 최소 예치 금액 조회

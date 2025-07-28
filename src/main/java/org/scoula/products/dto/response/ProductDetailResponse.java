@@ -48,7 +48,7 @@ public class ProductDetailResponse {
     private Double maxIntrRate;
 
     /**
-     * 예금 상품 정보로 응답 생성
+     * 예금, 적금 상품 정보로 응답 생성
      */
     public ProductDetailResponse(DepositProductDTO deposit, String productType) {
         this.productType = productType;

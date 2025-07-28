@@ -4,16 +4,21 @@ import org.scoula.products.dto.request.ProductCompareRequest;
 import org.scoula.products.dto.response.ProductCompareResponse;
 import org.scoula.products.dto.response.deposit.DepositOptionDTO;
 import org.scoula.products.dto.response.deposit.DepositProductDTO;
+import org.scoula.products.dto.response.pension.PensionOptionDTO;
+import org.scoula.products.dto.response.pension.PensionProductDTO;
 import org.scoula.products.exception.InvalidProductTypeException;
 import org.scoula.products.exception.ProductNotFoundException;
+import org.scoula.products.mapper.DepositProductMapper;
+import org.scoula.products.mapper.PensionProductMapper;
 import org.scoula.products.service.ProductCompareService;
 import org.scoula.products.service.api.DepositApiClient;
 import org.scoula.products.service.api.PensionApiClient;
-import org.scoula.products.service.api.SavingApiClient;
 import org.scoula.response.ResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,18 +28,15 @@ import java.util.stream.Collectors;
 @Service
 public class ProductCompareServiceImpl implements ProductCompareService {
 
-    private final DepositApiClient depositApiClient;
-    private final SavingApiClient savingApiClient;
-    private final PensionApiClient pensionApiClient;
+    private final DepositProductMapper depositProductMapper;
+    private final PensionProductMapper pensionProductMapper;
 
     @Autowired
     public ProductCompareServiceImpl(
-            DepositApiClient depositApiClient,
-            SavingApiClient savingApiClient,
-            PensionApiClient pensionApiClient) {
-        this.depositApiClient = depositApiClient;
-        this.savingApiClient = savingApiClient;
-        this.pensionApiClient = pensionApiClient;
+            DepositProductMapper depositProductMapper,
+            PensionProductMapper pensionProductMapper) {
+        this.depositProductMapper = depositProductMapper;
+        this.pensionProductMapper = pensionProductMapper;
     }
 
     @Override
@@ -44,30 +46,45 @@ public class ProductCompareServiceImpl implements ProductCompareService {
 
     @Override
     public ProductCompareResponse compareProducts(String productType, List<String> productIds) {
-        // 각 상품 타입별 비교 로직 수행
-        switch (productType.toLowerCase()) {
-            case "deposit":
-                return compareDepositProducts(productIds);
-            case "saving":
-                return compareSavingProducts(productIds);
-            case "pension":
-                return comparePensionProducts(productIds);
-            default:
-                throw new InvalidProductTypeException(ResponseCode.INVALID_PRODUCT_TYPE_ERROR);
+        // 상품 유형별 비교 로직 수행 - 카테고리 기준으로 분기
+        if ("pension".equalsIgnoreCase(productType)) {
+            // 연금 상품 비교
+            return comparePensionProducts(productIds, null);
+        } else {
+            // deposit 카테고리 (정기예금, 적금 등 모든 서브카테고리 포함)
+            return compareDepositProducts(productIds);
         }
     }
 
     /**
-     * 예금 상품들을 비교하여 비교 결과를 반환합니다.
+     * 예금 카테고리 상품들을 비교하여 비교 결과를 반환합니다.
+     * (정기예금, 적금 등 서브카테고리 포함)
      */
-    private ProductCompareResponse compareDepositProducts(List<String> productIds) {
+    @Override
+    public ProductCompareResponse compareDepositProducts(List<String> productIds) {
         // 상품 정보 조회
         List<DepositProductDTO> products = new ArrayList<>();
         for (String productId : productIds) {
-            DepositProductDTO product = depositApiClient.getDepositProductDetail(productId);
+            // 문자열 ID를 Long으로 변환
+            Long id;
+            try {
+                id = Long.parseLong(productId);
+            } catch (NumberFormatException e) {
+                throw new InvalidProductTypeException(ResponseCode.INVALID_PRODUCT_TYPE_ERROR);
+            }
+
+            // Mapper를 통해 상품 정보 조회
+            DepositProductDTO product = depositProductMapper.findByProductId(id);
             if (product == null) {
                 throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
             }
+
+            // 옵션 정보 조회 및 설정
+            List<DepositOptionDTO> options = depositProductMapper.findOptionsByProductId(id);
+            product.setOptions(options);
+
+            // 데이터 보강 (필요한 경우, pension과 유사하게)
+            enrichDepositProductData(product);
             products.add(product);
         }
 
@@ -87,55 +104,60 @@ public class ProductCompareServiceImpl implements ProductCompareService {
     }
 
     /**
-     * 적금 상품들을 비교하여 비교 결과를 반환합니다.
+     * 예금 상품 데이터를 보강하는 메서드
      */
-    private ProductCompareResponse compareSavingProducts(List<String> productIds) {
-        // 상품 정보 조회
-        // 임시로 예금 상품 비교 로직과 동일하게 구현 (실제로는 적금 상품에 맞게 수정 필요)
-        List<DepositProductDTO> products = new ArrayList<>();
-        for (String productId : productIds) {
-            DepositProductDTO product = depositApiClient.getDepositProductDetail(productId);
-            if (product == null) {
-                throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
-            }
-            products.add(product);
+    private void enrichDepositProductData(DepositProductDTO product) {
+        // null인 필드에 기본값 설정
+        if (product.getJoinWay() == null) {
+            product.setJoinWay("인터넷뱅킹,스마트폰뱅킹,창구");
         }
 
-        // 비교 데이터 생성
-        Map<String, Object> comparisonData = createDepositComparisonData(products);
+        if (product.getJoinMember() == null) {
+            product.setJoinMember("제한없음");
+        }
 
-        // 비교 요약 정보 생성
-        ProductCompareResponse.ComparisonSummary summary = createDepositComparisonSummary(products);
+        if (product.getJoinDeny() == null) {
+            product.setJoinDeny("없음");
+        }
 
-        // 응답 구성
-        return ProductCompareResponse.builder()
-                .productType("saving")
-                .products(products)
-                .comparisonData(comparisonData)
-                .summary(summary)
-                .build();
+        // 날짜 형식 변환 (필요한 경우)
+        if (product.getDclsStrtDay() != null && !product.getDclsStrtDay().contains("-")) {
+            try {
+                LocalDate date = LocalDate.parse(product.getDclsStrtDay(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                product.setDclsStrtDay(date.format(DateTimeFormatter.ISO_DATE));
+            } catch (Exception e) {
+                // 날짜 형식 변환 실패 처리
+            }
+        }
     }
 
     /**
-     * 연금 상품들을 비교하여 비교 결과를 반환합니다.
+     * 연금 상품들을 비교하여 비교 결과를 반환합니다. (Long 타입 ID 목록)
      */
-    private ProductCompareResponse comparePensionProducts(List<String> productIds) {
+    // ProductCompareServiceImpl.java에서 메서드 시그니처 수정
+    @Override
+    public ProductCompareResponse comparePensionProductsLong(List<Long> productIds) {
         // 상품 정보 조회
-        // 임시로 예금 상품 비교 로직과 동일하게 구현 (실제로는 연금 상품에 맞게 수정 필요)
-        List<DepositProductDTO> products = new ArrayList<>();
-        for (String productId : productIds) {
-            DepositProductDTO product = depositApiClient.getDepositProductDetail(productId);
+        List<PensionProductDTO> products = new ArrayList<>();
+        for (Long productId : productIds) {
+            // PensionProductMapper를 사용하여 연금 상품 조회
+            PensionProductDTO product = pensionProductMapper.findByProductId(productId);
             if (product == null) {
                 throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
             }
+
+            // 옵션 정보 조회 및 설정
+            List<PensionOptionDTO> options = pensionProductMapper.findOptionsByProductId(productId);
+            product.setOptions(options);
+
             products.add(product);
         }
 
         // 비교 데이터 생성
-        Map<String, Object> comparisonData = createDepositComparisonData(products);
+        Map<String, Object> comparisonData = createPensionComparisonData(products);
 
-        // 비교 요약 정보 생성
-        ProductCompareResponse.ComparisonSummary summary = createDepositComparisonSummary(products);
+        // 요약 정보 생성
+        ProductCompareResponse.ComparisonSummary summary = createPensionComparisonSummary(products);
 
         // 응답 구성
         return ProductCompareResponse.builder()
@@ -143,6 +165,365 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                 .products(products)
                 .comparisonData(comparisonData)
                 .summary(summary)
+                .build();
+    }
+
+    @Override
+    public ProductCompareResponse comparePensionProducts(List<String> productIds , String optionId) {
+        List<Long> longIds = productIds.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        // 옵션 ID를 Long으로 변환 (null인 경우 처리)
+        Long optionIdLong = null;
+        if (optionId != null && !optionId.isEmpty()) {
+            try {
+                optionIdLong = Long.parseLong(optionId);
+            } catch (NumberFormatException e) {
+                // 유효하지 않은 옵션 ID 처리 (필요한 경우)
+            }
+        }
+
+        // 상품 정보 조회
+        List<PensionProductDTO> products = new ArrayList<>();
+        for (Long productId : longIds) {
+            // PensionProductMapper를 사용하여 연금 상품 조회
+            PensionProductDTO product = pensionProductMapper.findByProductId(productId);
+            if (product == null) {
+                throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
+            }
+
+            // 옵션 정보 조회 및 설정
+            List<PensionOptionDTO> options = pensionProductMapper.findOptionsByProductId(productId);
+            product.setOptions(options);
+
+            // 데이터 보강 로직 추가
+            enrichPensionProductData(product);
+
+            products.add(product);
+        }
+
+        // 비교 데이터 생성
+        Map<String, Object> comparisonData = createPensionComparisonData(products);
+
+        // 요약 정보 생성
+        ProductCompareResponse.ComparisonSummary summary = createPensionComparisonSummary(products);
+
+        // 응답 구성
+        return ProductCompareResponse.builder()
+                .productType("pension")
+                .products(products)
+                .comparisonData(comparisonData)
+                .summary(summary)
+                .build();
+    }
+
+    /**
+     * 연금 상품 데이터를 보강하는 메서드
+     */
+    private void enrichPensionProductData(PensionProductDTO product) {
+        if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+            // 최소/최대 가입 연령 계산
+            List<Integer> entryAges = product.getOptions().stream()
+                    .map(PensionOptionDTO::getPnsnEntrAge)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!entryAges.isEmpty()) {
+                product.setMinEntryAge(Collections.min(entryAges));
+                product.setMaxEntryAge(Collections.max(entryAges));
+            }
+
+            // 최소/최대 납입금액 계산
+            List<Integer> payments = product.getOptions().stream()
+                    .map(PensionOptionDTO::getMonPaymAtm)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!payments.isEmpty()) {
+                product.setMinPayment(Collections.min(payments));
+                product.setMaxPayment(Collections.max(payments));
+            }
+
+            // 옵션에서 월 납입액을 대표값으로 설정 (첫 번째 옵션 사용)
+            if (product.getOptions().get(0).getMonPaymAtm() != null) {
+                product.setMnthPymAtm(product.getOptions().get(0).getMonPaymAtm().longValue());
+            }
+
+            // 연금 시작 연령 설정
+            if (product.getOptions().get(0).getPnsnStrtAge() != null) {
+                product.setPnsnStrtAge(product.getOptions().get(0).getPnsnStrtAge());
+            }
+        }
+
+        // null인 필드에 기본값 설정
+        if (product.getJoinWay() == null) {
+            product.setJoinWay("정보 없음");
+        }
+
+        if (product.getPnsnRcvMthd() == null) {
+            product.setPnsnRcvMthd("정보 없음");
+        }
+
+        // 날짜 형식 변환 (필요한 경우)
+        if (product.getDclsStrtDay() != null && !product.getDclsStrtDay().contains("-")) {
+            try {
+                LocalDate date = LocalDate.parse(product.getDclsStrtDay(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+                product.setDclsStrtDay(date.format(DateTimeFormatter.ISO_DATE));
+            } catch (Exception e) {
+                // 날짜 형식 변환 실패 처리
+            }
+        }
+    }
+
+    /**
+     * 연금 상품들의 비교 데이터를 생성합니다.
+     */
+    private Map<String, Object> createPensionComparisonData(List<PensionProductDTO> products) {
+        Map<String, Object> comparisonData = new HashMap<>();
+
+        // 1. 기본 정보 비교
+        Map<String, List<String>> basicInfo = new HashMap<>();
+        basicInfo.put("금융회사", products.stream().map(PensionProductDTO::getKorCoNm).collect(Collectors.toList()));
+        basicInfo.put("상품명", products.stream().map(PensionProductDTO::getFinPrdtNm).collect(Collectors.toList()));
+        basicInfo.put("연금종류", products.stream().map(PensionProductDTO::getPnsnKindNm).collect(Collectors.toList()));
+        basicInfo.put("상품유형", products.stream().map(PensionProductDTO::getPrdtTypeNm).collect(Collectors.toList()));
+        basicInfo.put("위험등급", products.stream().map(PensionProductDTO::getCategory).collect(Collectors.toList()));
+        comparisonData.put("basicInfo", basicInfo);
+
+        // 2. 수익률 정보 비교
+        Map<String, List<Double>> rateInfo = new HashMap<>();
+        rateInfo.put("최저보증이율(%)", products.stream().map(p -> p.getGuarRate() != null ? p.getGuarRate() : 0.0).collect(Collectors.toList()));
+        rateInfo.put("1년 수익률(%)", products.stream().map(p -> p.getProfitRate1() != null ? p.getProfitRate1() : 0.0).collect(Collectors.toList()));
+        rateInfo.put("2년 수익률(%)", products.stream().map(p -> p.getProfitRate2() != null ? p.getProfitRate2() : 0.0).collect(Collectors.toList()));
+        rateInfo.put("3년 수익률(%)", products.stream().map(p -> p.getProfitRate3() != null ? p.getProfitRate3() : 0.0).collect(Collectors.toList()));
+        comparisonData.put("rateInfo", rateInfo);
+
+        // 3. 가입 조건 비교
+        Map<String, List<String>> conditionInfo = new HashMap<>();
+
+        // 옵션 정보에서 가입 연령 범위 추출
+        List<String> entryAgeRanges = products.stream()
+                .map(product -> {
+                    if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                        // 가입 연령 범위 계산
+                        Integer minAge = product.getOptions().stream()
+                                .map(PensionOptionDTO::getPnsnEntrAge)
+                                .filter(Objects::nonNull)
+                                .min(Integer::compare)
+                                .orElse(null);
+
+                        Integer maxAge = product.getOptions().stream()
+                                .map(PensionOptionDTO::getPnsnEntrAge)
+                                .filter(Objects::nonNull)
+                                .max(Integer::compare)
+                                .orElse(null);
+
+                        return (minAge != null && maxAge != null) ? "만 " + minAge + "세~" : "정보 없음";
+                    }
+                    return "정보 없음";
+                })
+                .collect(Collectors.toList());
+
+        // 수령 시작 나이 정보 추가
+        List<String> pensionStartAges = products.stream()
+                .map(product -> {
+                    if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                        // 수령 시작 나이 추출
+                        Integer startAge = product.getOptions().stream()
+                                .map(PensionOptionDTO::getPnsnStrtAge)
+                                .filter(Objects::nonNull)
+                                .findFirst()
+                                .orElse(null);
+
+                        return (startAge != null) ? "만 " + startAge + "세~" : "정보 없음";
+                    }
+                    return "정보 없음";
+                })
+                .collect(Collectors.toList());
+
+        // 가입기간(납입기간) (추가)
+        List<String> paymentPeriods = products.stream()
+                .map(product -> {
+                    if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                        // 납입 기간 추출 (paym_prd 필드 사용)
+                        List<Integer> periods = product.getOptions().stream()
+                                .map(PensionOptionDTO::getPaymPrd)
+                                .filter(Objects::nonNull)
+                                .distinct()
+                                .sorted()
+                                .collect(Collectors.toList());
+
+                        if (!periods.isEmpty()) {
+                            return periods + "년";
+                        }
+
+                    }
+                    return "정보 없음";
+                })
+                .collect(Collectors.toList());
+
+        // 옵션 정보에서 납입금액 범위 추출
+        List<String> paymentRanges = products.stream()
+                .map(product -> {
+                    if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                        // 납입금액 범위 계산
+                        Integer monPayment = product.getOptions().stream()
+                                .map(PensionOptionDTO::getMonPaymAtm)
+                                .filter(Objects::nonNull)
+                                .min(Integer::compare)
+                                .orElse(null);
+
+//                        Integer maxPayment = product.getOptions().stream()
+//                                .map(PensionOptionDTO::getMonPaymAtm)
+//                                .filter(Objects::nonNull)
+//                                .max(Integer::compare)
+//                                .orElse(null);
+
+                        return (monPayment != null)
+                                ? String.format("%,d만원", monPayment)
+                                : "정보 없음";
+                    }
+                    return "정보 없음";
+                })
+                .collect(Collectors.toList());
+
+        conditionInfo.put("가입연령", entryAgeRanges);
+        conditionInfo.put("수령시작나이", pensionStartAges);
+        conditionInfo.put("납입기간", paymentPeriods);
+        conditionInfo.put("월납입금액", paymentRanges);
+
+        // 가입 방법 정보 추가 (있는 경우)
+        if (products.stream().anyMatch(p -> p.getJoinWay() != null)) {
+            conditionInfo.put("가입방법", products.stream()
+                    .map(p -> p.getJoinWay() != null ? p.getJoinWay() : "정보 없음")
+                    .collect(Collectors.toList()));
+        }
+
+        comparisonData.put("conditionInfo", conditionInfo);
+
+        // 4. 수수료 정보 비교 (새로 추가)
+        Map<String, List<String>> feeInfo = new HashMap<>();
+        // 수수료 관련 데이터가 있다면 추가
+        // 예: 가입 수수료, 유지 수수료, 환매 수수료 등
+
+        // 5. 세제 혜택 정보 (새로 추가)
+        Map<String, List<String>> taxInfo = new HashMap<>();
+        // 세제 혜택 관련 데이터가 있다면 추가
+
+        return comparisonData;
+    }
+
+    /**
+     * 연금 상품들의 비교 요약 정보를 생성합니다.
+     */
+    private ProductCompareResponse.ComparisonSummary createPensionComparisonSummary(List<PensionProductDTO> products) {
+        // 1. 최고 수익률 상품 찾기
+        PensionProductDTO highestProfitProduct = null;
+        double highestProfit = 0.0;
+
+        for (PensionProductDTO product : products) {
+            double profit = product.getProfitRate1() != null ? product.getProfitRate1() : 0.0;
+            if (profit > highestProfit) {
+                highestProfit = profit;
+                highestProfitProduct = product;
+            }
+        }
+
+        ProductCompareResponse.ProductSummary highestProfitProductSummary = null;
+        if (highestProfitProduct != null) {
+            highestProfitProductSummary = ProductCompareResponse.ProductSummary.builder()
+                    .finPrdtCd(highestProfitProduct.getFinPrdtCd())
+                    .korCoNm(highestProfitProduct.getKorCoNm())
+                    .finPrdtNm(highestProfitProduct.getFinPrdtNm())
+                    .value(highestProfit)
+                    .build();
+        }
+
+        // 2. 최저 보증이율이 가장 높은 상품 찾기
+        PensionProductDTO highestGuarRateProduct = null;
+        double highestGuarRate = 0.0;
+
+        for (PensionProductDTO product : products) {
+            double guarRate = product.getGuarRate() != null ? product.getGuarRate() : 0.0;
+            if (guarRate > highestGuarRate) {
+                highestGuarRate = guarRate;
+                highestGuarRateProduct = product;
+            }
+        }
+
+        ProductCompareResponse.ProductSummary highestGuarRateProductSummary = null;
+        if (highestGuarRateProduct != null) {
+            highestGuarRateProductSummary = ProductCompareResponse.ProductSummary.builder()
+                    .finPrdtCd(highestGuarRateProduct.getFinPrdtCd())
+                    .korCoNm(highestGuarRateProduct.getKorCoNm())
+                    .finPrdtNm(highestGuarRateProduct.getFinPrdtNm())
+                    .value(highestGuarRate)
+                    .build();
+        }
+
+        // 3. 가입 연령 범위가 가장 넓은 상품 찾기
+        PensionProductDTO widestAgeRangeProduct = null;
+        int widestAgeRange = 0;
+
+        for (PensionProductDTO product : products) {
+            Integer minAge = product.getMinEntryAge();
+            Integer maxAge = product.getMaxEntryAge();
+
+            if (minAge != null && maxAge != null) {
+                int ageRange = maxAge - minAge;
+                if (ageRange > widestAgeRange) {
+                    widestAgeRange = ageRange;
+                    widestAgeRangeProduct = product;
+                }
+            }
+        }
+
+        ProductCompareResponse.ProductSummary widestAgeRangeProductSummary = null;
+        if (widestAgeRangeProduct != null) {
+            widestAgeRangeProductSummary = ProductCompareResponse.ProductSummary.builder()
+                    .finPrdtCd(widestAgeRangeProduct.getFinPrdtCd())
+                    .korCoNm(widestAgeRangeProduct.getKorCoNm())
+                    .finPrdtNm(widestAgeRangeProduct.getFinPrdtNm())
+                    .value("만 " + widestAgeRangeProduct.getMinEntryAge() + "세~")
+                    .build();
+        }
+
+        // 수령 시작 나이가 가장 빠른 상품 찾기
+        PensionProductDTO earliestStartAgeProduct = null;
+        int earliestStartAge = Integer.MAX_VALUE;
+
+        for (PensionProductDTO product : products) {
+            if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                OptionalInt minStartAge = product.getOptions().stream()
+                        .map(PensionOptionDTO::getPnsnStrtAge)
+                        .filter(Objects::nonNull)
+                        .mapToInt(Integer::intValue)
+                        .min();
+
+                if (minStartAge.isPresent() && minStartAge.getAsInt() < earliestStartAge) {
+                    earliestStartAge = minStartAge.getAsInt();
+                    earliestStartAgeProduct = product;
+                }
+            }
+        }
+
+        ProductCompareResponse.ProductSummary earliestStartAgeProductSummary = null;
+        if (earliestStartAgeProduct != null) {
+            earliestStartAgeProductSummary = ProductCompareResponse.ProductSummary.builder()
+                    .finPrdtCd(earliestStartAgeProduct.getFinPrdtCd())
+                    .korCoNm(earliestStartAgeProduct.getKorCoNm())
+                    .finPrdtNm(earliestStartAgeProduct.getFinPrdtNm())
+                    .value("만 " + earliestStartAge + "세")
+                    .build();
+        }
+
+        // 요약 정보 구성
+        return ProductCompareResponse.ComparisonSummary.builder()
+                .highestRateProduct(highestProfitProductSummary) // 수익률 높은 상품
+                .mostJoinWaysProduct(highestGuarRateProductSummary) // 보증이율 높은 상품 (기존 필드 재활용)
+                .widestTargetProduct(widestAgeRangeProductSummary) // 가입 연령 범위 넓은 상품
+                .earliestStartAgeProduct(earliestStartAgeProductSummary) // 수령 시작 나이가 가장 빠른 상품
                 .build();
     }
 

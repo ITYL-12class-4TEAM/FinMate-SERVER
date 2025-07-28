@@ -44,7 +44,6 @@ public class ProductApiController {
 
     /**
      * 상품 목록 조회
-     * 초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API
      */
     @ApiOperation(value = "상품 목록 조회",
             notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
@@ -53,33 +52,65 @@ public class ProductApiController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Long subCategory,
-            @RequestParam(required = false) String banks, // 은행명 파라미터 추가
+            @RequestParam(required = false) String banks,
+
+            // 예금 상품 관련 파라미터
             @RequestParam(required = false) String interestRateType,
             @RequestParam(required = false) String saveTerm,
             @RequestParam(required = false) String joinMethod,
             @RequestParam(required = false) Double minIntrRate,
+
+            // 연금 상품 관련 파라미터 추가
+            @RequestParam(required = false) String pensionKind,       // 연금 종류(보험,신탁,펀드)
+            @RequestParam(required = false) String productType,       // 상품 유형(금리연동형 등)
+            @RequestParam(required = false) String riskLevel,         // 위험수준(저위험,중고위험,고위험)
+            @RequestParam(required = false) Double minProfitRate,     // 최소 수익률
+            @RequestParam(required = false) Double minGuarRate,       // 최저보증이율
+            @RequestParam(required = false) Integer entryAge,         // 가입 가능 연령
+            @RequestParam(required = false) Integer minPayment,       // 최소 월 납입금액
+            @RequestParam(required = false) Integer maxPayment,       // 최대 월 납입금액
+
             @RequestParam(required = false) String sort,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
+
         // 필터 파라미터 구성
         Map<String, String> filters = new HashMap<>();
+
+        // 공통 필터
         if (category != null) filters.put("category", category);
-        if( subCategory != null) filters.put("subCategory", subCategory.toString());
-        if (banks != null) filters.put("banks", banks); // 은행명 필터 추가
-        if (interestRateType != null) filters.put("interestRateType", interestRateType);
-        if (saveTerm != null) filters.put("saveTerm", saveTerm);
-        if (joinMethod != null) filters.put("joinMethod", joinMethod);
-        if (minIntrRate != null) filters.put("minIntrRate", minIntrRate.toString());
+        if (subCategory != null) filters.put("subCategory", subCategory.toString());
         if (sort != null) filters.put("sort", sort);
         if (order != null) filters.put("order", order);
+
+        // 카테고리별 필터 처리
+        if ("pension".equals(category)) {
+            // 연금 상품 전용 필터
+            if (pensionKind != null) filters.put("pensionKind", pensionKind);
+            if (productType != null) filters.put("productType", productType);
+            if (riskLevel != null) filters.put("riskLevel", riskLevel);
+            if (minProfitRate != null) filters.put("minProfitRate", minProfitRate.toString());
+            if (minGuarRate != null) filters.put("minGuarRate", minGuarRate.toString());
+            if (entryAge != null) filters.put("entryAge", entryAge.toString());
+            if (minPayment != null) filters.put("minPayment", minPayment.toString());
+            if (maxPayment != null) filters.put("maxPayment", maxPayment.toString());
+        } else {
+            // 예금 상품 등 기존 필터
+            if (banks != null) filters.put("banks", banks);
+            if (interestRateType != null) filters.put("interestRateType", interestRateType);
+            if (saveTerm != null) filters.put("saveTerm", saveTerm);
+            if (joinMethod != null) filters.put("joinMethod", joinMethod);
+            if (minIntrRate != null) filters.put("minIntrRate", minIntrRate.toString());
+        }
+
         // 서비스 호출
         ProductListResponse response = searchService.searchProducts(keyword, filters, pageNo);
 
         // ApiResponse 생성
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.PRODUCT_SEARCH_SUCCESS, response));
-
     }
+
 
 //    @ApiOperation(value = "상품 자동완성 검색",
 //            notes = "키워드 입력 기반 검색어 추천 목록을 제공합니다.")
@@ -160,7 +191,7 @@ public class ProductApiController {
             @RequestParam(required = false, defaultValue = "deposit") String category,
             @RequestParam(value = "subCategory", required = false) Long subCategory
     ) {
-        // 서비스 호출하여 필터 옵션 조회 (subCategory가 null이면 서비스에서 디폴트 101L 사용)
+        // 서비스 호출하여 필터 옵션 조회
         FilterOptionsResponse filterOptions = searchService.getFilterOptions(category, subCategory);
         return ApiResponse.success(ResponseCode.PRODUCT_FILTER_OPTIONS_SUCCESS, filterOptions);
     }
@@ -211,43 +242,19 @@ public class ProductApiController {
             notes = "선택한 상품들의 상세 정보를 비교합니다.")
     @GetMapping("/compare")
     public ApiResponse<?> compareProducts(
-            @RequestParam List<String> productIds) {
+            @RequestParam List<String> productIds,
+            @RequestParam(required = false, defaultValue = "deposit") String productType,
+            @RequestParam(required = false) String optionId) {
 
-        // 기본 응답값 (샘플 데이터)
-        List<DepositProductDTO> products = new ArrayList<>();
-        for (String productId : productIds) {
-            products.add(createSampleDepositProduct(productId));
+        ProductCompareResponse response;
+
+        if ("pension".equals(productType)) {
+            // 연금 상품 비교
+            response = compareService.comparePensionProducts(productIds, optionId);
+        } else {
+            // deposit 카테고리 (정기예금, 적금 등 서브카테고리 포함)
+            response = compareService.compareProducts(productType, productIds);
         }
-
-        Map<String, Object> comparisonData = new HashMap<>();
-
-        // 기본 정보 비교
-        Map<String, List<String>> basicInfo = new HashMap<>();
-        basicInfo.put("은행명", products.stream().map(DepositProductDTO::getKorCoNm).collect(Collectors.toList()));
-        basicInfo.put("상품명", products.stream().map(DepositProductDTO::getFinPrdtNm).collect(Collectors.toList()));
-        comparisonData.put("basicInfo", basicInfo);
-
-        // 금리 정보 비교
-        Map<String, List<Double>> interestInfo = new HashMap<>();
-        interestInfo.put("기본금리", products.stream()
-                .map(p -> p.getOptions().get(0).getIntrRate())
-                .collect(Collectors.toList()));
-        interestInfo.put("최고금리", products.stream()
-                .map(p -> p.getOptions().get(0).getIntrRate2())
-                .collect(Collectors.toList()));
-        comparisonData.put("interestInfo", interestInfo);
-
-        // 가입 조건 비교
-        Map<String, List<String>> conditionInfo = new HashMap<>();
-        conditionInfo.put("가입방법", products.stream().map(DepositProductDTO::getJoinWay).collect(Collectors.toList()));
-        conditionInfo.put("가입대상", products.stream().map(DepositProductDTO::getJoinMember).collect(Collectors.toList()));
-        comparisonData.put("conditionInfo", conditionInfo);
-
-        ProductCompareResponse response = ProductCompareResponse.builder()
-                .productType("deposit")
-                .products(products)
-                .comparisonData(comparisonData)
-                .build();
 
         return ApiResponse.success(ResponseCode.PRODUCT_COMPARISON_SUCCESS, response);
     }

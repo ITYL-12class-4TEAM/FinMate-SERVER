@@ -10,63 +10,58 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-/**
- * 연금 상품 관련 매퍼 인터페이스
- */
 public interface PensionProductMapper {
 
     /**
-     * 상품 ID로 연금 상품 상세 정보 조회
-     *
-     * @param productId 상품 ID(fin_prdt_cd)
-     * @return 연금 상품 상세 정보
-     */
-    PensionProductDTO findByProductId(Long productId);
-
-    /**
-     * 상품 ID로 연금 상품 옵션 정보 조회
-     *
-     * @param productId 상품 ID(fin_prdt_cd)
-     * @return 연금 상품 옵션 목록
-     */
-    List<PensionOptionDTO> findOptionsByProductId(Long productId);
-
-    /**
-     * 연금 상품 목록 조회 (필터링 적용)
-     *
-     * @param pnsnKind 연금 종류
-     * @param prdtType 상품 유형
-     * @param guarRate 최소 보장 이율
-     * @return 연금 상품 목록
+     * 연금 상품 목록 조회
      */
     List<PensionProductDTO> findPensionProducts(
-            @Param("pnsnKind") String pnsnKind,
-            @Param("prdtType") String prdtType,
-            @Param("guarRate") Double guarRate);
+            @Param("searchText") String searchText,
+            @Param("joinWay") String joinWay,
+            @Param("minGuarRate") Double minGuarRate
+    );
 
     /**
-     * 연금 유형 목록 조회
+     * 연금 상품 상세 정보 조회
      */
-    @MapKey("pnsn_kind")
+    PensionProductDTO findByProductId(@Param("productId") Long productId);
+
+    /**
+     * 연금 상품 옵션 정보 조회
+     */
+    List<PensionOptionDTO> findOptionsByProductId(@Param("productId") Long productId);
+
+    /**
+     * 연금 상품 유형 목록 조회
+     */
+    @MapKey("pension_type")
     List<Map<String, String>> getDistinctPensionTypes(@Param("categoryId") Long categoryId);
 
     /**
-     * 카테고리별 보장 수익률 목록 조회
+     * 보장 수익률 목록 조회
      */
     List<Double> getDistinctGuaranteeRates(@Param("categoryId") Long categoryId);
 
     /**
-     * 카테고리별 납입 기간 목록 조회
+     * 납입 기간 목록 조회
      */
     List<Integer> getDistinctPaymentPeriods(@Param("categoryId") Long categoryId);
 
     /**
-     * 카테고리별 최소 월 납입금 조회
+     * 최소 월 납입금액 조회
      */
     Integer getMinMonthlyPayment(@Param("categoryId") Long categoryId);
 
     /**
-     * 카테고리별 최대 월 납입금 조회
+     * 최대 월 납입금액 조회
      */
     Integer getMaxMonthlyPayment(@Param("categoryId") Long categoryId);
+
+    /**
+     * 옵션 ID로 연금 상품 옵션 조회
+     *
+     * @param optionId 옵션 ID
+     * @return 연금 상품 옵션 정보
+     */
+    PensionOptionDTO findOptionById(@Param("optionId") Long optionId);
 }

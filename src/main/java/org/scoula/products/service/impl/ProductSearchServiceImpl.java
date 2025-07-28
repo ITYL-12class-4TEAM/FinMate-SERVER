@@ -118,15 +118,15 @@ public class ProductSearchServiceImpl implements ProductSearchService {
 
         // 최소 금리 필터 설정
         if (filters.containsKey("minIntrRate")) {
-            try {
-                request.setMinIntrRate(Double.parseDouble(filters.get("minIntrRate")));
-            } catch (NumberFormatException e) {
-                // 금리 파싱 에러 처리
-            }
+            request.setMinIntrRate(Double.parseDouble(filters.get("minIntrRate")));
         }
 
         if (filters.containsKey("interestRateType")) {
-            request.setIntrRateType(filters.get("interestRateType"));
+            try {
+                request.setIntrRateType(filters.get("interestRateType"));
+            } catch (NumberFormatException e) {
+                // 금리 유형 파싱 에러 처리
+            }
         }
 
         if (filters.containsKey("joinMethod")) {
@@ -216,23 +216,25 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     request.getMinIntrRate()
             );
 
-            List<ProductListResponse.ProductSummary> summaries = pensionProducts.stream()
-                    .map(this::convertPensionDTOToSummary)
+            // 이 부분을 수정: PensionProductSummary로 변환
+            List<ProductListResponse.PensionProductSummary> pensionSummaries = pensionProducts.stream()
+                    .map(this::convertToPensionProductSummary) // 새로운 변환 메서드 사용
                     .collect(Collectors.toList());
 
             // 연금 상품은 메모리에서 페이징 처리
-            int totalCount = summaries.size();
+            int totalCount = pensionSummaries.size();
             int startIndex = (page - 1) * pageSize;
             int endIndex = Math.min(startIndex + pageSize, totalCount);
 
-            List<ProductListResponse.ProductSummary> pagedProducts =
-                    (startIndex < totalCount) ? summaries.subList(startIndex, endIndex) : new ArrayList<>();
+            List<ProductListResponse.PensionProductSummary> pagedPensionProducts =
+                    (startIndex < totalCount) ? pensionSummaries.subList(startIndex, endIndex) : new ArrayList<>();
 
             return ProductListResponse.builder()
                     .productType(request.getProductType())
                     .categoryId(request.getCategoryId())
                     .subcategoryId(request.getSubCategoryId())
-                    .products(pagedProducts)
+                    .products(null) // 일반 products는 null로 설정
+                    .pensionProducts(pagedPensionProducts) // 여기에 연금 상품 목록 설정
                     .totalCount(totalCount)
                     .currentPage(page)
                     .pageSize(pageSize)
@@ -293,6 +295,21 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         }
     }
 
+    // PensionProductDTO를 PensionProductSummary로 변환하는 메서드
+    private ProductListResponse.PensionProductSummary convertToPensionProductSummary(PensionProductDTO pension) {
+        return ProductListResponse.PensionProductSummary.builder()
+                .finPrdtCd(pension.getFinPrdtCd())
+                .korCoNm(pension.getKorCoNm())
+                .finPrdtNm(pension.getFinPrdtNm())
+                .dclsRate(pension.getDclsRate())
+                .guarRate(pension.getGuarRate())
+                .pnsnKind(pension.getPnsnKind())
+                .pnsnKindNm(pension.getPnsnKindNm())
+                .prdtType(pension.getPrdtType())
+                .prdtTypeNm(pension.getPrdtTypeNm())
+                .build();
+    }
+
     private String mapCategoryName(String categoryName) {
         if ("deposit".equals(categoryName) || "pension".equals(categoryName)) {
             return categoryName.equals("deposit") ? "예금" : "연금";
@@ -336,6 +353,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .intrRate2(pension.getGuarRate() != null ? pension.getGuarRate() : 0.0)
                 // 저축 기간은 해당 없을 수 있음
                 .saveTrm(null)
+                .intrRateType(null)
                 .joinWay(pension.getJoinWay())
                 .build();
     }
@@ -352,6 +370,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .saveTrm(Integer.parseInt(product.get("save_trm").toString()))
                 .joinWay(product.get("join_way") != null ?
                         product.get("join_way").toString() : "")
+                .intrRateType(product.get("intr_rate_type") != null ?
+                        product.get("intr_rate_type").toString() : null)
                 .build();
     }
 

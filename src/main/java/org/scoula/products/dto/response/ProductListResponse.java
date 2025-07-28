@@ -24,7 +24,8 @@ public class ProductListResponse {
     private Long subcategoryId;
 
     // 기존 필드
-    private List<ProductSummary> products;
+    private List<ProductSummary> products; // 예금/적금 상품 요약
+    private List<PensionProductSummary> pensionProducts; // 연금저축 상품 요약
     private int totalCount;
     private int currentPage;
     private int pageSize;
@@ -33,8 +34,8 @@ public class ProductListResponse {
     private String sortDirection;
 
     /**
-     * 상품 요약 정보
-     * 목록 조회 시 각 상품의 기본 정보를 담는 내부 클래스입니다.
+     * deposit 상품 요약 정보
+     * 목록 조회 시 각 상품의 기본 정보를 담는 내부 클래스
      */
     @Data
     @Builder
@@ -52,5 +53,25 @@ public class ProductListResponse {
         // 확장된 필드
         private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
         private Long minDepositAmount; // 최소 예치 금액
+    }
+
+    /**
+     * pension 상품 요약 정보
+     * 목록 조회 시 각 상품의 기본 정보를 담는 내부 클래스
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PensionProductSummary {
+        private String finPrdtCd;
+        private String korCoNm;
+        private String finPrdtNm;
+        private Double dclsRate;    // 공시이율
+        private Double guarRate;    // 최저보증이율
+        private String pnsnKind;    // 연금 종류
+        private String pnsnKindNm;  // 연금 종류명
+        private String prdtType;    // 상품 유형
+        private String prdtTypeNm;  // 상품 유형명
     }
 }

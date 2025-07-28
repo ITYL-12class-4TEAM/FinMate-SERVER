@@ -5,10 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70063dd3-9839-4ba1-8dbc-6f2d0c151216" name="변경" comment="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4379bdf2-c9b3-4b9b-b808-fd983fa1bb12.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server-submodule" beforeDir="false" afterPath="$PROJECT_DIR$/server-submodule" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server-submodule/application-oauth.properties" beforeDir="false" afterPath="$PROJECT_DIR$/server-submodule/application-oauth.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/controller/ProductApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/controller/ProductApiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductCompareResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductCompareResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductDetailResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductDetailResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductListResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/ProductListResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/deposit/DepositOptionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/deposit/DepositOptionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/deposit/DepositProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/deposit/DepositProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/pension/PensionOptionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/pension/PensionOptionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/pension/PensionProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/dto/response/pension/PensionProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/mapper/DepositProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/mapper/DepositProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/mapper/PensionProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/mapper/PensionProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/ProductCompareService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/ProductCompareService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/impl/ProductCompareServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/impl/ProductCompareServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/impl/ProductSearchServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/scoula/products/service/impl/ProductSearchServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/DepositProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/DepositProductMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/FinancialProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/FinancialProductMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/PensionProductMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/scoula/products/mapper/PensionProductMapper.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +76,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/server-submodule" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="HighlightingSettingsPerFile">
@@ -102,7 +117,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Tomcat Server.Tomcat 9.0.105.executor&quot;: &quot;Run&quot;,
     &quot;Tomcat 서버.Tomcat 9.0.105.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;85c9e5fe&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/search-financial-products&quot;,
     &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/dys11/Desktop/KB IT's your life/08_Spring/Practice/SpringLegacy&quot;,
@@ -170,7 +185,7 @@
       <option name="COMMON_VM_ARGUMENTS" value="-Dconfig.location=$PROJECT_DIR$/server-submodule" />
       <option name="UPDATING_POLICY" value="restart-server" />
       <deployment>
-        <artifact name="Gradle : org.scoula : FinMate-SERVER-1.0-SNAPSHOT.war">
+        <artifact name="Gradle : org.scoula : FinMate-SERVER-1.0-SNAPSHOT.war (exploded)">
           <settings>
             <option name="CONTEXT_PATH" value="/" />
           </settings>
@@ -251,6 +266,7 @@
         <option name="Make" enabled="true" />
         <option name="BuildArtifacts" enabled="true">
           <artifact name="Gradle : org.scoula : FinMate-SERVER-1.0-SNAPSHOT.war" />
+          <artifact name="Gradle : org.scoula : FinMate-SERVER-1.0-SNAPSHOT.war (exploded)" />
         </option>
       </method>
     </configuration>
@@ -268,8 +284,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
       </set>
     </attachedChunks>
   </component>
@@ -296,6 +312,10 @@
       <workItem from="1753071649411" duration="14470000" />
       <workItem from="1753095985378" duration="5000" />
       <workItem from="1753143480356" duration="7305000" />
+      <workItem from="1753402198685" duration="5089000" />
+      <workItem from="1753409648378" duration="7629000" />
+      <workItem from="1753488866654" duration="10881000" />
+      <workItem from="1753661247165" duration="21507000" />
     </task>
     <servers />
   </component>
@@ -305,16 +325,5 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat:토큰 재발급, 휴대폰 인증&#10;&#10;-refresh 토큰을 통해 access 토큰 재발급 API&#10;-휴대폰 인증번호 발송 및 검증 API" />
     <option name="LAST_COMMIT_MESSAGE" value="" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/scoula/products/mapper/FinancialProductMapper.java</url>
-          <line>21</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

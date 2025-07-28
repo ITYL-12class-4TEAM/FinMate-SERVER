@@ -6,17 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 연금저축 상품 옵션 정보 DTO
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PensionOptionDTO {
 
-    // 금융상품 코드
-    @JsonProperty("fin_prdt_cd")
-    private String finPrdtCd;
+    // 옵션 ID
+    @JsonProperty("option_id")
+    private Long optionId;
 
-    // 연금 수령 기간
+    // 상품 ID (외래키)
+    @JsonProperty("product_id")
+    private Long productId;
+
+    // 연금 수령 기간 코드
     @JsonProperty("pnsn_recp_trm")
     private String pnsnRecpTrm;
 
@@ -24,19 +31,19 @@ public class PensionOptionDTO {
     @JsonProperty("pnsn_recp_trm_nm")
     private String pnsnRecpTrmNm;
 
-    // 연금 가입 나이
+    // 연금 가입 연령
     @JsonProperty("pnsn_entr_age")
     private Integer pnsnEntrAge;
 
-    // 연금 가입 나이명
+    // 연금 가입 연령명
     @JsonProperty("pnsn_entr_age_nm")
     private String pnsnEntrAgeNm;
 
-    // 월 납입액
+    // 월 납입금액
     @JsonProperty("mon_paym_atm")
     private Integer monPaymAtm;
 
-    // 월 납입액명
+    // 월 납입금액명
     @JsonProperty("mon_paym_atm_nm")
     private String monPaymAtmNm;
 
@@ -48,11 +55,11 @@ public class PensionOptionDTO {
     @JsonProperty("paym_prd_nm")
     private String paymPrdNm;
 
-    // 연금 시작 나이
+    // 연금 시작 연령
     @JsonProperty("pnsn_strt_age")
     private Integer pnsnStrtAge;
 
-    // 연금 시작 나이명
+    // 연금 시작 연령명
     @JsonProperty("pnsn_strt_age_nm")
     private String pnsnStrtAgeNm;
 
@@ -60,28 +67,6 @@ public class PensionOptionDTO {
     @JsonProperty("pnsn_recp_amt")
     private Long pnsnRecpAmt;
 
-    // 아래 필드들은 제거하거나 주석 처리
-    // @JsonProperty("save_trm")
-    // private Integer saveTrm;
-
-    // @JsonProperty("intr_rate_type")
-    // private String intrRateType;
-
-    // @JsonProperty("intr_rate_type_nm")
-    // private String intrRateTypeNm;
-
-    // @JsonProperty("intr_rate")
-    // private Double intrRate;
-
-    // @JsonProperty("intr_rate2")
-    // private Double intrRate2;
-
-    // 편의 메서드도 필요에 따라 수정/제거
-    // public boolean isSingleRate() {
-    //     return "S".equals(intrRateType);
-    // }
-
-    // public boolean isCompoundRate() {
-    //     return "M".equals(intrRateType);
-    // }
+    @JsonProperty("fin_prdt_cd")
+    private String finPrdtCd;
 }

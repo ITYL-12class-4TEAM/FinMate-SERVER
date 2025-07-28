@@ -12,6 +12,9 @@
         CAST(do.intr_rate AS CHAR) as "intr_rate",
         CAST(do.intr_rate2 AS CHAR) as "intr_rate2",
         CAST(do.save_trm AS CHAR) as "save_trm",
+        do.intr_rate_type as "intr_rate_type", <!-- 이 줄 추가 -->
+        do.intr_rate_type_nm as "intr_rate_type_nm", <!-- 이 줄도 추가하면 좋음 -->
+        dp.min_deposit as "min_deposit_amount",
         fp.external_link as "join_way"
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
