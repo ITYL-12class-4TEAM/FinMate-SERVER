@@ -4,19 +4,16 @@ import org.springframework.http.HttpStatus;
 
 public enum ResponseCode {
     /**
-     * Member response
-     */
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다,"),
-    /**
      * Auth / Token 관련 응답
      */
     AUTH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "인증 토큰이 존재하지 않거나 올바르지 않습니다."),
     AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다."),
     AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
     /**
-     * Auth / 개인정보 접근 관련 응답
+     * Member response
      */
     AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     PROFILE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보 수정에 실패했습니다."),
     INVALID_BIRTHDATE_FORMAT(HttpStatus.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다."),
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
@@ -72,6 +69,9 @@ public enum ResponseCode {
     FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
     INVALID_CATEGORY_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 태그 코드입니다"),
     INVALID_PRODUCT_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 상품 태그 코드입니다"),
+
+    ATTACHMENT_DOWNLOAD_SUCCESS(HttpStatus.OK, "첨부파일 다운로드 성공"),
+    ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
 
     /**
      * Community - Comment
@@ -146,6 +146,7 @@ public enum ResponseCode {
     WMTI_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "분석 결과 처리 중 오류가 발생했습니다."),
     //공개/비공개 관련
     WMTI_RESULT_PRIVATE(HttpStatus.FORBIDDEN, "비공개 상태의 결과입니다.");
+
     private final HttpStatus httpStatus;
     private final String message;
 

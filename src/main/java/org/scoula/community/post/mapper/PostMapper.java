@@ -10,6 +10,7 @@ import org.scoula.community.post.domain.PostVO;
 
 @Mapper
 public interface PostMapper {
+    List<PostVO> getListByBoard(Long boardId);
     public List<PostVO> getList();
     public PostVO get(Long no);
     public void create(PostVO board);
@@ -29,4 +30,5 @@ public interface PostMapper {
     void incrementCommentCount(Long postId);
     void decrementCommentCountBy(@Param("postId") Long postId, @Param("count") int count);
 
+    void deleteAttachmentsByPostId(Long postId);
 }

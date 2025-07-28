@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,17 +40,17 @@ public class PostUpdateRequestDTO {
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
 
-    @ApiModelProperty(value = "첨부파일 목록", position = 14)
-    private List<PostAttachmentVO> attaches;
-
-    @ApiModelProperty(value = "업로드할 파일 목록", dataType = "java.util.List", position = 15, notes = "MultipartFile 리스트")
-    private List<MultipartFile> files;
-
     @ApiModelProperty(value = "카테고리 태그 이름", example = "RECOMMEND", position = 17)
     private String categoryTag;
 
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
+
+    @ApiModelProperty(value = "첨부파일 목록", position = 14)
+    private List<PostAttachmentVO> attaches;
+
+    @ApiModelProperty(value = "첨부파일 목록", position = 20)
+    List<MultipartFile> files = new ArrayList<>();;
 
     public static PostUpdateRequestDTO of(PostVO vo) {
         return vo == null ? null : PostUpdateRequestDTO.builder()
@@ -58,9 +59,9 @@ public class PostUpdateRequestDTO {
                 .content(vo.getContent())
                 .isAnonymous(vo.isAnonymous())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
-                .attaches(vo.getAttaches())
                 .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
+                .attaches(vo.getAttachments())
                 .build();
     }
 
@@ -75,9 +76,9 @@ public class PostUpdateRequestDTO {
                 .content(content)
                 .isAnonymous(isAnonymous)
                 .status(postStatusEnum)
-                .attaches(attaches)
                 .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
+                .attachments(attaches)
                 .build();
     }
 }

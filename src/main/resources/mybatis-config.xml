@@ -12,6 +12,9 @@
     <typeHandlers>
         <typeHandler handler="org.scoula.community.board.handler.BoardTypeHandler" />
         <typeHandler handler="org.scoula.community.post.handler.PostStatusTypeHandler"/>
+        <typeHandler handler="org.scoula.community.post.handler.CategoryTagHandler"/>
+        <typeHandler handler="org.scoula.community.post.handler.ProductTagHandler"/>
+
     </typeHandlers>
     <mappers>
         <package name="org.scoula.security.account.mapper"/>

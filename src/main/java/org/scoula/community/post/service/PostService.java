@@ -16,5 +16,5 @@ public interface PostService {
     public void delete(Long no);
     public PostAttachmentVO getAttachment(Long postId);
     public boolean deleteAttachment(Long postId);
-
+    public List<PostListResponseDTO> getListByBoard(Long boardId);
 }
