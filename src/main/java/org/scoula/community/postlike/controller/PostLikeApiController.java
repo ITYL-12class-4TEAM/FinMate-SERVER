@@ -27,10 +27,9 @@ public class PostLikeApiController {
 
     @PostMapping("/{postId}/toggle")
     @ApiOperation("게시글 좋아요 토글")
-    public ApiResponse<?> toggleLike(@PathVariable("postId") Long postId,
-                                     @RequestParam("memberId") Long memberId) {
-        log.info("Toggle like - postId: {}, memberId: {}", postId, memberId);
-        boolean liked = postLikeService.toggleLike(postId, memberId);
+    public ApiResponse<?> toggleLike(@PathVariable("postId") Long postId) {
+        log.info("Toggle like - postId: {}", postId);
+        boolean liked = postLikeService.toggleLike(postId);
         return ApiResponse.success(
                 liked ? ResponseCode.POST_LIKE_CREATE_SUCCESS : ResponseCode.POST_LIKE_CANCEL_SUCCESS,
                 new PostLikeToggleResponseDTO(liked)
@@ -49,5 +48,11 @@ public class PostLikeApiController {
                                           @RequestParam("memberId") Long memberId) {
         boolean liked = postLikeService.isLikedByMember(postId, memberId);
         return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
+    }
+
+    @GetMapping("/me")
+    @ApiOperation("내가 좋아요 누른 게시글 목록 조회")
+    public ApiResponse<?> getMyLikedPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIKE_LIST_SUCCESS, postLikeService.getMyLikedPosts());
     }
 }

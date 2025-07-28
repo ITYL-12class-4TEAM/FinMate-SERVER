@@ -10,11 +10,12 @@ import org.scoula.community.post.dto.PostUpdateRequestDTO;
 
 public interface PostService {
     public List<PostListResponseDTO> getList();
-    public PostDetailsResponseDTO get(Long no);
+    public PostDetailsResponseDTO get(Long postId);
     public PostDetailsResponseDTO create(PostCreateRequestDTO postCreateRequestDTO);
-    public PostDetailsResponseDTO update(PostUpdateRequestDTO postCreateRequestDTO);
+    public PostDetailsResponseDTO update(Long postId, PostUpdateRequestDTO postCreateRequestDTO);
     public void delete(Long no);
-    public PostAttachmentVO getAttachment(Long no);
-    public boolean deleteAttachment(Long no);
-
+    public PostAttachmentVO getAttachment(Long postId);
+    public boolean deleteAttachment(Long postId);
+    public List<PostListResponseDTO> getListByBoard(Long boardId);
+    List<PostListResponseDTO> getMyPosts();
 }

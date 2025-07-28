@@ -1,27 +1,37 @@
 package org.scoula.community.postlike.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.exception.CommentNotFoundException;
+import org.scoula.community.post.domain.PostVO;
+import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.domain.PostLikeVO;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeMapper postLikeMapper;
     private final PostMapper postMapper;
-    public boolean toggleLike(Long postId, Long memberId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+    private final MemberMapper memberMapper;
 
-        PostLikeVO existing = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
+    @Override
+    @Transactional
+    public boolean toggleLike(Long postId) {
+        validatePostExists(postId);
+        Long memberId = getCurrentUserIdAsLong();
 
-        if (existing == null) {
+        PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
+
+        if (like == null) {
             postLikeMapper.insert(PostLikeVO.builder()
                     .postId(postId)
                     .memberId(memberId)
@@ -29,27 +39,40 @@ public class PostLikeServiceImpl implements PostLikeService {
                     .build());
             return true;
         } else {
-            boolean newStatus = !existing.isLiked();
-            existing.setLiked(newStatus);
-            postLikeMapper.update(existing);
-            return newStatus;
+            postLikeMapper.deleteByPostIdAndMemberId(postId, memberId);
+            return false;
         }
     }
-
-    public int getLikeCount(Long postId) {
-        if (!postMapper.existsById(postId)) {
-            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
-        return postLikeMapper.countByPostId(postId);
-    }
-
 
     @Override
     public boolean isLikedByMember(Long postId, Long memberId) {
-        if (!postMapper.existsById(postId)) {
-            throw new CommentNotFoundException(ResponseCode.POST_NOT_FOUND);
-        }
+        validatePostExists(postId);
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
+    }
+
+    @Override
+    public List<PostListResponseDTO> getMyLikedPosts() {
+        Long memberId = getCurrentUserIdAsLong();
+        return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+    }
+
+    @Override
+    public int getLikeCount(Long postId) {
+        validatePostExists(postId);
+
+        return postLikeMapper.countByPostId(postId);
+    }
+    private Long getCurrentUserIdAsLong() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberMapper.getMemberIdByEmail(email);
+    }
+
+    private void validatePostExists(Long postId) {
+        if (!postMapper.existsById(postId)) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
     }
 }

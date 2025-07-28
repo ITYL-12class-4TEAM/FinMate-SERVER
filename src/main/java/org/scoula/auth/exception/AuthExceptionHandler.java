@@ -77,4 +77,20 @@ public class AuthExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAccessDeniedException(
+            AccessDeniedException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
 }

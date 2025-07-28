@@ -28,5 +28,20 @@ public class CommentExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
+    @ExceptionHandler(CommentParentMismatchException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleCommentParentMismatchException(
+            CommentParentMismatchException exception,
+            HttpServletRequest request) {
 
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
 }

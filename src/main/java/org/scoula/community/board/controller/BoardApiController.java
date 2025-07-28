@@ -2,11 +2,10 @@ package org.scoula.community.board.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.scoula.community.board.dto.BoardDTO;
+import org.scoula.community.board.dto.BoardResponseDTO;
 import org.scoula.community.board.service.BoardService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
@@ -25,7 +24,7 @@ public class BoardApiController {
             value = "게시판 리스트 조회",
             notes = "등록된 모든 게시판을 조회합니다. ")
     @GetMapping("")
-    public ApiResponse<List<BoardDTO>> getList() {
+    public ApiResponse<List<BoardResponseDTO>> getList() {
         return ApiResponse.success(ResponseCode.BOARD_LIST_SUCCESS, service.getList());
     }
 
@@ -37,7 +36,7 @@ public class BoardApiController {
                     "성공 시 생성된 게시글 정보를 반환합니다."
     )
     @PostMapping("")
-    public ApiResponse<BoardDTO> create(@RequestBody BoardDTO dto) {
+    public ApiResponse<BoardResponseDTO> create(@RequestBody BoardResponseDTO dto) {
         return ApiResponse.success(ResponseCode.BOARD_CREATE_SUCCESS, service.create(dto));
     }
 
