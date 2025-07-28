@@ -10,6 +10,7 @@ import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
+import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
@@ -102,6 +103,14 @@ public class CommentServiceImpl implements CommentService {
             return List.of();
         }
         return comments.stream()
+                .map(CommentResponseDTO::of)
+                .toList();
+    }
+    @Override
+    public List<CommentResponseDTO> getMyComments() {
+        log.info("getMyComments..........");
+        Long currentUserId = getCurrentUserIdAsLong();
+        return commentMapper.getCommentsByMemberId(currentUserId).stream()
                 .map(CommentResponseDTO::of)
                 .toList();
     }
