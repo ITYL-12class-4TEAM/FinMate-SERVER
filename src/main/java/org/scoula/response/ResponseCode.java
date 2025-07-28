@@ -6,7 +6,7 @@ public enum ResponseCode {
     /**
      * Member response
      */
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다,"),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     PROFILE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보 수정에 실패했습니다."),
     INVALID_BIRTHDATE_FORMAT(HttpStatus.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다."),
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
@@ -62,6 +62,9 @@ public enum ResponseCode {
     FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
     INVALID_CATEGORY_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 태그 코드입니다"),
     INVALID_PRODUCT_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 상품 태그 코드입니다"),
+
+    ATTACHMENT_DOWNLOAD_SUCCESS(HttpStatus.OK, "첨부파일 다운로드 성공"),
+    ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
 
     /**
      * Community - Comment
