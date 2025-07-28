@@ -27,7 +27,7 @@ public class PreInfoController {
     private final PreInfoService preInfoService;
     private final JwtProcessor jwtProcessor;
 
-    @PostMapping
+    @PostMapping("/submit")
     @ApiOperation(value = "사전 정보 등록", notes = "투자성향 분석 전, 로그인한 사용자의 기본 정보를 등록합니다.")
     public ApiResponse<PreInfoResponseDTO> submitPreInfo(
             @ApiParam(value = "사전 정보 요청 DTO", required = true)

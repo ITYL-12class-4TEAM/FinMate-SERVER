@@ -9,6 +9,7 @@ import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JwtProcessor;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
+import org.scoula.wmti.dto.survey.WMTIProfileDTO;
 import org.scoula.wmti.entity.SurveyResult;
 import org.scoula.wmti.service.WMTIService;
 import org.springframework.web.bind.annotation.*;
@@ -152,13 +153,13 @@ public class WMTIController {
     // 성향 코드에 따른 분석 및 추천 상품 제공 (GET)
     @ApiOperation(value = "WMTI 코드 기반 분석 결과 조회", notes = "WMTI 성향 코드를 기반으로 분석 정보와 추천 결과를 제공합니다.")
     @GetMapping("/analysis/{wmtiCode}")
-    public ApiResponse<Map<String, Object>> getAnalysis(
+    public ApiResponse<WMTIProfileDTO> getAnalysis(
             @ApiParam(value = "WMTI 코드 (4자리)", required = true, example = "APML")
             @PathVariable String wmtiCode
     ) {
         try {
-            Map<String, Object> analysisResult = wmtiService.getAnalysisByWMTICode(wmtiCode);
-            if (analysisResult == null || analysisResult.isEmpty()) {
+            WMTIProfileDTO analysisResult = wmtiService.getAnalysisByWMTICode(wmtiCode);
+            if (analysisResult == null) {
                 return ApiResponse.fail(ResponseCode.WMTI_ANALYSIS_NOT_FOUND, "분석 결과를 찾을 수 없습니다.");
             }
             return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, analysisResult);

@@ -9,6 +9,7 @@ import org.scoula.wmti.domain.WMTICalculator;
 import org.scoula.wmti.domain.WMTIScoreResult;
 import org.scoula.wmti.dto.survey.SurveyResultDTO;
 import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
+import org.scoula.wmti.dto.survey.WMTIProfileDTO;
 import org.scoula.wmti.entity.SurveyResult;
 import org.scoula.wmti.entity.WMTIHistory;
 import org.scoula.wmti.enums.RiskPreference;
@@ -39,7 +40,7 @@ public class WMTIServiceImpl implements WMTIService {
         return wmtiCalculator.calculateWMTICode(answers);
     }
     @Override
-    public Map<String, Object> getAnalysisByWMTICode(String wmtiCode) {
+    public WMTIProfileDTO getAnalysisByWMTICode(String wmtiCode) {
         // WMTIAnalysis에서 처리된 분석 및 추천 상품 반환
         return wmtiAnalysis.getAnalysisByWMTICode(wmtiCode);
     }
