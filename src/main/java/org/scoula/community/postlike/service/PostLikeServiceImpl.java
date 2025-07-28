@@ -1,9 +1,11 @@
 package org.scoula.community.postlike.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.post.domain.PostVO;
+import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.domain.PostLikeVO;
@@ -48,6 +50,15 @@ public class PostLikeServiceImpl implements PostLikeService {
         }
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
+    }
+
+    @Override
+    public List<PostListResponseDTO> getMyLikedPosts() {
+        Long memberId = getCurrentUserIdAsLong();
+        return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+
     }
 
     @Override

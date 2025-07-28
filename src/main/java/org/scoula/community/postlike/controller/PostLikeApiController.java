@@ -49,4 +49,10 @@ public class PostLikeApiController {
         boolean liked = postLikeService.isLikedByMember(postId, memberId);
         return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
     }
+
+    @GetMapping("/me")
+    @ApiOperation("내가 좋아요 누른 게시글 목록 조회")
+    public ApiResponse<?> getMyLikedPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIKE_LIST_SUCCESS, postLikeService.getMyLikedPosts());
+    }
 }

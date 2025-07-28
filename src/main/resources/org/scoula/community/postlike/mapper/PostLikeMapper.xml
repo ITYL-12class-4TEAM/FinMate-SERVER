@@ -29,4 +29,11 @@
         SELECT COUNT(*) FROM post_like
         WHERE post_id = #{postId} AND is_liked = true
     </select>
+    <select id="getLikedPostsByMemberId" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT p.*
+        FROM post_like pl
+                 JOIN post p ON pl.post_id = p.post_id
+        WHERE pl.member_id = #{memberId} AND pl.is_liked = true
+        ORDER BY pl.created_at DESC
+    </select>
 </mapper>
