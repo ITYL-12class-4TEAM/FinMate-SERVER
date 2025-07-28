@@ -17,19 +17,14 @@ import org.scoula.community.post.dto.PostUpdateRequestDTO;
 import org.scoula.community.post.service.PostService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -91,5 +86,11 @@ public class PostApiController {
     public ApiResponse<Void> deleteAttachment(@PathVariable Long no) {
         postService.deleteAttachment(no);
         return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
+    }
+
+    @ApiOperation(value = "내가 쓴 글 조회", notes = "현재 로그인한 사용자가 작성한 게시글 목록을 조회합니다.")
+    @GetMapping("/my")
+    public ApiResponse<List<PostListResponseDTO>> getMyPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getMyPosts());
     }
 }

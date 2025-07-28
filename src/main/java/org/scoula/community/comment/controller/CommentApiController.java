@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.scoula.community.comment.dto.CommentCreateRequestDTO;
 import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.service.CommentService;
+import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,5 +59,11 @@ public class CommentApiController {
     public ApiResponse<Void> delete(@PathVariable Long commentId) {
         commentService.delete(commentId);
         return ApiResponse.success(ResponseCode.COMMENT_DELETE_SUCCESS);
+    }
+
+    @ApiOperation(value = "내가 쓴 댓글 조회", notes = "현재 로그인한 사용자가 작성한 댓글 목록을 조회합니다.")
+    @GetMapping("/my")
+    public ApiResponse<List<CommentResponseDTO>> getMyComments() {
+        return ApiResponse.success(ResponseCode.COMMENT_LIST_SUCCESS,  commentService.getMyComments());
     }
 }

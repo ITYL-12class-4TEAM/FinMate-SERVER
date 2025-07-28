@@ -17,4 +17,5 @@ public interface PostService {
     public PostAttachmentVO getAttachment(Long postId);
     public boolean deleteAttachment(Long postId);
     public List<PostListResponseDTO> getListByBoard(Long boardId);
+    List<PostListResponseDTO> getMyPosts();
 }

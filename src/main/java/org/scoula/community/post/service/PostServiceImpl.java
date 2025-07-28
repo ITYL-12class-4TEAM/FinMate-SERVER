@@ -2,7 +2,6 @@ package org.scoula.community.post.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.auth.exception.AccessDeniedException;
@@ -174,6 +173,16 @@ public class PostServiceImpl implements PostService {
                 .map(PostListResponseDTO::of)
                 .toList();
     }
+
+    @Override
+    public List<PostListResponseDTO> getMyPosts() {
+        log.info("getMyPosts..........");
+        Long currentUserId = getCurrentUserIdAsLong();
+        return postMapper.getPostsByMemberId(currentUserId).stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+    }
+
     private void upload(Long bno, List<MultipartFile> files) {
         for (MultipartFile part : files) {
             if (part == null || part.isEmpty()) continue;
