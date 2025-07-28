@@ -16,14 +16,14 @@
                  )
     </insert>
 
-    <!-- 첨부파일 등록 -->
-    <insert id="createAttachment" parameterType="org.scoula.community.post.domain.PostAttachmentVO" useGeneratedKeys="true" keyProperty="no">
-        INSERT INTO finmate.post_attachment (
-            bno, filename, path, content_type, size, created_at
-        ) VALUES (
-                     #{bno}, #{filename}, #{path}, #{contentType}, #{size}, NOW()
-                 )
-    </insert>
+<!--    &lt;!&ndash; 첨부파일 등록 &ndash;&gt;-->
+<!--    <insert id="createAttachment" parameterType="org.scoula.community.post.domain.PostAttachmentVO" useGeneratedKeys="true" keyProperty="no">-->
+<!--        INSERT INTO finmate.post_attachment (-->
+<!--            bno, filename, path, content_type, size, created_at-->
+<!--        ) VALUES (-->
+<!--                     #{bno}, #{filename}, #{path}, #{contentType}, #{size}, NOW()-->
+<!--                 )-->
+<!--    </insert>-->
 
     <!-- 게시글 수정 -->
     <update id="update" parameterType="org.scoula.community.post.domain.PostVO">
@@ -44,14 +44,14 @@
         DELETE FROM finmate.post WHERE post_id = #{postId}
     </delete>
 
-    <!-- 첨부파일 삭제 -->
-    <delete id="deleteAttachment" parameterType="long">
-        DELETE FROM finmate.post_attachment WHERE bno = #{postId}
-    </delete>
+<!--    &lt;!&ndash; 첨부파일 삭제 &ndash;&gt;-->
+<!--    <delete id="deleteAttachment" parameterType="long">-->
+<!--        DELETE FROM finmate.post_attachment WHERE bno = #{postId}-->
+<!--    </delete>-->
 
-    <delete id="deleteAttachmentsByPostId" parameterType="long">
-        DELETE FROM finmate.post_attachment WHERE bno = #{postId}
-    </delete>
+<!--    <delete id="deleteAttachmentsByPostId" parameterType="long">-->
+<!--        DELETE FROM finmate.post_attachment WHERE bno = #{postId}-->
+<!--    </delete>-->
 
     <!-- 게시글 목록 조회 -->
     <select id="getList" resultType="org.scoula.community.post.domain.PostVO">
@@ -84,22 +84,22 @@
         WHERE post_id = #{postId}
     </select>
 
-    <!-- 첨부파일 목록 조회 -->
-    <select id="getAttachmentList" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">
-        SELECT
-            no, bno, filename, path, content_type, size, created_at
-        FROM finmate.post_attachment
-        WHERE bno = #{postId}
-        ORDER BY created_at ASC
-    </select>
+<!--    &lt;!&ndash; 첨부파일 목록 조회 &ndash;&gt;-->
+<!--    <select id="getAttachmentList" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">-->
+<!--        SELECT-->
+<!--            no, bno, filename, path, content_type, size, created_at-->
+<!--        FROM finmate.post_attachment-->
+<!--        WHERE bno = #{postId}-->
+<!--        ORDER BY created_at ASC-->
+<!--    </select>-->
 
-    <!-- 첨부파일 단건 조회 -->
-    <select id="getAttachment" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">
-        SELECT
-            no, bno, filename, path, content_type, size, created_at
-        FROM finmate.post_attachment
-        WHERE no = #{no}
-    </select>
+<!--    &lt;!&ndash; 첨부파일 단건 조회 &ndash;&gt;-->
+<!--    <select id="getAttachment" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">-->
+<!--        SELECT-->
+<!--            no, bno, filename, path, content_type, size, created_at-->
+<!--        FROM finmate.post_attachment-->
+<!--        WHERE no = #{no}-->
+<!--    </select>-->
 
     <select id="existsById" resultType="boolean">
         SELECT COUNT(*) > 0 FROM finmate.post WHERE post_id = #{postId}

@@ -66,8 +66,8 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
 
-    @ApiModelProperty(value = "첨부파일 개수", example = "3", position = 18)
-    private int attachmentCount;
+//    @ApiModelProperty(value = "첨부파일 개수", example = "3", position = 18)
+//    private int attachmentCount;
 
     public static PostListResponseDTO of(PostVO vo) {
         return vo == null ? null : PostListResponseDTO.builder()
@@ -85,7 +85,7 @@ public class PostListResponseDTO {
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
                 .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
-                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
+//                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
                 .build();
     }
 

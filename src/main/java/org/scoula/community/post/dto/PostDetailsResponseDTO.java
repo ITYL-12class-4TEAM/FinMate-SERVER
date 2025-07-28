@@ -74,12 +74,12 @@ public class PostDetailsResponseDTO {
     @ApiModelProperty(value = "댓글 목록", position = 18)
     private List<CommentVO> comments;
 
-    @ApiModelProperty(value = "첨부파일 목록", position = 14)
-    private List<PostAttachmentVO> attaches;
-
-    @ApiModelProperty(value = "첨부파일 목록", position = 20)
-    List<MultipartFile> files = new ArrayList<>();;
-
+//    @ApiModelProperty(value = "첨부파일 목록", position = 14)
+//    private List<PostAttachmentVO> attaches;
+//
+//    @ApiModelProperty(value = "첨부파일 목록", position = 20)
+//    List<MultipartFile> files = new ArrayList<>();;
+//
 
     public static PostDetailsResponseDTO of(PostVO vo, List<CommentVO> comments) {
         return vo == null ? null : PostDetailsResponseDTO.builder()
@@ -99,7 +99,7 @@ public class PostDetailsResponseDTO {
                 .productTag(vo.getProductTag().getCode())
                 .commentCount(vo.getCommentCount())
                 .comments(comments)
-                .attaches(vo.getAttachments())
+//                .attaches(vo.getAttachments())
                 .build();
     }
 
@@ -123,7 +123,7 @@ public class PostDetailsResponseDTO {
                 .status(postStatusEnum)
                 .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
-                .attachments(attaches)
+//                .attachments(attaches)
                 .build();
     }
 }

@@ -72,21 +72,21 @@ public class PostApiController {
         return ApiResponse.success(ResponseCode.POST_DELETE_SUCCESS);
     }
 
-    @ApiOperation(value = "첨부파일 다운로드", notes = "첨부파일을 다운로드합니다.")
-    @GetMapping("/attachment/{no}/download")
-    public ApiResponse<?> downloadAttachment(@PathVariable Long no, HttpServletResponse response) throws Exception {
-        PostAttachmentVO attachmentVO = postService.getAttachment(no);
-        File file = new File(attachmentVO.getPath());
-        UploadFiles.download(response, file, attachmentVO.getFilename());
-        return ApiResponse.success(ResponseCode.ATTACHMENT_DOWNLOAD_SUCCESS);
-    }
-
-    @ApiOperation(value = "첨부파일 삭제", notes = "첨부파일을 삭제합니다.")
-    @DeleteMapping("/attachment/{no}")
-    public ApiResponse<Void> deleteAttachment(@PathVariable Long no) {
-        postService.deleteAttachment(no);
-        return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
-    }
+//    @ApiOperation(value = "첨부파일 다운로드", notes = "첨부파일을 다운로드합니다.")
+//    @GetMapping("/attachment/{no}/download")
+//    public ApiResponse<?> downloadAttachment(@PathVariable Long no, HttpServletResponse response) throws Exception {
+//        PostAttachmentVO attachmentVO = postService.getAttachment(no);
+//        File file = new File(attachmentVO.getPath());
+//        UploadFiles.download(response, file, attachmentVO.getFilename());
+//        return ApiResponse.success(ResponseCode.ATTACHMENT_DOWNLOAD_SUCCESS);
+//    }
+//
+//    @ApiOperation(value = "첨부파일 삭제", notes = "첨부파일을 삭제합니다.")
+//    @DeleteMapping("/attachment/{no}")
+//    public ApiResponse<Void> deleteAttachment(@PathVariable Long no) {
+//        postService.deleteAttachment(no);
+//        return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
+//    }
 
     @ApiOperation(value = "내가 쓴 글 조회", notes = "현재 로그인한 사용자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/my")

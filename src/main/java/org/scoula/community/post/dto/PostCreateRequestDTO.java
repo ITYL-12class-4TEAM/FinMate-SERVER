@@ -46,10 +46,10 @@ public class PostCreateRequestDTO {
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
 
-    @ApiModelProperty(value = "첨부파일 목록", position = 14)
-    private List<PostAttachmentVO> attaches;
-
-    List<MultipartFile> files = new ArrayList<>();
+//    @ApiModelProperty(value = "첨부파일 목록", position = 14)
+//    private List<PostAttachmentVO> attaches;
+//
+//    List<MultipartFile> files = new ArrayList<>();
 
     public static PostCreateRequestDTO of(PostVO vo) {
         return vo == null ? null : PostCreateRequestDTO.builder()
@@ -60,7 +60,7 @@ public class PostCreateRequestDTO {
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
                 .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
-                .attaches(vo.getAttachments())
+//                .attaches(vo.getAttachments())
                 .build();
     }
 
@@ -77,7 +77,7 @@ public class PostCreateRequestDTO {
                 .status(postStatusEnum)
                 .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
-                .attachments(attaches)
+//                .attachments(attaches)
                 .build();
     }
 }
