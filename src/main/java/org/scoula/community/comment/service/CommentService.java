@@ -7,7 +7,7 @@ import org.scoula.community.comment.dto.CommentResponseDTO;
 public interface CommentService {
     CommentResponseDTO create(CommentCreateRequestDTO commentCreateRequestDTO);
     CommentResponseDTO get(Long postId);
-    List<CommentResponseDTO> getList();
     void delete(Long commentId);
-
+    List<CommentResponseDTO> getListByPostId(Long postId);
+    List<CommentResponseDTO> getParentAndReplies(Long parentCommentId);
 }

@@ -1,35 +1,48 @@
 package org.scoula.member.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.scoula.member.dto.ValidationResponseDTO;
-import org.scoula.member.mapper.MemberMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.scoula.member.service.MemberService;
+import org.scoula.response.ApiResponse;
+import org.scoula.response.ResponseCode;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 @Api(tags = "중복 확인 API")
 @RestController
 @RequestMapping("/api/validation/check")
 @RequiredArgsConstructor
 public class ValidationApiController {
-    private final MemberMapper memberMapper;
+    private final MemberService memberService;
 
+    @ApiOperation(
+            value = "이메일 중복 확인",
+            notes = "회원가입 시 입력한 이메일이 이미 사용 중인지 확인합니다."
+    )
     @GetMapping("/email")
-    public ValidationResponseDTO checkEmail(@RequestParam String email) {
-        boolean available = memberMapper.selectByEmail(email) == null;
-        return new ValidationResponseDTO(
-                true,
-                available ? "사용 가능한 이메일입니다." : "이미 사용 중인 이메일입니다.",
-                new ValidationResponseDTO.DataDTO(available, "email")
-        );
+    public ApiResponse<?> checkEmail(@RequestParam String email) {
+        boolean available = memberService.isEmailAvailable(email);
+        if (available) {
+            return ApiResponse.success(ResponseCode.VALID_EMAIL);
+        } else {
+            return ApiResponse.fail(ResponseCode.DUPLICATED_EMAIL);
+        }
     }
 
+    @ApiOperation(
+            value = "닉네임 중복 확인",
+            notes = "회원가입 시 입력한 닉네임이 이미 사용 중인지 확인합니다."
+    )
     @GetMapping("/nickname")
-    public ValidationResponseDTO checkNickname(@RequestParam String nickname) {
-        boolean available = memberMapper.selectByNickname(nickname) == null;
-        return new ValidationResponseDTO(
-                true,
-                available ? "사용 가능한 닉네임입니다." : "이미 사용 중인 닉네임입니다.",
-                new ValidationResponseDTO.DataDTO(available, "nickname")
-        );
+    public ApiResponse<?> checkNickname(@RequestParam String nickname) {
+        boolean available = memberService.isNicknameAvailable(nickname);
+        if (available) {
+            return ApiResponse.success(ResponseCode.VALID_NICKNAME);
+        } else {
+            return ApiResponse.fail(ResponseCode.DUPLICATED_NICKNAME);
+        }
     }
 }

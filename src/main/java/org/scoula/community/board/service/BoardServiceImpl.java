@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.community.board.domain.BoardVO;
-import org.scoula.community.board.dto.BoardDTO;
+import org.scoula.community.board.dto.BoardResponseDTO;
 import org.scoula.community.board.exception.BoardNotFoundException;
 import org.scoula.community.board.mapper.BoardMapper;
 import org.scoula.response.ResponseCode;
@@ -17,30 +17,30 @@ public class BoardServiceImpl implements BoardService {
     private final BoardMapper boardMapper;
 
     @Override
-    public BoardDTO create(BoardDTO boardDTO) {
-        BoardVO vo = boardDTO.toVo();
+    public BoardResponseDTO create(BoardResponseDTO boardResponseDTO) {
+        BoardVO vo = boardResponseDTO.toVo();
         boardMapper.create(vo);
-        boardDTO.setBoardId(vo.getBoardId());
+        boardResponseDTO.setBoardId(vo.getBoardId());
         return get(vo.getBoardId());
     }
 
     @Override
-    public List<BoardDTO> getList() {
+    public List<BoardResponseDTO> getList() {
         log.info("getList..........");
         List<BoardVO> boardVOList = boardMapper.getList();
 
         return boardVOList.stream()
-                .map(BoardDTO::of)
+                .map(BoardResponseDTO::of)
                 .toList();
     }
 
 
-    private BoardDTO get(Long boardId) {
+    private BoardResponseDTO get(Long boardId) {
         log.info("get..........");
         BoardVO boardVO = boardMapper.get(boardId);
         if (boardVO == null) {
             throw new BoardNotFoundException(ResponseCode.BOARD_NOT_FOUND);
         }
-        return BoardDTO.of(boardVO);
+        return BoardResponseDTO.of(boardVO);
     }
 }

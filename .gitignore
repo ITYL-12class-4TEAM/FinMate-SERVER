@@ -45,6 +45,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+.idea
 /.idea/dbnavigator.xml
 /.idea/encodings.xml
 /.idea/uiDesigner.xml

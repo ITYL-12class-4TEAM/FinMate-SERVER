@@ -1,168 +1,63 @@
 package org.scoula.auth.controller;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.scoula.auth.dto.FindIdRequest;
 import org.scoula.auth.dto.FindIdResponseDTO;
+import org.scoula.auth.dto.RefreshRequest;
+import org.scoula.auth.dto.ResetPasswordRequest;
 import org.scoula.auth.dto.TokenResponseDTO;
-import org.scoula.member.dto.SignupResponseDTO;
-import org.scoula.member.service.SignupService;
-import org.scoula.security.account.domain.MemberVO;
-import org.scoula.security.util.JwtProcessor;
-import org.scoula.member.mapper.MemberMapper;
-import org.scoula.common.service.RedisService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.scoula.auth.dto.UpdateProfileRequest;
+import org.scoula.auth.service.AuthService;
+import org.scoula.response.ApiResponse;
+import org.scoula.response.ResponseCode;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "아이디 비번 찾기 및 토큰 갱신 API")
+@Api(tags = "아이디 비밀번호 찾기 및 토큰 갱신 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthApiController {
 
-    private final JwtProcessor jwtProcessor;
-    private final MemberMapper memberMapper;
-    private final RedisService redisService;
-    private final SignupService signupService;
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final AuthService authService;
+
+    @ApiOperation("리프레시 토큰으로 새로운 액세스 토큰 발급")
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponseDTO> refresh(@RequestBody RefreshRequest request) {
-        String refreshToken = request.getRefreshToken();
-
-        if (!jwtProcessor.validateToken(refreshToken)) {
-            return ResponseEntity.status(401)
-                    .body(new TokenResponseDTO(false, "유효하지 않은 리프레시 토큰", null));
-        }
-
-        //  사용자 정보 추출
-        String username = jwtProcessor.getUsername(refreshToken);
-        Long memberId = memberMapper.findIdByUsername(username);
-
-        //  Redis에 저장된 refresh 토큰과 일치하는지 확인
-        String redisRefresh = memberMapper.getRefreshToken(memberId);
-        if (!refreshToken.equals(redisRefresh)) {
-            return ResponseEntity.status(401)
-                    .body(new TokenResponseDTO(false, "리프레시 토큰이 일치하지 않습니다.", null));
-        }
-
-        //  새로운 access 토큰 발급
-        String newAccessToken = jwtProcessor.generateAccessToken(memberId,username);
-
-        //  Redis에 access 토큰 갱신
-        redisService.saveAccessToken("ACCESS:" + memberId, newAccessToken);
-
-        return ResponseEntity.ok(
-                new TokenResponseDTO(true, "새로운 액세스 토큰이 발급되었습니다.",
-                        new TokenResponseDTO.DataDTO(newAccessToken))
-        );
+    public ApiResponse<TokenResponseDTO> refresh(@RequestBody RefreshRequest request) {
+        TokenResponseDTO response = authService.refreshToken(request.getRefreshToken());
+        return ApiResponse.success(ResponseCode.TOKEN_REFRESH_SUCCESS, response);
     }
+
+    @ApiOperation("아이디 찾기")
     @PostMapping("/find-id")
-    public ResponseEntity<FindIdResponseDTO> findId(@RequestBody FindIdRequest request) {
-        if (!request.isVerified()) {
-            System.out.println("isVerified: " + request.isVerified());
-            return ResponseEntity.badRequest().body(new FindIdResponseDTO(false, "본인인증이 필요합니다.", null));
-        }
-        String username = memberMapper.findUsernameByNameAndPhone(request.getName(), request.getPhoneNumber());
-        if (username == null) {
-            return ResponseEntity.badRequest().body(new FindIdResponseDTO(false, "일치하는 회원이 없습니다.", null));
-        }
-        return ResponseEntity.ok(new FindIdResponseDTO(true, "아이디 조회 성공", username));
+    public ApiResponse<FindIdResponseDTO> findId(@RequestBody FindIdRequest request) {
+        FindIdResponseDTO response = authService.findUsernameByNameAndPhone(request);
+        return ApiResponse.success(ResponseCode.ID_FIND_SUCCESS, response);
     }
+
+    @ApiOperation("비밀번호 찾기")
     @PostMapping("/find-password")
-    public ResponseEntity<FindIdResponseDTO> findPassword(@RequestBody FindIdRequest request) {
-        if (!request.isVerified()) {
-            System.out.println("isVerified: " + request.isVerified());
-            return ResponseEntity.badRequest().body(new FindIdResponseDTO(false, "본인인증이 필요합니다.", null));
-        }
-        String username = memberMapper.findUsernameByNameAndPhone(request.getName(), request.getPhoneNumber());
-        if (username == null) {
-            return ResponseEntity.badRequest().body(new FindIdResponseDTO(false, "일치하는 회원이 없습니다.", null));
-        }
-        return ResponseEntity.ok(new FindIdResponseDTO(true, "비밀번호를 다시 설정해주세요.", username));
+    public ApiResponse<FindIdResponseDTO> findPassword(@RequestBody FindIdRequest request) {
+        FindIdResponseDTO response = authService.findPassword(request);
+        return ApiResponse.success(ResponseCode.PASSWORD_FIND_SUCCESS, response);
     }
 
+    @ApiOperation("비밀번호 재설정")
     @PostMapping("/reset-password")
-    public ResponseEntity<FindIdResponseDTO> resetPassword(@RequestBody ResetPasswordRequest request) {
-        // 비밀번호 유효성 검사
-        if (!signupService.isValidPassword(request.getNewPassword())) {
-            return ResponseEntity.badRequest().body(
-                    new FindIdResponseDTO(false, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다.", null)
-            );
-        }
-        if (!request.getNewPassword().equals(request.getNewPasswordCheck())) {
-            return ResponseEntity.badRequest().body(
-                    new FindIdResponseDTO(false, "비밀번호가 일치하지 않습니다.", null)
-            );
-        }
-        MemberVO member = memberMapper.selectByEmail(request.getUsername());
-        Long memberId = member.getMemberId();
-        // 비밀번호 암호화 및 저장
-         encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-        String encodedPassword = encoder.encode(request.getNewPassword());
-        memberMapper.updatePassword(memberId, encodedPassword);
-
-        return ResponseEntity.ok(new FindIdResponseDTO(true, "비밀번호가 성공적으로 변경되었습니다.", null));
+    public ApiResponse<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.success(ResponseCode.PASSWORD_RESET_SUCCESS);
     }
 
+    @ApiOperation("회원 프로필 수정")
     @PutMapping("/profile")
-    public ResponseEntity<SignupResponseDTO> updateProfile(@RequestBody UpdateProfileRequest request) {
-        SignupResponseDTO result = signupService.updateProfile(
-                request.getMemberId(),
-                request.getNickname(),
-                request.getReceivePushNotification()
-        );
-        if (result.isSuccess()) {
-            return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.badRequest().body(result);
-        }
-    }
-
-    // 요청 DTO
-    public static class UpdateProfileRequest {
-        private Long memberId;
-        private String nickname;
-        private Boolean receivePushNotification;
-
-        public Long getMemberId() { return memberId; }
-        public void setMemberId(Long memberId) { this.memberId = memberId; }
-        public String getNickname() { return nickname; }
-        public void setNickname(String nickname) { this.nickname = nickname; }
-        public Boolean getReceivePushNotification() { return receivePushNotification; }
-        public void setReceivePushNotification(Boolean receivePushNotification) { this.receivePushNotification = receivePushNotification; }
-    }
-
-    // 요청 DTO
-    public static class ResetPasswordRequest {
-        private String username;
-        private String newPassword;
-        private String newPasswordCheck;
-
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getNewPassword() { return newPassword; }
-        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
-        public String getNewPasswordCheck() { return newPasswordCheck; }
-        public void setNewPasswordCheck(String newPasswordCheck) { this.newPasswordCheck = newPasswordCheck; }
-    }
-
-    // 요청 DTO
-    public static class RefreshRequest {
-        private String refreshToken;
-        public String getRefreshToken() { return refreshToken; }
-        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
-    }
-    public static class FindIdRequest {
-        private String name;
-        private String phoneNumber;
-        @JsonProperty("isVerified")
-        private boolean isVerified;
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getPhoneNumber() { return phoneNumber; }
-        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-        public boolean isVerified() { return isVerified; }
-        public void setVerified(boolean verified) { isVerified = verified; }
+    public ApiResponse<?> updateProfile(@RequestBody UpdateProfileRequest request) {
+        authService.updateProfile(request);
+        return ApiResponse.success(ResponseCode.PROFILE_UPDATE_SUCCESS);
     }
 }

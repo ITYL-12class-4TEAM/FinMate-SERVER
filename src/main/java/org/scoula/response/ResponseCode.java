@@ -17,6 +17,40 @@ public enum ResponseCode {
      * Auth / 개인정보 접근 관련 응답
      */
     AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    PROFILE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보 수정에 실패했습니다."),
+    INVALID_BIRTHDATE_FORMAT(HttpStatus.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다."),
+    PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
+    INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    REQUIRED_TERMS_NOT_AGREED(HttpStatus.BAD_REQUEST, "필수 약관에 동의해 주세요."),
+    MISSING_REQUIRED_FIELDS(HttpStatus.BAD_REQUEST, "모든 필수 입력값을 입력해 주세요."),
+    SIGNUP_SUCCESS(HttpStatus.CREATED, "회원가입이 완료되었습니다."),
+    VALID_EMAIL(HttpStatus.OK, "사용 가능한 이메일입니다."),
+    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다."),
+    VALID_NICKNAME(HttpStatus.OK, "사용 가능한 닉네임입니다."),
+    DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다."),
+    AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "본인인증이 필요합니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
+    REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
+    TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "토큰이 성공적으로 갱신되었습니다."),
+    ID_FIND_SUCCESS(HttpStatus.OK, "아이디 찾기에 성공했습니다."),
+    PASSWORD_FIND_SUCCESS(HttpStatus.OK, "비밀번호 찾기에 성공했습니다."),
+    PASSWORD_RESET_SUCCESS(HttpStatus.OK, "비밀번호가 성공적으로 변경되었습니다."),
+    PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "프로필이 성공적으로 수정되었습니다."),
+    LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 성공"),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
+
+    /**
+     * SMS response
+     */
+    SMS_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "SMS 전송에 실패했습니다."),
+    INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 전화번호입니다."),
+    SMS_SEND_SUCCESS(HttpStatus.OK, "인증번호가 전송되었습니다."),
+    SMS_VERIFY_SUCCESS(HttpStatus.OK, "인증이 완료되었습니다."),
+    SMS_VERIFY_FAILED(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."),
+
     /**
      * Community - Board
      */
@@ -36,6 +70,8 @@ public enum ResponseCode {
 
     ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "첨부파일을 찾을 수 없습니다"),
     FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
+    INVALID_CATEGORY_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 태그 코드입니다"),
+    INVALID_PRODUCT_TAG(HttpStatus.BAD_REQUEST, "유효하지 않은 상품 태그 코드입니다"),
 
     /**
      * Community - Comment
@@ -45,6 +81,7 @@ public enum ResponseCode {
     COMMENT_DETAILS_SUCCESS(HttpStatus.OK, "댓글 상세 정보 조회가 성공되었습니다"),
     COMMENT_DELETE_SUCCESS(HttpStatus.OK, "댓글 삭제가 성공되었습니다"),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
+    COMMENT_PARENT_MISMATCH(HttpStatus.BAD_REQUEST, "부모 댓글이 존재하지 않거나 게시글이 일치하지 않습니다."),
 
     /**
      * Community - PostLike
@@ -116,7 +153,6 @@ public enum ResponseCode {
         this.httpStatus = httpStatus;
         this.message = message;
     }
-
 
     public HttpStatus getHttpStatus() {
         return httpStatus;
