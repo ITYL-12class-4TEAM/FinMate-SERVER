@@ -38,7 +38,8 @@ public class PostCreateRequestDTO {
     private boolean isAnonymous;
 
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
-    private String status;
+    @Builder.Default
+    private String status = PostStatus.NORMAL.getCode();
 
     @ApiModelProperty(value = "카테고리 태그 이름", example = "RECOMMEND", position = 17)
     private String categoryTag;
@@ -65,7 +66,9 @@ public class PostCreateRequestDTO {
     }
 
     public PostVO toVo() {
-        PostStatus postStatusEnum = PostStatus.fromCode(status);
+        PostStatus postStatusEnum = status != null
+                ? PostStatus.fromCode(status)
+                : PostStatus.NORMAL;
         CategoryTag categoryTagEnum = CategoryTag.fromCode(categoryTag);
         ProductTag productTagEnum = ProductTag.fromCode(productTag);
 

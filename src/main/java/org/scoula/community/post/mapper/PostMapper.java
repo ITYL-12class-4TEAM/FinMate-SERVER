@@ -35,4 +35,7 @@ public interface PostMapper {
 //    void deleteAttachmentsByPostId(Long postId);
 
     List<PostVO> getPostsByMemberId(Long currentUserId);
+
+    PostVO findOldestPostByBoardId(Long hotBoardId);
+    int countPostsByBoardId(Long hotBoardId);
 }
