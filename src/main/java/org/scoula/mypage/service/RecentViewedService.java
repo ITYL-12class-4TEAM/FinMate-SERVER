@@ -2,6 +2,7 @@ package org.scoula.mypage.service;
 
 import lombok.RequiredArgsConstructor;
 import org.scoula.mypage.dto.FavoriteProductDto;
+import org.scoula.mypage.dto.ViewedProductResponseDTO;
 import org.scoula.mypage.mapper.ViewedProductMapper;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,9 @@ public class RecentViewedService {
      * @param memberId 회원 ID
      * @param productId 상품 ID
      */
-    public void saveRecentView(Long memberId, Long productId) {
-        viewedProductMapper.deleteExistingViewedProduct(memberId, productId);
-        viewedProductMapper.insertViewedProduct(memberId, productId);
+    public void saveRecentView(Long memberId, Long productId, Integer saveTrm, String rsrvType) {
+        viewedProductMapper.deleteExistingViewedProduct(memberId, productId, saveTrm, rsrvType);
+        viewedProductMapper.insertViewedProduct(memberId, productId, saveTrm, rsrvType);
     }
 
     /**
@@ -28,7 +29,7 @@ public class RecentViewedService {
      * @param memberId 회원 ID
      * @return 최근 본 상품 목록
      */
-    public List<FavoriteProductDto> getRecentViews(Long memberId) {
+    public List<ViewedProductResponseDTO> getRecentViews(Long memberId) {
         return viewedProductMapper.selectRecentViewedProducts(memberId);
     }
 

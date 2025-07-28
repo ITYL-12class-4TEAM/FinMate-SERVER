@@ -17,11 +17,14 @@ public class ViewedProductResponseDTO {
     @ApiModelProperty(value = "금융회사 이름", example = "KB국민은행")
     private String korCoNm;
 
-    @ApiModelProperty(value = "위험도 (LOW, MEDIUM, HIGH)", example = "LOW")
-    private String riskLevel;
+    @ApiModelProperty(value = "상품 카테고리", example = "예금")
+    private String categoryName;
 
-    @ApiModelProperty(value = "상품 외부 링크", example = "https://bank.example.com/products/101")
-    private String externalLink;
+    @ApiModelProperty(value = "상품 세부 카테고리", example = "정기예금")
+    private String subcategoryName;
+
+    @ApiModelProperty(value = "최고 금리", example = "3.2")
+    private Double maxRate;
 
     @ApiModelProperty(value = "찜한 사람 수", example = "120")
     private Integer wishlistCount;
