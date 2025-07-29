@@ -26,4 +26,11 @@ public interface ProductCategoryMapper {
      */
     @MapKey("category_id")
     Map<String, Object> findCategoryByCode(@Param("code") String code);
+
+    /**
+     * 여러 카테고리 ID로 하위 카테고리 목록 조회
+     */
+    @MapKey("subcategory_id")
+    List<Map<String, Object>> findSubcategoriesByMultipleCategoryIds(@Param("categoryIds") List<Long> categoryIds);
+
 }

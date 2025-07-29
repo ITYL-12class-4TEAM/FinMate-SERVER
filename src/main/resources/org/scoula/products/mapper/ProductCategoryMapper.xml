@@ -63,4 +63,20 @@
                 ELSE LOWER(REPLACE(name, ' ', '')) = #{code}
             END
     </select>
+
+    <!-- 여러 카테고리 ID로 하위 카테고리 목록 조회 -->
+    <select id="findSubcategoriesByMultipleCategoryIds" resultType="java.util.Map">
+        SELECT
+            subcategory_id as id,
+            category_id as categoryId,
+            name,
+            description
+        FROM
+            product_subcategory
+        WHERE
+            category_id IN
+            <foreach item="id" collection="categoryIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
 </mapper>

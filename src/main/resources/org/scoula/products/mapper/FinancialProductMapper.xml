@@ -5,6 +5,7 @@
     <!-- 상품 목록 조회 -->
     <select id="findProducts" resultType="java.util.HashMap">
         SELECT
+        fp.product_id as "product_id",
         fp.fin_prdt_cd as "fin_prdt_cd",
         fp.kor_co_nm as "kor_co_nm",
         fp.product_name as "product_name",

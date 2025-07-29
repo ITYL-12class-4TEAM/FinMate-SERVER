@@ -1,5 +1,7 @@
 package org.scoula.products.service.impl;
 
+import org.scoula.products.dto.response.CategoryDTO;
+import org.scoula.products.dto.response.SubcategoryDTO;
 import org.scoula.products.mapper.ProductCategoryMapper;
 import org.scoula.products.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductCategoryServiceImpl implements ProductCategoryService {
@@ -21,32 +24,62 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public List<Map<String, Object>> getAllCategories() {
-        return categoryMapper.findAllCategories();
+    public List<CategoryDTO> getAllCategories() {
+        return categoryMapper.findAllCategories().stream()
+                .map(this::mapToCategory)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Map<String, Object>> getSubcategoriesByCategoryId(Long categoryId) {
-        return categoryMapper.findSubcategoriesByCategoryId(categoryId);
+    public List<SubcategoryDTO> getSubcategoriesByCategoryId(Long categoryId) {
+        return categoryMapper.findSubcategoriesByCategoryId(categoryId).stream()
+                .map(this::mapToSubcategory)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Map<String, Object> getCategoryByCode(String code) {
-        return categoryMapper.findCategoryByCode(code);
+    public CategoryDTO getCategoryByCode(String code) {
+        return mapToCategory(categoryMapper.findCategoryByCode(code));
     }
 
     @Override
-    public List<Map<String, Object>> getCategoriesWithSubcategories() {
+    public List<CategoryDTO> getCategoriesWithSubcategories() {
         // 모든 카테고리 조회
-        List<Map<String, Object>> categories = categoryMapper.findAllCategories();
+        List<CategoryDTO> categories = getAllCategories();
 
         // 각 카테고리에 하위 카테고리 정보 추가
-        for (Map<String, Object> category : categories) {
-            Long categoryId = Long.valueOf(category.get("id").toString());
-            List<Map<String, Object>> subcategories = categoryMapper.findSubcategoriesByCategoryId(categoryId);
-            category.put("subcategories", subcategories);
+        for (CategoryDTO category : categories) {
+            List<SubcategoryDTO> subcategories = getSubcategoriesByCategoryId(category.getId());
+            category.setSubcategories(subcategories);
         }
 
         return categories;
+    }
+
+    /**
+     * Map을 CategoryDTO로 변환
+     */
+    private CategoryDTO mapToCategory(Map<String, Object> map) {
+        if (map == null) return null;
+
+        return CategoryDTO.builder()
+                .id(Long.valueOf(map.get("id").toString()))
+                .name((String) map.get("name"))
+                .description((String) map.get("description"))
+                .build();
+    }
+
+    /**
+     * Map을 SubcategoryDTO로 변환
+     */
+    private SubcategoryDTO mapToSubcategory(Map<String, Object> map) {
+        if (map == null) return null;
+
+        return SubcategoryDTO.builder()
+                .id(Long.valueOf(map.get("id").toString()))
+                .categoryId(Long.valueOf(map.get("categoryId").toString()))
+                .name((String) map.get("name"))
+                .description((String) map.get("description"))
+                .build();
     }
 }
