@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.community.postlike.mapper.PostLikeMapper;
 import org.scoula.community.scrap.domain.PostScrapVO;
 import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.scrap.dto.ScrapCountResponseDTO;
@@ -24,6 +25,7 @@ public class ScrapServiceImpl implements ScrapService {
     private final ScrapMapper scrapMapper;
     private final MemberMapper memberMapper;
     private final PostMapper postMapper;
+    private final PostLikeMapper postLikeMapper;
 
     @Override
     @Transactional
@@ -55,7 +57,8 @@ public class ScrapServiceImpl implements ScrapService {
     }
 
     @Override
-    public boolean isScraped(Long postId, Long memberId) {
+    public boolean isScraped(Long postId) {
+        Long memberId = getCurrentUserIdAsLong();
         validatePostExists(postId);
         return scrapMapper.existsScrap(postId, memberId);
     }
@@ -63,10 +66,23 @@ public class ScrapServiceImpl implements ScrapService {
     @Override
     public List<PostListResponseDTO> getMyScrapList() {
         Long memberId = getCurrentUserIdAsLong();
+
         return scrapMapper.getScrapPostsByMemberId(memberId).stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> {
+                    boolean isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), memberId);
+                    boolean isScraped = true;
+
+                    int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+                    post.setCommentCount(commentCount);
+                    int likeCount = postLikeMapper.countByPostId(post.getPostId());
+                    post.setLikeCount(likeCount);
+                    post.setLiked(isLiked);
+                    post.setScraped(isScraped);
+                    return PostListResponseDTO.of(post);
+                })
                 .toList();
     }
+
 
     @Override
     public ScrapCountResponseDTO getScrapCount(Long postId) {

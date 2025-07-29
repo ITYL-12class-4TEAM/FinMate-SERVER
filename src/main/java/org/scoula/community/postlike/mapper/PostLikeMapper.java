@@ -14,4 +14,6 @@ public interface PostLikeMapper {
     int countByPostId(@Param("postId") Long postId);
     void deleteByPostIdAndMemberId(@Param("postId") Long postId, @Param("memberId") Long memberId);
     List<PostVO> getLikedPostsByMemberId(Long memberId);
+
+    boolean existsByPostIdAndMemberId(@Param("postId") Long postId, @Param("memberId") Long memberId);
 }

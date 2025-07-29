@@ -56,7 +56,7 @@
     <select id="getList" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         ORDER BY created_at DESC
@@ -65,7 +65,7 @@
     <select id="getListByBoard" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE board_id = #{boardId}
@@ -77,7 +77,7 @@
     <select id="get" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE post_id = #{postId}
@@ -116,7 +116,7 @@
     <select id="getPostsByMemberId" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE member_id = #{memberId}
@@ -153,7 +153,7 @@
     <select id="getHotPostsByBoard" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE board_id = #{boardId}
@@ -165,7 +165,7 @@
     <select id="getAllHotPosts" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
+            created_at, last_updated,
             is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE DATE(created_at) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))

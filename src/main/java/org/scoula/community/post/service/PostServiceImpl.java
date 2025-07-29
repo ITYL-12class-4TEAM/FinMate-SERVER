@@ -16,6 +16,9 @@ import org.scoula.community.post.exception.InvalidTagException;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
+import org.scoula.community.postlike.service.PostLikeService;
+import org.scoula.community.scrap.mapper.ScrapMapper;
+import org.scoula.community.scrap.service.ScrapService;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,6 +35,9 @@ public class PostServiceImpl implements PostService {
     private final MemberMapper memberMapper;
     private final PostLikeMapper postLikeMapper;
     private final RedisTemplate<String, Object> redisObjectTemplate;
+    private final PostLikeService postLikeService;
+    private final ScrapService scrapService;
+    private final ScrapMapper scrapMapper;
 
     private static final String HOT_POSTS_ALL_KEY = "hot_posts:all";
     private static final String HOT_POSTS_BOARD_KEY_PREFIX = "hot_posts:board:";
@@ -39,10 +45,25 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostListResponseDTO> getList() {
         log.info("getList..........");
+
+        Long currentUserId = getCurrentUserIdAsLong();
+
         return postMapper.getList().stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> {
+                    boolean isLiked = false;
+                    boolean isScraped = false;
+
+                    if (currentUserId != null) {
+                        isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                        isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+                    }
+                    post.setLiked(isLiked);
+                    post.setScraped(isScraped);
+                    return PostListResponseDTO.of(post);
+                })
                 .toList();
     }
+
 
     @Override
     public PostDetailsResponseDTO get(Long postId) {
@@ -59,6 +80,17 @@ public class PostServiceImpl implements PostService {
         int likeCount = postLikeMapper.countByPostId(postId);
         log.info("likeCount: {}", likeCount);
         post.setLikeCount(likeCount);
+
+        Long currentUserId = getCurrentUserIdAsLong();
+        boolean isLiked = false;
+        boolean isScraped = false;
+
+        if (currentUserId != null) {
+            isLiked = postLikeService.isLikedByMember(postId);
+            isScraped = scrapService.isScraped(postId);
+        }
+        post.setLiked(isLiked);
+        post.setScraped(isScraped);
         return PostDetailsResponseDTO.of(post, comments);
     }
 
@@ -166,40 +198,63 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostListResponseDTO> getListByBoard(Long boardId) {
+        log.info("getListByBoard......... boardId={}, memberId={}", boardId);
+        boolean isLiked = false;
+        boolean isScraped = false;
 
-        log.info("getListByBoard......... boardId={}", boardId);
-
+        Long memberId = getCurrentUserIdAsLong();
         List<PostVO> posts = postMapper.getListByBoard(boardId);
         for (PostVO post : posts) {
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            Long postId = post.getPostId();
+
+            int commentCount = postMapper.countCommentsByPostId(postId);
             post.setCommentCount(commentCount);
 
-            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            int likeCount = postLikeMapper.countByPostId(postId);
             post.setLikeCount(likeCount);
+            
+            if(memberId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
+                isScraped = scrapMapper.existsScrap(postId, memberId);
+            }
+            post.setLiked(isLiked);
+            post.setScraped(isScraped);
         }
 
         return posts.stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> PostListResponseDTO.of(post))
                 .toList();
     }
+
 
     @Override
     public List<PostListResponseDTO> getMyPosts() {
         log.info("getMyPosts..........");
         Long memberId = getCurrentUserIdAsLong();
-
+        boolean isLiked = false;
+        boolean isScraped = false;
         List<PostVO> posts = postMapper.getPostsByMemberId(memberId);
         for (PostVO post : posts) {
+            Long postId = post.getPostId();
             int commentCount = postMapper.countCommentsByPostId(post.getPostId());
             post.setCommentCount(commentCount);
 
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
             post.setLikeCount(likeCount);
+            
+
+            if(memberId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
+                isScraped = scrapMapper.existsScrap(postId, memberId);
+            }
+            post.setLiked(isLiked);
+            post.setScraped(isScraped);
         }
 
         return posts.stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> PostListResponseDTO.of(post))
                 .toList();
+
     }
 
     @Override
@@ -222,17 +277,28 @@ public class PostServiceImpl implements PostService {
 
         // Redis에 없으면 DB에서 조회
         log.info("Redis에 데이터 없음, DB에서 조회");
+        Long memberId = getCurrentUserIdAsLong();
+        boolean isLiked = false;
+        boolean isScraped = false;
+        
         List<PostVO> posts = postMapper.getHotPostsByBoard(boardId);
         for (PostVO post : posts) {
+            Long postId = post.getPostId();
             int commentCount = postMapper.countCommentsByPostId(post.getPostId());
             post.setCommentCount(commentCount);
 
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
             post.setLikeCount(likeCount);
+            if(memberId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
+                isScraped = scrapMapper.existsScrap(postId, memberId);
+            }
+            post.setLiked(isLiked);
+            post.setScraped(isScraped);
         }
 
         List<PostListResponseDTO> result = posts.stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> PostListResponseDTO.of(post))
                 .toList();
 
         // Redis에 저장 (예외 처리 포함)
@@ -263,20 +329,30 @@ public class PostServiceImpl implements PostService {
         } catch (Exception e) {
             log.warn("Redis에서 핫게시물 조회 실패, DB에서 조회합니다: {}", e.getMessage());
         }
-
+        Long memberId = getCurrentUserIdAsLong();
+        boolean isLiked = false;
+        boolean isScraped = false;
         // Redis에 없으면 DB에서 조회
         log.info("Redis에 데이터 없음, DB에서 조회");
         List<PostVO> posts = postMapper.getAllHotPosts();
         for (PostVO post : posts) {
+            Long postId = post.getPostId();
             int commentCount = postMapper.countCommentsByPostId(post.getPostId());
             post.setCommentCount(commentCount);
 
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
             post.setLikeCount(likeCount);
+
+            if(memberId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
+                isScraped = scrapMapper.existsScrap(postId, memberId);
+            }
+            post.setLiked(isLiked);
+            post.setScraped(isScraped);
         }
 
         List<PostListResponseDTO> result = posts.stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> PostListResponseDTO.of(post))
                 .toList();
 
         try {
@@ -318,7 +394,7 @@ public class PostServiceImpl implements PostService {
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("email: {}", email);
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        return memberMapper.getMemberIdByEmail(email);
     }
     private void validateTags(String categoryTag, String productTag) {
 

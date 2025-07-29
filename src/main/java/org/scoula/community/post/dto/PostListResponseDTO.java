@@ -41,9 +41,6 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "게시글 마지막 수정 시간", example = "2025-07-23T02:45:00", position = 8)
     private LocalDateTime lastUpdated;
 
-    @ApiModelProperty(value = "핫게시판 등록 시간", example = "2025-07-23T03:00:00", position = 9)
-    private LocalDateTime hotBoardTime;
-
     @ApiModelProperty(value = "익명 여부", example = "true", position = 10)
     private boolean isAnonymous;
 
@@ -52,6 +49,9 @@ public class PostListResponseDTO {
 
     @ApiModelProperty(value = "댓글 수", example = "5", position = 12)
     private int commentCount;
+
+    private boolean isLiked;
+    private boolean isScraped;
 
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
@@ -71,13 +71,14 @@ public class PostListResponseDTO {
                 .content(vo.getContent())
                 .createdAt(vo.getCreatedAt())
                 .lastUpdated(vo.getLastUpdated())
-                .hotBoardTime(vo.getHotBoardTime())
                 .isAnonymous(vo.isAnonymous())
                 .likeCount(vo.getLikeCount())
                 .commentCount(vo.getCommentCount())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
                 .productTag(vo.getProductTag().getCode())
 //                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
+                .isLiked(vo.isLiked())
+                .isScraped(vo.isScraped())
                 .build();
     }
 
@@ -93,12 +94,13 @@ public class PostListResponseDTO {
                 .content(content)
                 .createdAt(createdAt)
                 .lastUpdated(lastUpdated)
-                .hotBoardTime(hotBoardTime)
                 .isAnonymous(isAnonymous)
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .status(postStatusEnum)
                 .productTag(productTagEnum)
+                .isLiked(isLiked)
+                .isScraped(isScraped)
                 .build();
     }
 }

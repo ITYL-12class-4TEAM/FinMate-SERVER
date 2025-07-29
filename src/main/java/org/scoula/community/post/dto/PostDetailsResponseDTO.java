@@ -46,9 +46,6 @@ public class PostDetailsResponseDTO {
     @ApiModelProperty(value = "게시글 마지막 수정 시간", example = "2025-07-23T02:45:00", position = 8)
     private LocalDateTime lastUpdated;
 
-    @ApiModelProperty(value = "핫게시판 등록 시간", example = "2025-07-23T03:00:00", position = 9)
-    private LocalDateTime hotBoardTime;
-
     @ApiModelProperty(value = "익명 여부", example = "true", position = 10)
     private boolean isAnonymous;
 
@@ -67,6 +64,8 @@ public class PostDetailsResponseDTO {
     @ApiModelProperty(value = "댓글 목록", position = 18)
     private List<CommentVO> comments;
 
+    private boolean isLiked;
+    private boolean isScraped;
 //    @ApiModelProperty(value = "첨부파일 목록", position = 14)
 //    private List<PostAttachmentVO> attaches;
 //
@@ -83,7 +82,6 @@ public class PostDetailsResponseDTO {
                 .content(vo.getContent())
                 .createdAt(vo.getCreatedAt())
                 .lastUpdated(vo.getLastUpdated())
-                .hotBoardTime(vo.getHotBoardTime())
                 .isAnonymous(vo.isAnonymous())
                 .likeCount(vo.getLikeCount())
                 .commentCount(vo.getCommentCount())
@@ -92,6 +90,8 @@ public class PostDetailsResponseDTO {
                 .commentCount(vo.getCommentCount())
                 .comments(comments)
 //                .attaches(vo.getAttachments())
+                .isLiked(vo.isLiked())
+                .isScraped(vo.isScraped())
                 .build();
     }
 
@@ -107,12 +107,13 @@ public class PostDetailsResponseDTO {
                 .content(content)
                 .createdAt(createdAt)
                 .lastUpdated(lastUpdated)
-                .hotBoardTime(hotBoardTime)
                 .isAnonymous(isAnonymous)
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .status(postStatusEnum)
                 .productTag(productTagEnum)
+                .isLiked(isLiked)
+                .isScraped(isScraped)
 //                .attachments(attaches)
                 .build();
     }

@@ -9,8 +9,11 @@ import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
+import org.scoula.community.scrap.mapper.ScrapMapper;
+import org.scoula.member.mapper.MemberMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,8 @@ public class HotPostSchedulerService {
     private final PostLikeMapper postLikeMapper;
     private final RedisTemplate<String, Object> redisObjectTemplate;
     private final BoardMapper boardMapper;
+    private final ScrapMapper scrapMapper;
+    private final MemberMapper memberMapper;
 
     private static final String HOT_POSTS_ALL_KEY = "hot_posts:all";
     private static final String HOT_POSTS_BOARD_KEY_PREFIX = "hot_posts:board:";
@@ -42,7 +47,7 @@ public class HotPostSchedulerService {
     }
 
     @Transactional(readOnly = true)
-    private void executeHotPostUpdate() {
+    public void executeHotPostUpdate() {
         try {
             updateAllHotPosts();
             updateHotPostsByBoard();
@@ -60,16 +65,29 @@ public class HotPostSchedulerService {
 
             if (hotPosts.isEmpty()) {
                 log.info("핫게시물이 없습니다.");
-                // 빈 리스트라도 캐시에 저장하여 불필요한 DB 조회 방지
                 redisObjectTemplate.opsForValue().set(HOT_POSTS_ALL_KEY, List.of(), Duration.ofDays(CACHE_DURATION_DAYS));
                 return;
             }
 
             enrichPostsWithCounts(hotPosts);
 
+            Long currentUserId = getCurrentUserIdAsLong(); // 혹은 서비스 레벨에서 특정 사용자 기준이 있으면 넣기, 없으면 null 처리
+
             List<PostListResponseDTO> hotPostDTOs = hotPosts.stream()
-                    .map(PostListResponseDTO::of)
-                    .limit(5) // 상위 5개로 제한
+                    .map(post -> {
+                        boolean isLiked = false;
+                        boolean isScraped = false;
+
+                        if (currentUserId != null) {
+                            isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                            isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+                        }
+                        post.setLiked(isLiked);
+                        post.setScraped(isScraped);
+
+                        return PostListResponseDTO.of(post);
+                    })
+                    .limit(5)
                     .toList();
 
             redisObjectTemplate.opsForValue().set(HOT_POSTS_ALL_KEY, hotPostDTOs, Duration.ofDays(CACHE_DURATION_DAYS));
@@ -79,6 +97,7 @@ public class HotPostSchedulerService {
             throw e;
         }
     }
+
 
     private void updateHotPostsByBoard() {
         List<Long> boardIds = getBoardIds();
@@ -94,6 +113,8 @@ public class HotPostSchedulerService {
     }
 
     private void updateHotPostsForBoard(Long boardId) {
+        Long currentUserId = getCurrentUserIdAsLong();  // 현재 로그인 사용자 ID 조회
+
         List<PostVO> hotPosts = postMapper.getHotPostsByBoard(boardId);
 
         if (hotPosts.isEmpty()) {
@@ -106,14 +127,26 @@ public class HotPostSchedulerService {
         enrichPostsWithCounts(hotPosts);
 
         List<PostListResponseDTO> hotPostDTOs = hotPosts.stream()
-                .map(PostListResponseDTO::of)
-                .limit(5) // 상위 5개로 제한
+                .map(post -> {
+                    boolean isLiked = false;
+                    boolean isScraped = false;
+
+                    if (currentUserId != null) {
+                        isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                        isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+                    }
+                    post.setLiked(isLiked);
+                    post.setScraped(isScraped);
+                    return PostListResponseDTO.of(post);
+                })
+                .limit(5)
                 .toList();
 
         String key = HOT_POSTS_BOARD_KEY_PREFIX + boardId;
         redisObjectTemplate.opsForValue().set(key, hotPostDTOs, Duration.ofDays(CACHE_DURATION_DAYS));
         log.info("게시판 {} 핫게시물 {} 개 Redis에 저장 완료", boardId, hotPostDTOs.size());
     }
+
 
     private void enrichPostsWithCounts(List<PostVO> posts) {
         for (PostVO post : posts) {
@@ -160,5 +193,10 @@ public class HotPostSchedulerService {
         } catch (Exception e) {
             log.error("핫게시물 캐시 삭제 실패", e);
         }
+    }
+
+    private Long getCurrentUserIdAsLong() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
 }

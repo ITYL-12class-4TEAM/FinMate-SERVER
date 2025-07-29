@@ -10,6 +10,7 @@ import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.domain.PostLikeVO;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
+import org.scoula.community.scrap.mapper.ScrapMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeMapper postLikeMapper;
     private final PostMapper postMapper;
     private final MemberMapper memberMapper;
+    private final ScrapMapper scrapMapper;
 
     @Override
     @Transactional
@@ -55,8 +57,15 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public List<PostListResponseDTO> getMyLikedPosts() {
         Long memberId = getCurrentUserIdAsLong();
+
         return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> {
+                    boolean isLiked = true; 
+                    boolean isScraped = scrapMapper.existsScrap(post.getPostId(), memberId);
+                    post.setLiked(isLiked);
+                    post.setScraped(isScraped);
+                    return PostListResponseDTO.of(post);
+                })
                 .toList();
     }
 
