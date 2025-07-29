@@ -66,6 +66,17 @@ public enum ResponseCode {
     ATTACHMENT_DOWNLOAD_SUCCESS(HttpStatus.OK, "첨부파일 다운로드 성공"),
     ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
 
+    // 스케줄러 관련
+    SCHEDULER_UPDATE_SUCCESS(HttpStatus.OK, "스케줄러 업데이트 성공"),
+    SCHEDULER_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄러 업데이트 실패"),
+
+    // 핫게시물 관련
+    HOT_POSTS_UPDATE_SUCCESS(HttpStatus.OK, "핫게시물 업데이트 성공"),
+    HOT_POSTS_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 업데이트 실패"),
+    HOT_POSTS_CACHE_CLEAR_SUCCESS(HttpStatus.OK, "핫게시물 캐시 삭제 성공"),
+    HOT_POSTS_CACHE_CLEAR_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 캐시 삭제 실패"),
+
+
     /**
      * Community - Scrap
      */

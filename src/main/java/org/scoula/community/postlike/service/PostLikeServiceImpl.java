@@ -45,8 +45,9 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public boolean isLikedByMember(Long postId, Long memberId) {
+    public boolean isLikedByMember(Long postId) {
         validatePostExists(postId);
+        Long memberId = getCurrentUserIdAsLong();
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
     }

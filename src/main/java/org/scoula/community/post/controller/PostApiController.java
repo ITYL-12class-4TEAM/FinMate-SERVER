@@ -72,25 +72,38 @@ public class PostApiController {
         return ApiResponse.success(ResponseCode.POST_DELETE_SUCCESS);
     }
 
-    @ApiOperation(value = "첨부파일 다운로드", notes = "첨부파일을 다운로드합니다.")
-    @GetMapping("/attachment/{no}/download")
-    public ApiResponse<?> downloadAttachment(@PathVariable Long no, HttpServletResponse response) throws Exception {
-        PostAttachmentVO attachmentVO = postService.getAttachment(no);
-        File file = new File(attachmentVO.getPath());
-        UploadFiles.download(response, file, attachmentVO.getFilename());
-        return ApiResponse.success(ResponseCode.ATTACHMENT_DOWNLOAD_SUCCESS);
-    }
-
-    @ApiOperation(value = "첨부파일 삭제", notes = "첨부파일을 삭제합니다.")
-    @DeleteMapping("/attachment/{no}")
-    public ApiResponse<Void> deleteAttachment(@PathVariable Long no) {
-        postService.deleteAttachment(no);
-        return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
-    }
+//    @ApiOperation(value = "첨부파일 다운로드", notes = "첨부파일을 다운로드합니다.")
+//    @GetMapping("/attachment/{no}/download")
+//    public ApiResponse<?> downloadAttachment(@PathVariable Long no, HttpServletResponse response) throws Exception {
+//        PostAttachmentVO attachmentVO = postService.getAttachment(no);
+//        File file = new File(attachmentVO.getPath());
+//        UploadFiles.download(response, file, attachmentVO.getFilename());
+//        return ApiResponse.success(ResponseCode.ATTACHMENT_DOWNLOAD_SUCCESS);
+//    }
+//
+//    @ApiOperation(value = "첨부파일 삭제", notes = "첨부파일을 삭제합니다.")
+//    @DeleteMapping("/attachment/{no}")
+//    public ApiResponse<Void> deleteAttachment(@PathVariable Long no) {
+//        postService.deleteAttachment(no);
+//        return ApiResponse.success(ResponseCode.ATTACHMENT_DELETE_SUCCESS);
+//    }
 
     @ApiOperation(value = "내가 쓴 글 조회", notes = "현재 로그인한 사용자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/my")
     public ApiResponse<List<PostListResponseDTO>> getMyPosts() {
         return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getMyPosts());
+    }
+    @ApiOperation(value = "게시판별 핫게시물 조회 (전날 기준)", notes = "전날 작성된 게시물 중 좋아요 순으로 정렬된 핫게시물을 조회합니다.")
+    @GetMapping("/board/{boardId}/hot")
+    public ApiResponse<List<PostListResponseDTO>> getHotPostsByBoard(
+            @ApiParam(value = "게시판 ID", required = true, example = "1")
+            @PathVariable Long boardId) {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getHotPostsByBoard(boardId));
+    }
+
+    @ApiOperation(value = "전체 핫게시물 조회 (전날 기준)", notes = "전날 작성된 모든 게시물 중 좋아요 순으로 정렬된 핫게시물을 조회합니다.")
+    @GetMapping("/hot")
+    public ApiResponse<List<PostListResponseDTO>> getAllHotPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getAllHotPosts());
     }
 }
