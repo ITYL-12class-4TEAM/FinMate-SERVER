@@ -33,4 +33,6 @@ void clearRefreshToken(@Param("username") String username);
 int updatePassword(@Param("memberId") Long memberId,
                    @Param("Password") String encodedPassword);
 long getMemberIdByEmail(@Param("email") String email);
+
+int getMemberAgeById(@Param("memberId") Long memberId);
 }

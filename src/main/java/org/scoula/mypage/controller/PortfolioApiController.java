@@ -2,10 +2,7 @@ package org.scoula.mypage.controller;
 
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.scoula.mypage.dto.PortfolioCreateDTO;
-import org.scoula.mypage.dto.PortfolioItemDTO;
-import org.scoula.mypage.dto.PortfolioSummaryDTO;
-import org.scoula.mypage.dto.PortfolioUpdateDTO;
+import org.scoula.mypage.dto.*;
 import org.scoula.mypage.service.PortfolioService;
 import org.scoula.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -64,10 +61,12 @@ public class PortfolioApiController {
         return ApiResponse.success(ResponseCode.PORTFOLIO_DELETE_SUCCESS);
     }
 
-    @ApiOperation(value = "포트폴리오 요약 조회", notes = "로그인한 사용자의 포트폴리오 통계 정보를 조회합니다.")
+    @ApiOperation(value = "포트폴리오 요약 + 비교 통계 조회",
+            notes = "로그인한 사용자의 포트폴리오 통계와 비교 통계(연령대, 금액대, WMTI)를 함께 조회합니다.")
     @GetMapping("/summary")
-    public ApiResponse<List<PortfolioSummaryDTO>> getSummary() {
-        List<PortfolioSummaryDTO> result = portfolioService.getSummary();
+    public ApiResponse<PortfolioSummaryResponseDTO> getSummary() {
+        PortfolioSummaryResponseDTO result = portfolioService.getSummaryWithComparison();
         return ApiResponse.success(ResponseCode.PORTFOLIO_SUMMARY_SUCCESS, result);
     }
+
 }

@@ -36,4 +36,34 @@ public interface PortfolioMapper {
     // 포트폴리오 요약 정보 조회
     @MapKey("categoryName")
     List<Map<String, Object>> getPortfolioSummary(@Param("memberId") Long memberId);
+
+    // ========== 비교 통계를 위한 추가 메서드들 ==========
+
+    // 같은 나이대 사용자들의 카테고리별 평균 비율
+    List<Map<String, Object>> getAgeGroupComparison(@Param("memberId") Long memberId,
+                                                    @Param("ageMin") int ageMin,
+                                                    @Param("ageMax") int ageMax);
+
+    // 같은 자산 규모 사용자들의 카테고리별 평균 비율
+    List<Map<String, Object>> getAmountGroupComparison(@Param("memberId") Long memberId,
+                                                       @Param("amountMin") long amountMin,
+                                                       @Param("amountMax") long amountMax);
+
+    // 같은 WMTI 사용자들의 카테고리별 평균 비율
+    List<Map<String, Object>> getWMTIComparison(@Param("memberId") Long memberId,
+                                                @Param("wmtiCode") String wmtiCode);
+
+    // 사용자의 총 자산 조회 (자산 그룹 분류용)
+    Long getTotalAssetsByMemberId(@Param("memberId") Long memberId);
+
+    // 사용자의 WMTI 코드 조회
+    String getWmtiCodeByMemberId(@Param("memberId") Long memberId);
+
+    // 사용자의 나이 조회 (나이대 분류용)
+    Integer getAgeByMemberId(@Param("memberId") Long memberId);
+
+
+    // 상품 ID와 기간에 따른 옵션 ID 조회
+    Long findOptionIdByProductIdAndTerm(@Param("productId") Long productId, @Param("saveTerm") Integer saveTerm);
 }
+

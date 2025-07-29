@@ -28,4 +28,21 @@ public class PortfolioItemDTO {
 
     @ApiModelProperty(value = "메모", example = "장기 보유 예정")
     private String memo;
+
+    // 🔽 추가 필드들 🔽
+
+    @ApiModelProperty(value = "가입 기간 (개월)", example = "12")
+    private Integer saveTerm;
+
+    @ApiModelProperty(value = "사용자 입력 금리 (%)", example = "3.2")
+    private Double customRate;
+
+    @ApiModelProperty(value = "예상 세전 이자 (원)", example = "160000")
+    private Long estimatedInterest;
+
+    @ApiModelProperty(value = "예상 세후 수령액 (원)", example = "5136800")
+    private Long estimatedAfterTax;
+
+    @ApiModelProperty(value = "만기일 (yyyy-MM-dd)", example = "2025-08-01")
+    private String maturityDate;
 }

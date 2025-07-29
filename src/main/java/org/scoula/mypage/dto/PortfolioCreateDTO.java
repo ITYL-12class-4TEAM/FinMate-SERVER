@@ -25,4 +25,11 @@ public class PortfolioCreateDTO {
 
     @ApiModelProperty(value = "메모", example = "3년간 유지 예정")
     private String memo;
+
+    @ApiModelProperty(value = "사용자 입력 우대 금리 (%)", example = "3.7")
+    private Double customRate;
+
+    @ApiModelProperty(value = "가입 기간 (개월)", example = "12")
+    private Integer saveTrm;
+
 }
