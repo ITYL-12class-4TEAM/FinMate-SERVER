@@ -24,8 +24,9 @@ public class CommentResponseDTO {
     private LocalDateTime createdAt;
     @ApiModelProperty(value = "좋아요 수", example = "15", position = 11)
     private int likeCount;
+    private boolean isLiked;
 
-    public static CommentResponseDTO of(CommentVO vo) {
+    public static CommentResponseDTO of(CommentVO vo, boolean isLiked) {
         return vo == null ? null : CommentResponseDTO.builder()
                 .commentId(vo.getCommentId())
                 .postId(vo.getPostId())
@@ -35,6 +36,7 @@ public class CommentResponseDTO {
                 .parentComment(vo.getParentComment())
                 .createdAt(vo.getCreatedAt())
                 .likeCount(vo.getLikeCount())
+                .isLiked(isLiked)
                 .build();
     }
 

@@ -41,9 +41,6 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "게시글 마지막 수정 시간", example = "2025-07-23T02:45:00", position = 8)
     private LocalDateTime lastUpdated;
 
-    @ApiModelProperty(value = "핫게시판 등록 시간", example = "2025-07-23T03:00:00", position = 9)
-    private LocalDateTime hotBoardTime;
-
     @ApiModelProperty(value = "익명 여부", example = "true", position = 10)
     private boolean isAnonymous;
 
@@ -71,7 +68,6 @@ public class PostListResponseDTO {
                 .content(vo.getContent())
                 .createdAt(vo.getCreatedAt())
                 .lastUpdated(vo.getLastUpdated())
-                .hotBoardTime(vo.getHotBoardTime())
                 .isAnonymous(vo.isAnonymous())
                 .likeCount(vo.getLikeCount())
                 .commentCount(vo.getCommentCount())
@@ -93,7 +89,6 @@ public class PostListResponseDTO {
                 .content(content)
                 .createdAt(createdAt)
                 .lastUpdated(lastUpdated)
-                .hotBoardTime(hotBoardTime)
                 .isAnonymous(isAnonymous)
                 .likeCount(likeCount)
                 .commentCount(commentCount)

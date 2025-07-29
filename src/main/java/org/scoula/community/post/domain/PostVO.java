@@ -20,7 +20,6 @@ public class PostVO {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
-    private LocalDateTime hotBoardTime;
     private boolean isAnonymous;
     private int likeCount;
     private int commentCount;
