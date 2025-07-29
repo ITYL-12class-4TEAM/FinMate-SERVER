@@ -50,6 +50,9 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "댓글 수", example = "5", position = 12)
     private int commentCount;
 
+    private boolean isLiked;
+    private boolean isScraped;
+
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
 
@@ -74,6 +77,8 @@ public class PostListResponseDTO {
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
                 .productTag(vo.getProductTag().getCode())
 //                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
+                .isLiked(vo.isLiked())
+                .isScraped(vo.isScraped())
                 .build();
     }
 
@@ -94,6 +99,8 @@ public class PostListResponseDTO {
                 .commentCount(commentCount)
                 .status(postStatusEnum)
                 .productTag(productTagEnum)
+                .isLiked(isLiked)
+                .isScraped(isScraped)
                 .build();
     }
 }

@@ -46,12 +46,10 @@
                p.content,
                p.created_at,
                p.last_updated,
-               p.hot_board_time,
                p.is_anonymous,
                p.like_count,
                p.comment_count,
                p.status,
-               p.category_tag,
                p.product_tag
         FROM post p
                  INNER JOIN scrap ps ON p.post_id = ps.post_id

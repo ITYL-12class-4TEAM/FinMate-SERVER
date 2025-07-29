@@ -22,6 +22,8 @@ public class PostVO {
     private LocalDateTime lastUpdated;
     private boolean isAnonymous;
     private int likeCount;
+    private boolean isLiked;
+    private boolean isScraped;
     private int commentCount;
     private PostStatus status;
     private ProductTag productTag;

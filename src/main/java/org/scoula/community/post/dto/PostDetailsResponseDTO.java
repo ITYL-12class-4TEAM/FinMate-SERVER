@@ -64,6 +64,8 @@ public class PostDetailsResponseDTO {
     @ApiModelProperty(value = "댓글 목록", position = 18)
     private List<CommentVO> comments;
 
+    private boolean isLiked;
+    private boolean isScraped;
 //    @ApiModelProperty(value = "첨부파일 목록", position = 14)
 //    private List<PostAttachmentVO> attaches;
 //
@@ -88,6 +90,8 @@ public class PostDetailsResponseDTO {
                 .commentCount(vo.getCommentCount())
                 .comments(comments)
 //                .attaches(vo.getAttachments())
+                .isLiked(vo.isLiked())
+                .isScraped(vo.isScraped())
                 .build();
     }
 
@@ -108,6 +112,8 @@ public class PostDetailsResponseDTO {
                 .commentCount(commentCount)
                 .status(postStatusEnum)
                 .productTag(productTagEnum)
+                .isLiked(isLiked)
+                .isScraped(isScraped)
 //                .attachments(attaches)
                 .build();
     }
