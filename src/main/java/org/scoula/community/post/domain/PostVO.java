@@ -21,10 +21,11 @@ public class PostVO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private boolean isAnonymous;
-    private int likeCount;
     private boolean isLiked;
     private boolean isScraped;
-    private int commentCount;
+    private int likeCount = 0;       // 기본 0
+    private int commentCount = 0;    // 기본 0
+    private int scrapCount = 0;      // 기본 0
     private PostStatus status;
     private ProductTag productTag;
     private List<PostAttachmentVO> attachments;

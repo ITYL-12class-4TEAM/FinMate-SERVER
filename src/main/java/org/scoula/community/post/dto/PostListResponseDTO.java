@@ -52,6 +52,7 @@ public class PostListResponseDTO {
 
     private boolean isLiked;
     private boolean isScraped;
+    private int scrapCount;
 
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
@@ -79,6 +80,7 @@ public class PostListResponseDTO {
 //                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
                 .isLiked(vo.isLiked())
                 .isScraped(vo.isScraped())
+                .scrapCount(vo.getScrapCount())
                 .build();
     }
 
@@ -101,6 +103,7 @@ public class PostListResponseDTO {
                 .productTag(productTagEnum)
                 .isLiked(isLiked)
                 .isScraped(isScraped)
+                .scrapCount(scrapCount)
                 .build();
     }
 }

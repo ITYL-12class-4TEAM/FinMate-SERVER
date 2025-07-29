@@ -60,8 +60,21 @@ public class PostLikeServiceImpl implements PostLikeService {
 
         return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
                 .map(post -> {
-                    boolean isLiked = true; 
-                    boolean isScraped = scrapMapper.existsScrap(post.getPostId(), memberId);
+                    Long currentUserId = getCurrentUserIdAsLong();
+                    int likeCount = postLikeMapper.countByPostId(post.getPostId());
+                    int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+                    int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+
+                    post.setLikeCount(likeCount);
+                    post.setCommentCount(commentCount);
+                    post.setScrapCount(scrapCount); // scrapCount 필드 및 메서드 필요
+
+                    boolean isLiked = false;
+                    boolean isScraped = false;
+                    if (currentUserId != null) {
+                        isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                        isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+                    }
                     post.setLiked(isLiked);
                     post.setScraped(isScraped);
                     return PostListResponseDTO.of(post);
