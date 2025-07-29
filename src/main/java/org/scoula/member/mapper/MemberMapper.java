@@ -38,4 +38,12 @@ int deleteMember(@Param("memberId") Long memberId);
 
 void updateProfileImage(@Param("memberId") Long memberId,
                         @Param("profileImage") String profileImage);
+
+// 소셜 로그인 관련 메서드들
+MemberVO findByEmail(String email);
+MemberVO findBySocialTypeAndSocialId(@Param("socialType") String socialType,
+                                    @Param("socialId") String socialId);
+void insertSocialMember(MemberVO member);
+void updateSocialMember(MemberVO member);
+void completeSocialSignup(MemberVO member);
 }

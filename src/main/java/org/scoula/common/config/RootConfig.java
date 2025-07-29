@@ -19,10 +19,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -39,6 +41,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
         "org.scoula.community.commentlike.mapper",
         "org.scoula.member.mapper"
 })
+
 public class RootConfig {
 
   @Value("${jdbc.driver}")
@@ -149,5 +152,9 @@ public class RootConfig {
   public DataSourceTransactionManager transactionManager(DataSource dataSource) {
     DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource);
     return manager;
+  }
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 }

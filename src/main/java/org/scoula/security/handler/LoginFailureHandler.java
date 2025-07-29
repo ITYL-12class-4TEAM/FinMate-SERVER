@@ -1,11 +1,13 @@
 package org.scoula.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+@Log4j2
 @Component
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
@@ -24,6 +26,24 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
                                         AuthenticationException exception) throws IOException {
+
+        String requestURI = request.getRequestURI();
+        boolean isOAuth2 = requestURI.contains("/oauth2/") || requestURI.contains("/login/oauth2/code/");
+
+        if (isOAuth2) {
+            log.error("[DEBUG] OAuth2 로그인 실패!");
+            log.error("[DEBUG] 요청 URI: {}", requestURI);
+            log.error("[DEBUG] 실패 원인: {}", exception.getMessage());
+            log.error("[DEBUG] 예외 타입: {}", exception.getClass().getSimpleName());
+
+            // 주소를 5173으로 통일
+            response.sendRedirect("http://localhost:5173/login?error=oauth2_failed&message=" +
+                    exception.getMessage());
+            return;
+        } else {
+            log.error("[DEBUG] 일반 로그인 실패: {}", exception.getMessage());
+        }
+
 
         String errorCode = "INVALID_CREDENTIALS";
         int status = HttpStatus.UNAUTHORIZED.value(); // 기본: 401

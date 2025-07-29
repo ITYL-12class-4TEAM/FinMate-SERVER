@@ -32,6 +32,8 @@ public class MemberVO {
     private String accessToken;
     private String refreshToken;
     private Boolean receivePushNotification;
+    private String status;
+    private Boolean isNewMember;
 //    private List<AuthVO> authList;        // 권한 목록, join 처리 필요
 
 }
