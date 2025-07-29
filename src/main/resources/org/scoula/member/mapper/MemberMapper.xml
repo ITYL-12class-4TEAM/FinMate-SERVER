@@ -121,11 +121,11 @@
     <insert id="insertSocialMember" parameterType="org.scoula.security.account.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         INSERT INTO member (
             profile_image, username, level, nickname, email,
-            role, social_type, social_id, status, is_new_member, created_at
+            social_type, social_id, role, status, is_new_member, created_at
         ) VALUES (
-            #{profileImage}, #{username}, #{level}, #{nickname}, #{email},
-            #{role}, #{socialType}, #{socialId}, #{status}, #{isNewMember}, #{createdAt}
-        )
+                     #{profileImage}, #{username}, #{level}, #{nickname}, #{email},
+                     #{socialType}, #{socialId}, 'USER', 'ACTIVE', #{isNewMember}, #{createdAt}
+                 )
     </insert>
 
     <!-- 소셜 회원 정보 업데이트 -->

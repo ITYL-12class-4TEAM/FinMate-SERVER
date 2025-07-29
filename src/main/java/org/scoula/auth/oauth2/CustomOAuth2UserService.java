@@ -86,9 +86,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .profileImage(oauth2UserInfo.getImageUrl())
                 .socialType(registrationId)
                 .socialId(oauth2UserInfo.getId())
-//                .role("USER")
-//                .level(1)
-//                .status("ACTIVE")
+                .role("USER")
+                .level(1)
+                .status("ACTIVE")
                 .isNewMember(true)  // 신규 회원 표시
                 .createdAt(new Date())
                 .build();
