@@ -12,7 +12,6 @@ import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
 import org.scoula.community.commentlike.mapper.CommentLikeMapper;
 import org.scoula.community.commentlike.service.CommentLikeService;
-import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.member.mapper.MemberMapper;

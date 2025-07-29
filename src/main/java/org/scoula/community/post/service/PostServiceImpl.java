@@ -50,13 +50,21 @@ public class PostServiceImpl implements PostService {
 
         return postMapper.getList().stream()
                 .map(post -> {
+                    int likeCount = postLikeMapper.countByPostId(post.getPostId());
+                    int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+                    int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId()); // scrapCount 메서드 필요
+
+                    post.setLikeCount(likeCount);
+                    post.setCommentCount(commentCount);
+                    post.setScrapCount(scrapCount);
+
                     boolean isLiked = false;
                     boolean isScraped = false;
-
                     if (currentUserId != null) {
                         isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
                         isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
                     }
+
                     post.setLiked(isLiked);
                     post.setScraped(isScraped);
                     return PostListResponseDTO.of(post);
@@ -75,19 +83,20 @@ public class PostServiceImpl implements PostService {
 //        post.setAttachments(attachments);
 
         List<CommentVO> comments = postMapper.getCommentsByPostId(postId);
-        int commentCount = postMapper.countCommentsByPostId(postId);
-        post.setCommentCount(commentCount);
-        int likeCount = postLikeMapper.countByPostId(postId);
-        log.info("likeCount: {}", likeCount);
-        post.setLikeCount(likeCount);
-
         Long currentUserId = getCurrentUserIdAsLong();
+        int likeCount = postLikeMapper.countByPostId(post.getPostId());
+        int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+        int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+
+        post.setLikeCount(likeCount);
+        post.setCommentCount(commentCount);
+        post.setScrapCount(scrapCount);
+
         boolean isLiked = false;
         boolean isScraped = false;
-
         if (currentUserId != null) {
-            isLiked = postLikeService.isLikedByMember(postId);
-            isScraped = scrapService.isScraped(postId);
+            isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+            isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
         }
         post.setLiked(isLiked);
         post.setScraped(isScraped);
@@ -207,15 +216,18 @@ public class PostServiceImpl implements PostService {
         for (PostVO post : posts) {
             Long postId = post.getPostId();
 
-            int commentCount = postMapper.countCommentsByPostId(postId);
-            post.setCommentCount(commentCount);
+            Long currentUserId = getCurrentUserIdAsLong();
+            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
 
-            int likeCount = postLikeMapper.countByPostId(postId);
             post.setLikeCount(likeCount);
-            
-            if(memberId != null) {
-                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
-                isScraped = scrapMapper.existsScrap(postId, memberId);
+            post.setCommentCount(commentCount);
+            post.setScrapCount(scrapCount);
+
+            if (currentUserId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
             }
             post.setLiked(isLiked);
             post.setScraped(isScraped);
@@ -236,16 +248,18 @@ public class PostServiceImpl implements PostService {
         List<PostVO> posts = postMapper.getPostsByMemberId(memberId);
         for (PostVO post : posts) {
             Long postId = post.getPostId();
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
-            post.setCommentCount(commentCount);
-
+            Long currentUserId = getCurrentUserIdAsLong();
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
-            post.setLikeCount(likeCount);
-            
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
 
-            if(memberId != null) {
-                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
-                isScraped = scrapMapper.existsScrap(postId, memberId);
+            post.setLikeCount(likeCount);
+            post.setCommentCount(commentCount);
+            post.setScrapCount(scrapCount);
+
+            if (currentUserId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
             }
             post.setLiked(isLiked);
             post.setScraped(isScraped);
@@ -284,14 +298,18 @@ public class PostServiceImpl implements PostService {
         List<PostVO> posts = postMapper.getHotPostsByBoard(boardId);
         for (PostVO post : posts) {
             Long postId = post.getPostId();
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
-            post.setCommentCount(commentCount);
-
+            Long currentUserId = getCurrentUserIdAsLong();
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+
             post.setLikeCount(likeCount);
-            if(memberId != null) {
-                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
-                isScraped = scrapMapper.existsScrap(postId, memberId);
+            post.setCommentCount(commentCount);
+            post.setScrapCount(scrapCount);
+
+            if (currentUserId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
             }
             post.setLiked(isLiked);
             post.setScraped(isScraped);
@@ -337,15 +355,18 @@ public class PostServiceImpl implements PostService {
         List<PostVO> posts = postMapper.getAllHotPosts();
         for (PostVO post : posts) {
             Long postId = post.getPostId();
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
-            post.setCommentCount(commentCount);
-
+            Long currentUserId = getCurrentUserIdAsLong();
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
-            post.setLikeCount(likeCount);
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
 
-            if(memberId != null) {
-                isLiked = postLikeMapper.existsByPostIdAndMemberId(postId, memberId);
-                isScraped = scrapMapper.existsScrap(postId, memberId);
+            post.setLikeCount(likeCount);
+            post.setCommentCount(commentCount);
+            post.setScrapCount(scrapCount);
+
+            if (currentUserId != null) {
+                isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
             }
             post.setLiked(isLiked);
             post.setScraped(isScraped);

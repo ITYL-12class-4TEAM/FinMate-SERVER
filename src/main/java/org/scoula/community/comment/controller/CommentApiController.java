@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import org.scoula.community.comment.dto.CommentCreateRequestDTO;
 import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.service.CommentService;
-import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.springframework.web.bind.annotation.DeleteMapping;

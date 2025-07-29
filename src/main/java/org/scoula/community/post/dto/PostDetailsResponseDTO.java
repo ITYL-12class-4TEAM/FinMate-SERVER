@@ -66,6 +66,8 @@ public class PostDetailsResponseDTO {
 
     private boolean isLiked;
     private boolean isScraped;
+    private int scrapCount;
+
 //    @ApiModelProperty(value = "첨부파일 목록", position = 14)
 //    private List<PostAttachmentVO> attaches;
 //
@@ -92,6 +94,7 @@ public class PostDetailsResponseDTO {
 //                .attaches(vo.getAttachments())
                 .isLiked(vo.isLiked())
                 .isScraped(vo.isScraped())
+                .scrapCount(vo.getScrapCount())
                 .build();
     }
 
@@ -115,6 +118,7 @@ public class PostDetailsResponseDTO {
                 .isLiked(isLiked)
                 .isScraped(isScraped)
 //                .attachments(attaches)
+                .scrapCount(scrapCount)
                 .build();
     }
 }
