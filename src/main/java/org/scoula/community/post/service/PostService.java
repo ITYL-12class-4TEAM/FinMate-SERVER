@@ -18,4 +18,6 @@ public interface PostService {
 //    public boolean deleteAttachment(Long postId);
     public List<PostListResponseDTO> getListByBoard(Long boardId);
     List<PostListResponseDTO> getMyPosts();
+    List<PostListResponseDTO> getHotPostsByBoard(Long boardId);
+    List<PostListResponseDTO> getAllHotPosts();
 }

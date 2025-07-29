@@ -11,4 +11,5 @@ public interface BoardMapper {
     public BoardVO get(Long no);
     public List<BoardVO> getList();
     public void create(BoardVO board);
+    List<Long> getAllBoardIds();
 }

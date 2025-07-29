@@ -93,4 +93,17 @@ public class PostApiController {
     public ApiResponse<List<PostListResponseDTO>> getMyPosts() {
         return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getMyPosts());
     }
+    @ApiOperation(value = "게시판별 핫게시물 조회 (전날 기준)", notes = "전날 작성된 게시물 중 좋아요 순으로 정렬된 핫게시물을 조회합니다.")
+    @GetMapping("/board/{boardId}/hot")
+    public ApiResponse<List<PostListResponseDTO>> getHotPostsByBoard(
+            @ApiParam(value = "게시판 ID", required = true, example = "1")
+            @PathVariable Long boardId) {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getHotPostsByBoard(boardId));
+    }
+
+    @ApiOperation(value = "전체 핫게시물 조회 (전날 기준)", notes = "전날 작성된 모든 게시물 중 좋아요 순으로 정렬된 핫게시물을 조회합니다.")
+    @GetMapping("/hot")
+    public ApiResponse<List<PostListResponseDTO>> getAllHotPosts() {
+        return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getAllHotPosts());
+    }
 }

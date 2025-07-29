@@ -38,4 +38,7 @@ public interface PostMapper {
 
     PostVO findOldestPostByBoardId(Long hotBoardId);
     int countPostsByBoardId(Long hotBoardId);
+
+    List<PostVO> getHotPostsByBoard(Long boardId);
+    List<PostVO> getAllHotPosts();
 }

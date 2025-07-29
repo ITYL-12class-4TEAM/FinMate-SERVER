@@ -1,32 +1,27 @@
 package org.scoula.community.post.service;
 
-import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.auth.exception.AccessDeniedException;
-import org.scoula.common.util.UploadFiles;
 import org.scoula.community.comment.domain.CommentVO;
-import org.scoula.community.post.domain.CategoryTag;
-import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.domain.ProductTag;
 import org.scoula.community.post.dto.PostCreateRequestDTO;
 import org.scoula.community.post.dto.PostDetailsResponseDTO;
 import org.scoula.community.post.dto.PostListResponseDTO;
 import org.scoula.community.post.dto.PostUpdateRequestDTO;
-import org.scoula.community.post.exception.AttachmentNotFound;
 import org.scoula.community.post.exception.InvalidTagException;
 import org.scoula.community.post.exception.PostNotFoundException;
-import org.scoula.community.post.exception.UploadFailException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Log4j2
@@ -36,6 +31,10 @@ public class PostServiceImpl implements PostService {
     final private PostMapper postMapper;
     private final MemberMapper memberMapper;
     private final PostLikeMapper postLikeMapper;
+    private final RedisTemplate<String, Object> redisObjectTemplate;
+
+    private static final String HOT_POSTS_ALL_KEY = "hot_posts:all";
+    private static final String HOT_POSTS_BOARD_KEY_PREFIX = "hot_posts:board:";
 
     @Override
     public List<PostListResponseDTO> getList() {
@@ -67,7 +66,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostDetailsResponseDTO create(PostCreateRequestDTO postCreateRequestDTO) {
         log.info("create........." + postCreateRequestDTO);
-        validateTags(postCreateRequestDTO.getCategoryTag(), postCreateRequestDTO.getProductTag());
 
 
         PostVO vo = postCreateRequestDTO.toVo();
@@ -84,7 +82,6 @@ public class PostServiceImpl implements PostService {
     public PostDetailsResponseDTO update(Long postId, PostUpdateRequestDTO postUpdateRequestDTO) {
         log.info("update........." + postUpdateRequestDTO);
         validatePostExists(postId);
-        validateTags(postUpdateRequestDTO.getCategoryTag(), postUpdateRequestDTO.getProductTag());
         PostVO post = postMapper.get(postId);
 
         Long memberId = getCurrentUserIdAsLong();
@@ -204,6 +201,94 @@ public class PostServiceImpl implements PostService {
                 .map(PostListResponseDTO::of)
                 .toList();
     }
+
+    @Override
+    public List<PostListResponseDTO> getHotPostsByBoard(Long boardId) {
+        log.info("getHotPostsByBoard......... boardId={}", boardId);
+
+        String key = HOT_POSTS_BOARD_KEY_PREFIX + boardId;
+
+        // Redis에서 먼저 조회
+        try {
+            @SuppressWarnings("unchecked")
+            List<PostListResponseDTO> cachedPosts = (List<PostListResponseDTO>) redisObjectTemplate.opsForValue().get(key);
+            if (cachedPosts != null && !cachedPosts.isEmpty()) {
+                log.info("Redis에서 게시판 {} 핫게시물 조회 성공: {} 개", boardId, cachedPosts.size());
+                return cachedPosts;
+            }
+        } catch (Exception e) {
+            log.warn("Redis에서 핫게시물 조회 실패, DB에서 조회합니다: {}", e.getMessage());
+        }
+
+        // Redis에 없으면 DB에서 조회
+        log.info("Redis에 데이터 없음, DB에서 조회");
+        List<PostVO> posts = postMapper.getHotPostsByBoard(boardId);
+        for (PostVO post : posts) {
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            post.setCommentCount(commentCount);
+
+            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            post.setLikeCount(likeCount);
+        }
+
+        List<PostListResponseDTO> result = posts.stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+
+        // Redis에 저장 (예외 처리 포함)
+        try {
+            redisObjectTemplate.opsForValue().set(key, result, Duration.ofDays(1));
+            log.info("게시판 {} 핫게시물 {} 개 Redis에 저장 완료", boardId, result.size());
+        } catch (Exception e) {
+            log.warn("Redis 저장 실패: {}", e.getMessage());
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<PostListResponseDTO> getAllHotPosts() {
+        log.info("getAllHotPosts..........");
+
+        String key = HOT_POSTS_ALL_KEY;
+
+        // Redis에서 먼저 조회
+        try {
+            @SuppressWarnings("unchecked")
+            List<PostListResponseDTO> cachedPosts = (List<PostListResponseDTO>) redisObjectTemplate.opsForValue().get(key);
+            if (cachedPosts != null && !cachedPosts.isEmpty()) {
+                log.info("Redis에서 전체 핫게시물 조회 성공: {} 개", cachedPosts.size());
+                return cachedPosts;
+            }
+        } catch (Exception e) {
+            log.warn("Redis에서 핫게시물 조회 실패, DB에서 조회합니다: {}", e.getMessage());
+        }
+
+        // Redis에 없으면 DB에서 조회
+        log.info("Redis에 데이터 없음, DB에서 조회");
+        List<PostVO> posts = postMapper.getAllHotPosts();
+        for (PostVO post : posts) {
+            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+            post.setCommentCount(commentCount);
+
+            int likeCount = postLikeMapper.countByPostId(post.getPostId());
+            post.setLikeCount(likeCount);
+        }
+
+        List<PostListResponseDTO> result = posts.stream()
+                .map(PostListResponseDTO::of)
+                .toList();
+
+        try {
+            redisObjectTemplate.opsForValue().set(key, result, Duration.ofDays(1));
+            log.info("전체 핫게시물 {} 개 Redis에 저장 완료", result.size());
+        } catch (Exception e) {
+            log.warn("Redis 저장 실패: {}", e.getMessage());
+        }
+
+        return result;
+    }
+
 //
 //    private void upload(Long bno, List<MultipartFile> files) {
 //        for (MultipartFile part : files) {
@@ -236,9 +321,6 @@ public class PostServiceImpl implements PostService {
         return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
     }
     private void validateTags(String categoryTag, String productTag) {
-        if (categoryTag != null && !CategoryTag.isValidCode(categoryTag)) {
-            throw new InvalidTagException(ResponseCode.INVALID_CATEGORY_TAG);
-        }
 
         if (productTag != null && !ProductTag.isValidCode(productTag)) {
             throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);

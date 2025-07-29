@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.scoula.community.post.domain.CategoryTag;
-import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostStatus;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.domain.ProductTag;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -60,9 +56,6 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
 
-    @ApiModelProperty(value = "카테고리 태그 이름", example = "RECOMMEND", position = 17)
-    private String categoryTag;
-
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
 
@@ -83,7 +76,6 @@ public class PostListResponseDTO {
                 .likeCount(vo.getLikeCount())
                 .commentCount(vo.getCommentCount())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
-                .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
 //                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
                 .build();
@@ -91,7 +83,6 @@ public class PostListResponseDTO {
 
     public PostVO toVo() {
         PostStatus postStatusEnum = PostStatus.fromCode(status);
-        CategoryTag categoryTagEnum = CategoryTag.fromCode(categoryTag);
         ProductTag productTagEnum = ProductTag.fromCode(productTag);
 
         return PostVO.builder()
@@ -107,7 +98,6 @@ public class PostListResponseDTO {
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .status(postStatusEnum)
-                .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
                 .build();
     }

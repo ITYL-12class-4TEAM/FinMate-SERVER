@@ -25,7 +25,6 @@ public class PostVO {
     private int likeCount;
     private int commentCount;
     private PostStatus status;
-    private CategoryTag categoryTag;
     private ProductTag productTag;
     private List<PostAttachmentVO> attachments;
 

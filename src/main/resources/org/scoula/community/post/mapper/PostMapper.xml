@@ -9,10 +9,10 @@
     <insert id="create" parameterType="org.scoula.community.post.domain.PostVO" useGeneratedKeys="true" keyProperty="postId">
         INSERT INTO finmate.post (
             board_id, member_id, title, content, created_at, last_updated,
-            is_anonymous, status, category_tag, product_tag
+            is_anonymous, status, product_tag
         ) VALUES (
                      #{boardId}, #{memberId}, #{title}, #{content}, NOW(), NOW(),
-                     #{anonymous}, COALESCE(#{status.code}, 'NORMAL'), #{categoryTag}, #{productTag}
+                     #{anonymous}, COALESCE(#{status.code}, 'NORMAL'), #{productTag}
                  )
     </insert>
 
@@ -34,7 +34,6 @@
             last_updated = NOW(),
             is_anonymous = #{anonymous},
             status = #{status.code},
-            category_tag = #{categoryTag.code},
             product_tag = #{productTag.code}
         WHERE post_id = #{postId}
     </update>
@@ -58,7 +57,7 @@
         SELECT
             post_id, board_id, member_id, title, content,
             created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         ORDER BY created_at DESC
     </select>
@@ -67,7 +66,7 @@
         SELECT
             post_id, board_id, member_id, title, content,
             created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE board_id = #{boardId}
         ORDER BY created_at DESC
@@ -79,7 +78,7 @@
         SELECT
             post_id, board_id, member_id, title, content,
             created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE post_id = #{postId}
     </select>
@@ -118,7 +117,7 @@
         SELECT
             post_id, board_id, member_id, title, content,
             created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE member_id = #{memberId}
         ORDER BY created_at DESC
@@ -150,5 +149,28 @@
         SET comment_count = GREATEST(comment_count - #{count}, 0)
         WHERE post_id = #{postId}
     </update>
+
+    <select id="getHotPostsByBoard" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT
+            post_id, board_id, member_id, title, content,
+            created_at, last_updated, hot_board_time,
+            is_anonymous, like_count, comment_count, status, product_tag
+        FROM finmate.post
+        WHERE board_id = #{boardId}
+          AND DATE(created_at) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))  -- 전날 작성된 게시물
+        ORDER BY like_count DESC, created_at DESC
+        LIMIT 5  -- 상위 10개만
+    </select>
+
+    <select id="getAllHotPosts" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT
+            post_id, board_id, member_id, title, content,
+            created_at, last_updated, hot_board_time,
+            is_anonymous, like_count, comment_count, status, product_tag
+        FROM finmate.post
+        WHERE DATE(created_at) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))
+        ORDER BY like_count DESC, created_at DESC
+        LIMIT 5
+    </select>
 
 </mapper>
