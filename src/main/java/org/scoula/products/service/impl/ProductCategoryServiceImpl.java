@@ -50,7 +50,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         // 2. 모든 카테고리 ID 목록 추출
         List<Long> categoryIds = categories.stream()
-                .map(CategoryDTO::getId)
+                .map(category -> category.getCategoryId())
                 .collect(Collectors.toList());
 
         // 3. 모든 하위 카테고리를 한 번에 조회
@@ -62,7 +62,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         // 5. 각 카테고리에 해당하는 하위 카테고리 할당
         for (CategoryDTO category : categories) {
-            List<SubcategoryDTO> subcategories = subcategoriesByCategory.getOrDefault(category.getId(), Collections.emptyList());
+            List<SubcategoryDTO> subcategories = subcategoriesByCategory.getOrDefault(category.getCategoryId(), Collections.emptyList());
             category.setSubcategories(subcategories);
         }
 
@@ -86,7 +86,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         if (map == null) return null;
 
         return CategoryDTO.builder()
-                .id(Long.valueOf(map.get("id").toString()))
+                .categoryId(Long.valueOf(map.get("id").toString()))
                 .name((String) map.get("name"))
                 .description((String) map.get("description"))
                 .build();
@@ -99,7 +99,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         if (map == null) return null;
 
         return SubcategoryDTO.builder()
-                .id(Long.valueOf(map.get("id").toString()))
+                .categoryId(Long.valueOf(map.get("id").toString()))
                 .categoryId(Long.valueOf(map.get("categoryId").toString()))
                 .name((String) map.get("name"))
                 .description((String) map.get("description"))

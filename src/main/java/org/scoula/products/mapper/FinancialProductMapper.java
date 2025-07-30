@@ -4,6 +4,8 @@ import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.scoula.products.dto.response.ProductDTO;
+import org.scoula.products.dto.response.SubcategoryDTO;
 import org.scoula.products.dto.response.deposit.DepositOptionDTO;
 import org.scoula.products.dto.response.deposit.DepositProductDTO;
 import org.scoula.products.dto.response.pension.PensionOptionDTO;
@@ -18,12 +20,11 @@ public interface FinancialProductMapper {
     /**
      * 필터 조건에 맞는 금융 상품 목록 조회
      */
-    @MapKey("product_id")
-    List<Map<String, Object>> findProducts(
-            @Param("productId") Long productId,
+    List<ProductDTO> findProducts(
+            @Param("keyword") String keyword,
             @Param("categoryName") String categoryName,
-            @Param("CategoryId") Long categoryId,
-            @Param("subCategoryId") Long subCategoryId,
+            @Param("categoryId") Long categoryId,
+            @Param("subcategoryId") Long subcategoryId,
             @Param("searchText") String searchText,
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
@@ -32,7 +33,7 @@ public interface FinancialProductMapper {
             @Param("minAmount") Integer minAmount,
             @Param("sortBy") String sortBy,
             @Param("sortDirection") String sortDirection,
-            @Param("limit") Integer limit,
+            @Param("pageSize") Integer pageSize,
             @Param("offset") Integer offset,
             @Param("banksStr") String banksStr);
 

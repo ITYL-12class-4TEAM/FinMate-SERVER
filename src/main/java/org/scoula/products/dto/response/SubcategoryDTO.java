@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubcategoryDTO {
-    private Long id;
+    private Long subCategoryId;
     private Long categoryId;
     private String name;
     private String description;

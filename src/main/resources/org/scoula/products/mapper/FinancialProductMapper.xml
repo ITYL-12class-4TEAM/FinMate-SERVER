@@ -3,7 +3,7 @@
 <mapper namespace="org.scoula.products.mapper.FinancialProductMapper">
 
     <!-- 상품 목록 조회 -->
-    <select id="findProducts" resultType="java.util.HashMap">
+    <select id="findProducts" resultType="org.scoula.products.dto.response.ProductDTO">
         SELECT
         fp.product_id as "product_id",
         fp.fin_prdt_cd as "fin_prdt_cd",
@@ -26,8 +26,8 @@
                 c.name = #{categoryName}
             </if>
             <!-- 서브카테고리 필터링 추가 -->
-            <if test="subCategoryId != null">
-                AND fp.subcategory_id = #{subCategoryId}
+            <if test="subcategoryId != null">
+                AND fp.subcategory_id = #{subcategoryId}
             </if>
             <!-- 검색어 필터링 -->
             <if test="searchText != null and searchText != ''">
@@ -104,8 +104,8 @@
             </otherwise>
         </choose>
         <!-- 페이징 처리 -->
-        <if test="limit != null and offset != null">
-            LIMIT #{limit} OFFSET #{offset}
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
         </if>
     </select>
 
