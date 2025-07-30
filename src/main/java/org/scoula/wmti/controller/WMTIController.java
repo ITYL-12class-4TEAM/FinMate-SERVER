@@ -6,6 +6,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.scoula.auth.exception.TokenValidationException;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JwtProcessor;
@@ -14,8 +15,7 @@ import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
 import org.scoula.wmti.dto.survey.WMTIProfileDTO;
 import org.scoula.wmti.entity.SurveyResult;
 import org.scoula.wmti.service.WMTIService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
@@ -44,40 +44,14 @@ public class WMTIController {
             @ApiParam(value = "설문 응답 DTO", required = true)
             @RequestBody SurveyRequestDTO wmtirequest,
             HttpServletRequest request) {
-        // 20개 문항 응답 여부 체크
-        if (!wmtirequest.isValid()) {
-            return ApiResponse.fail(ResponseCode.WMTI_INCOMPLETE_ANSWERS, "20개 문항이 모두 응답되어야 합니다.");
-        }
-        //JWT기반 인증에서 memberId 따오기
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_NOT_FOUND);
-        }
-        String token = header.substring(7); // "Bearer " 제거
+        Long memberId = extractMemberIdFromRequest(request);
+        SurveyResult saved = wmtiService.saveSurveyResult(memberId, wmtirequest.getAnswers());
 
-        Long memberId;
-        try {
-            memberId = jwtProcessor.getMemberId(token);
-        } catch (ExpiredJwtException e) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_EXPIRED);
-        } catch (JwtException e) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_INVALID);
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("wmtiCode", saved.getWmtiCode());
+        response.put("message", "검사완료");
 
-        try {
-            // 설문 응답에 대한 WMTI 코드 계산 + 저장
-            SurveyResult saved = wmtiService.saveSurveyResult(memberId, wmtirequest.getAnswers());
-            // 응답 구성 (Map객체)
-            Map<String, Object> response = new HashMap<>();
-            response.put("wmtiCode", saved.getWmtiCode());
-            response.put("message", "검사완료");
-
-            return ApiResponse.success(ResponseCode.WMTI_SURVEY_SUBMITTED, response);
-        } catch (IllegalArgumentException e) {
-            return ApiResponse.fail(ResponseCode.WMTI_INVALID_ANSWER_FORMAT, e.getMessage());
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_SAVE_FAILED, "설문 결과 저장 중 서버 오류가 발생했습니다.");
-        }
+        return ApiResponse.success(ResponseCode.WMTI_SURVEY_SUBMITTED, response);
     }
 
     // 설문 결과 조회 (GET)
@@ -88,35 +62,12 @@ public class WMTIController {
             @PathVariable Long memberId,
             HttpServletRequest request
             ) {
-        // 1. JWT에서 memberId 추출
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_NOT_FOUND);
-        }
-        String token = header.substring(7);
-
-        Long jwtMemberId;
-        try {
-            jwtMemberId = jwtProcessor.getMemberId(token);
-        } catch (ExpiredJwtException e) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_EXPIRED);
-        } catch (JwtException e) {
-            return ApiResponse.fail(ResponseCode.AUTH_TOKEN_INVALID);
-        }
+        Long jwtMemberId = extractMemberIdFromRequest(request);
         if (!memberId.equals(jwtMemberId)) {
             return ApiResponse.fail(ResponseCode.AUTH_ACCESS_DENIED, "다른 사용자의 결과는 조회할 수 없습니다.");
         }
-        try {
-            SurveyResultDTO surveyResultDTO = wmtiService.getSurveyResultByMemberId(memberId);
-
-            if (surveyResultDTO == null) {
-                return ApiResponse.fail(ResponseCode.WMTI_RESULT_NOT_FOUND, "설문조사를 아직 시행한적 없습니다.");
-            }
-
-            return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, surveyResultDTO);
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_RESULT_RETRIEVAL_FAILED, "서버 오류로 결과를 조회하지 못했습니다.");
-        }
+        SurveyResultDTO result = wmtiService.getSurveyResultByMemberId(memberId);
+        return ApiResponse.success(ResponseCode.WMTI_SURVEY_RESULT_RETRIEVED, result);
     }
 
     //설문 이력 조회 (전체리스트 GET)
@@ -126,15 +77,8 @@ public class WMTIController {
             @ApiParam(value = "회원 ID", required = true, example = "1")
             @PathVariable Long memberId
     ) {
-        try {
-            List<WMTIHistoryDTO> historyList = wmtiService.getSurveyHistoryByMemberId(memberId);
-            if (historyList == null || historyList.isEmpty()) {
-                return ApiResponse.fail(ResponseCode.WMTI_HISTORY_NOT_FOUND, "설문 이력이 존재하지 않습니다.");
-            }
-            return ApiResponse.success(ResponseCode.WMTI_HISTORY_RETRIEVED, historyList);
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_HISTORY_RETRIEVAL_FAILED, "설문 이력 조회 중 오류가 발생했습니다.");
-        }
+        List<WMTIHistoryDTO> historyList = wmtiService.getSurveyHistoryByMemberId(memberId);
+        return ApiResponse.success(ResponseCode.WMTI_HISTORY_RETRIEVED, historyList);
     }
 
     // 설문 이력 조회 (단일 이력, GET)
@@ -144,15 +88,8 @@ public class WMTIController {
             @ApiParam(value = "히스토리 ID", required = true, example = "10")
             @PathVariable Long historyId
     ) {
-        try {
-            WMTIHistoryDTO dto = wmtiService.getSurveyHistoryByHistoryId(historyId);
-            if (dto == null) {
-                return ApiResponse.fail(ResponseCode.WMTI_HISTORY_NOT_FOUND, "설문 이력을 찾을 수 없습니다.");
-            }
-            return ApiResponse.success(ResponseCode.WMTI_HISTORY_RETRIEVED, dto);
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_HISTORY_RETRIEVAL_FAILED, "설문 이력 조회 중 오류가 발생했습니다.");
-        }
+        WMTIHistoryDTO dto = wmtiService.getSurveyHistoryByHistoryId(historyId);
+        return ApiResponse.success(ResponseCode.WMTI_HISTORY_RETRIEVED, dto);
     }
 
     // 성향 코드에 따른 분석 및 추천 상품 제공 (GET)
@@ -162,36 +99,29 @@ public class WMTIController {
             @ApiParam(value = "WMTI 코드 (4자리)", required = true, example = "APML")
             @PathVariable String wmtiCode
     ) {
-        try {
-            WMTIProfileDTO analysisResult = wmtiService.getAnalysisByWMTICode(wmtiCode);
-            if (analysisResult == null) {
-                return ApiResponse.fail(ResponseCode.WMTI_ANALYSIS_NOT_FOUND, "분석 결과를 찾을 수 없습니다.");
-            }
-            return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, analysisResult);
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_ANALYSIS_FAILED, "분석 결과 처리 중 오류가 발생했습니다.");
-        }
+        WMTIProfileDTO result = wmtiService.getAnalysisByWMTICode(wmtiCode);
+        return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, result);
     }
     //wmti설문문항 전달API
     @ApiOperation(value = "WMTI 설문 문항 조회", notes = "프론트에서 설문지를 렌더링할 수 있도록 20개의 WMTI 설문 문항을 반환합니다.")
     @GetMapping("/questions")
     public ApiResponse<?> getWMTIQuestions() {
+        List<Map<String, Object>> questions = wmtiService.loadWMTIQuestions();
+        return ApiResponse.success(ResponseCode.WMTI_QUESTION_RETRIEVED, questions);
+    }
+    // 토큰에서 memberId 추출메서드 (예외는 JwtProcessor에서 발생시키도록 함)
+    private Long extractMemberIdFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new org.scoula.auth.exception.AuthenticationException(ResponseCode.AUTH_TOKEN_NOT_FOUND);
+        }
+        String token = header.substring(7);
         try {
-            InputStream is = getClass().getResourceAsStream("/json/survey/wmti_question.json");
-            if (is == null) {
-                return ApiResponse.fail(ResponseCode.WMTI_QUESTION_NOT_FOUND, "설문 문항 JSON 파일을 찾을 수 없습니다.");
-            }
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Map<String, Object>> questions = objectMapper.readValue(
-                    is,
-                    new TypeReference<>() {}
-            );
-
-            return ApiResponse.success(ResponseCode.WMTI_QUESTION_RETRIEVED, questions);
-
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.WMTI_QUESTION_LOAD_FAILED, "설문 문항 파싱 중 오류 발생: ");
+            return jwtProcessor.getMemberId(token);
+        } catch (ExpiredJwtException e) {
+            throw new TokenValidationException(ResponseCode.AUTH_TOKEN_EXPIRED);
+        } catch (JwtException e) {
+            throw new TokenValidationException(ResponseCode.AUTH_TOKEN_INVALID);
         }
     }
 }

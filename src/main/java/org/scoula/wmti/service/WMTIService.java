@@ -33,4 +33,6 @@ public interface WMTIService {
     WMTIHistoryDTO getSurveyHistoryByHistoryId(Long historyId);
     // 설문 이력 삭제
     boolean deleteSurveyHistory(Long historyId);
+    //설문 질문 문항 불러오기
+    List<Map<String, Object>> loadWMTIQuestions();
 }

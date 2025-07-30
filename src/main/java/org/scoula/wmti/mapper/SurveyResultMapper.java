@@ -8,7 +8,7 @@ import org.scoula.wmti.entity.SurveyResult;
 public interface SurveyResultMapper {
 
     // CREATE: 설문 결과 저장 (최초1회)
-    void saveSurveyResult(SurveyResult surveyResult);
+    int saveSurveyResult(SurveyResult surveyResult);
 
     // 사용자 ID로 설문 결과 조회 (SurveyResult 엔티티 반환)
     SurveyResult findByMemberId(Long memberId);
