@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductDTO {
     private Long productId;
+    private String finCoNo;
     private String finPrdtCd;
     private String korCoNm;
     private String productName;  // finPrdtNm에 해당
@@ -22,4 +23,7 @@ public class ProductDTO {
     private Integer saveTrm;
     private String joinWay;
     private String intrRateType;
+    private String intrRateTypeNm;
+    private Integer minDepositAmount;
+//    private String joinWay;
 }

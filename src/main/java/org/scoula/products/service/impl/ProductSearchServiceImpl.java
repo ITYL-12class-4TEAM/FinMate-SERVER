@@ -519,6 +519,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
 
         return ProductListResponse.ProductSummary.builder()
                 .productId(product.getProductId())
+                .finCoNo(product.getFinCoNo())
                 .finPrdtCd(product.getFinPrdtCd())
                 .korCoNm(product.getKorCoNm())
                 .finPrdtNm(product.getProductName()) // product_name -> productName으로 필드명 주의

@@ -6,6 +6,7 @@
     <select id="findProducts" resultType="org.scoula.products.dto.response.ProductDTO">
         SELECT
         fp.product_id as "product_id",
+        fp.fin_co_no as "finCoNo",
         fp.fin_prdt_cd as "fin_prdt_cd",
         fp.kor_co_nm as "kor_co_nm",
         fp.product_name as "product_name",
@@ -13,8 +14,8 @@
         CAST(do.intr_rate AS CHAR) as "intr_rate",
         CAST(do.intr_rate2 AS CHAR) as "intr_rate2",
         CAST(do.save_trm AS CHAR) as "save_trm",
-        do.intr_rate_type as "intr_rate_type", <!-- 이 줄 추가 -->
-        do.intr_rate_type_nm as "intr_rate_type_nm", <!-- 이 줄도 추가하면 좋음 -->
+        do.intr_rate_type as "intr_rate_type",
+        do.intr_rate_type_nm as "intr_rate_type_nm",
         dp.min_deposit as "min_deposit_amount",
         fp.external_link as "join_way"
         FROM financial_product fp
@@ -58,6 +59,10 @@
             <!-- 은행명 필터링 - 단일 문자열 버전 -->
             <if test="banksStr != null and banksStr != ''">
                 AND fp.kor_co_nm IN
+                <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
+                    #{bank}
+                </foreach>
+                OR fp.fin_co_no IN
                 <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
                     #{bank}
                 </foreach>

@@ -42,7 +42,8 @@ public class ProductListResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProductSummary {
-        private Long productId;      // 상품 ID (예: product_id)
+        private Long productId;        // 상품 ID (예: product_id)
+        private String finCoNo;        // 금융회사 코드
         private String finPrdtCd;      // 상품 코드
         private String korCoNm;        // 은행명
         private String finPrdtNm;      // 상품명
