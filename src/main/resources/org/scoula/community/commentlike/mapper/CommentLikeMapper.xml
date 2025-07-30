@@ -29,5 +29,15 @@
         SELECT COUNT(*) FROM finmate.comment_like
         WHERE comment_id = #{commentId} AND is_liked = true
     </select>
+    <select id="findLikedCommentIdsByMemberIdAndCommentIds" resultType="long">
+        SELECT comment_id
+        FROM comment_like
+        WHERE member_id = #{memberId}
+        AND comment_id IN
+        <foreach item="commentId" collection="commentIds" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </select>
+
 
 </mapper>

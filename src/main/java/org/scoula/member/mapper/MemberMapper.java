@@ -9,26 +9,26 @@ import org.scoula.security.account.domain.MemberVO;
 
 @Mapper
 public interface MemberMapper {
-//    MemberVO get(String username);
-MemberVO selectByEmail(String email);
-MemberVO selectByNickname(String nickname);  // 회원 정보 조회
-Long findIdByUsername(String username);   // id 중복 체크시 사용
+    //    MemberVO get(String username);
+    MemberVO selectByEmail(String email);
+    MemberVO selectByNickname(String nickname);  // 회원 정보 조회
+    Long findIdByUsername(String username);   // id 중복 체크시 사용
 
-String getRefreshToken(@Param("memberId") Long memberId);
+    String getRefreshToken(@Param("memberId") Long memberId);
 
-String findUsernameByNameAndPhone(@Param("username") String username,
-                                  @Param("phoneNumber") String phoneNumber);
+    String findUsernameByNameAndPhone(@Param("username") String username,
+                                      @Param("phoneNumber") String phoneNumber);
 
-void insert(MemberVO member);  // 회원 정보 추가
-int updateProfile(MemberVO member);
-//    int insertAuth(AuthVO auth);        // 회원 권한 정보 추가
+    void insert(MemberVO member);  // 회원 정보 추가
+    int updateProfile(MemberVO member);
+    //    int insertAuth(AuthVO auth);        // 회원 권한 정보 추가
 
-//    int update(MemberVO member);
-// MemberMapper.java
-void updateTokens(@Param("username") String username,
-                  @Param("refreshToken") String refreshToken);
+    //    int update(MemberVO member);
+    // MemberMapper.java
+    void updateTokens(@Param("username") String username,
+                      @Param("refreshToken") String refreshToken);
 
-void clearRefreshToken(@Param("username") String username);
+    void clearRefreshToken(@Param("username") String username);
 
 int updatePassword(@Param("memberId") Long memberId,
                    @Param("Password") String encodedPassword);
@@ -46,4 +46,6 @@ MemberVO findBySocialTypeAndSocialId(@Param("socialType") String socialType,
 void insertSocialMember(MemberVO member);
 void updateSocialMember(MemberVO member);
 void completeSocialSignup(MemberVO member);
+
+    String getNicknameByMemberId(@Param("memberId") Long memberId);
 }

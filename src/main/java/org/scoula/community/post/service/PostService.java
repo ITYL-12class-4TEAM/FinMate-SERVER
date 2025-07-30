@@ -14,7 +14,10 @@ public interface PostService {
     public PostDetailsResponseDTO create(PostCreateRequestDTO postCreateRequestDTO);
     public PostDetailsResponseDTO update(Long postId, PostUpdateRequestDTO postCreateRequestDTO);
     public void delete(Long no);
-    public PostAttachmentVO getAttachment(Long postId);
-    public boolean deleteAttachment(Long postId);
-
+//    public PostAttachmentVO getAttachment(Long postId);
+//    public boolean deleteAttachment(Long postId);
+    public List<PostListResponseDTO> getListByBoard(Long boardId);
+    List<PostListResponseDTO> getMyPosts();
+    List<PostListResponseDTO> getHotPostsByBoard(Long boardId);
+    List<PostListResponseDTO> getAllHotPosts();
 }

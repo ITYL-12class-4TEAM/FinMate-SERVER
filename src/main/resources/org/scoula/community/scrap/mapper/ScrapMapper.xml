@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.community.scrap.mapper.ScrapMapper">
+
+    <!-- 스크랩 추가 -->
+    <insert id="createScrap" parameterType="org.scoula.community.scrap.domain.PostScrapVO">
+        INSERT INTO scrap (post_id, member_id, scraped_at)
+        VALUES (#{postId}, #{memberId}, NOW())
+    </insert>
+
+    <!-- 특정 사용자의 특정 게시글 스크랩 삭제 -->
+    <delete id="deleteScrap">
+        DELETE FROM scrap
+        WHERE post_id = #{postId} AND member_id = #{memberId}
+    </delete>
+
+    <!-- 게시글의 모든 스크랩 삭제 (게시글 삭제시 사용) -->
+    <delete id="deleteScrapsByPostId" parameterType="java.lang.Long">
+        DELETE FROM scrap
+        WHERE post_id = #{postId}
+    </delete>
+
+    <!-- 특정 사용자가 특정 게시글을 스크랩했는지 확인 -->
+    <select id="existsScrap" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM scrap
+        WHERE post_id = #{postId} AND member_id = #{memberId}
+    </select>
+
+    <!-- 특정 게시글의 스크랩 수 조회 -->
+    <select id="countScrapsByPostId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM scrap
+        WHERE post_id = #{postId}
+    </select>
+
+    <!-- 특정 사용자가 스크랩한 게시글 목록 조회 (최신순) -->
+    <select id="getScrapPostsByMemberId" parameterType="java.lang.Long" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT p.post_id,
+               p.board_id,
+               p.member_id,
+               p.title,
+               p.content,
+               p.created_at,
+               p.last_updated,
+               p.is_anonymous,
+               p.like_count,
+               p.comment_count,
+               p.status,
+               p.product_tag
+        FROM post p
+                 INNER JOIN scrap ps ON p.post_id = ps.post_id
+        WHERE ps.member_id = #{memberId}
+          AND p.status = 'NORMAL'
+        ORDER BY ps.scraped_at DESC
+    </select>
+
+</mapper>

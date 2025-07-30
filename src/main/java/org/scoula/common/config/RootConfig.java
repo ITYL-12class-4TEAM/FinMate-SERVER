@@ -26,9 +26,19 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.sql.DataSource;
+
 @Configuration
 @ComponentScan(basePackages = {
         "org.scoula.chatgpt.util",
+        "org.scoula.common.config",
+        "org.scoula.products.service",
+        "org.scoula.products.service.impl",
+        "org.scoula.products.service.api",
+        "org.scoula.products.service.api.impl",
+        "org.scoula.products.controller",
+        "org.scoula.products.config",
+        "org.scoula.products.mapper",
         "org.scoula.common.config",
         "org.scoula"
 })
@@ -39,8 +49,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "org.scoula.community.comment.mapper",
         "org.scoula.community.postlike.mapper",
         "org.scoula.community.commentlike.mapper",
+        "org.scoula.member.mapper",
+        "org.scoula.community.scrap.mapper",
+        "org.scoula.community.post.mapper",
         "org.scoula.member.mapper"
 })
+//@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
+@MapperScan(basePackages = {"org.scoula.products.mapper"})
 
 public class RootConfig {
 
@@ -99,6 +114,7 @@ public class RootConfig {
     // 최종 설정
     configurer.setLocations(resources.toArray(new Resource[0]));
     configurer.setIgnoreUnresolvablePlaceholders(true);
+    configurer.setFileEncoding("UTF-8");
 
     return configurer;
   }

@@ -1,6 +1,7 @@
 package org.scoula.community.comment.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.scoula.community.comment.domain.CommentVO;
 
@@ -18,4 +19,5 @@ public interface CommentMapper {
     CommentVO findById(Long commentId);
     List<CommentVO> getListByPostId(Long postId);
     List<CommentVO> getParentAndReplies(Long parentCommentId);
+    List<CommentVO> getCommentsByMemberId(Long memberId);
 }

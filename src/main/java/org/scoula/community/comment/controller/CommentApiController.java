@@ -5,11 +5,14 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.dto.CommentCreateRequestDTO;
 import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.service.CommentService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,15 +51,30 @@ public class CommentApiController {
     @ApiOperation(value = "댓글 생성", notes = "새 댓글을 등록합니다.")
     @PostMapping("")
     public ApiResponse<CommentResponseDTO> create(
-            @RequestBody CommentCreateRequestDTO commentCreateRequestDTO) {
+            @RequestBody CommentCreateRequestDTO commentCreateRequestDTO, @AuthenticationPrincipal UserDetails user) {
+        if (user == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         CommentResponseDTO created = commentService.create(commentCreateRequestDTO);
         return ApiResponse.success(ResponseCode.COMMENT_CREATE_SUCCESS, created);
     }
 
     @ApiOperation(value = "댓글 삭제", notes = "commentId에 해당하는 댓글을 삭제합니다.")
     @DeleteMapping("/{commentId}")
-    public ApiResponse<Void> delete(@PathVariable Long commentId) {
+    public ApiResponse<Void> delete(@PathVariable Long commentId, @AuthenticationPrincipal UserDetails user) {
+        if (user == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         commentService.delete(commentId);
         return ApiResponse.success(ResponseCode.COMMENT_DELETE_SUCCESS);
+    }
+
+    @ApiOperation(value = "내가 쓴 댓글 조회", notes = "현재 로그인한 사용자가 작성한 댓글 목록을 조회합니다.")
+    @GetMapping("/my")
+    public ApiResponse<List<CommentResponseDTO>> getMyComments(@AuthenticationPrincipal UserDetails user) {
+        if (user == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+        return ApiResponse.success(ResponseCode.COMMENT_LIST_SUCCESS,  commentService.getMyComments());
     }
 }

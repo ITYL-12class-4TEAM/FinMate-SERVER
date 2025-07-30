@@ -32,4 +32,7 @@
         order by board_id desc
         ]]>
     </select>
+    <select id="getAllBoardIds" resultType="long">
+        SELECT board_id FROM finmate.board
+    </select>
 </mapper>

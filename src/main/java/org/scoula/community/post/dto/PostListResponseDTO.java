@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.scoula.community.post.domain.CategoryTag;
-import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostStatus;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.domain.ProductTag;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -45,11 +41,11 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "게시글 마지막 수정 시간", example = "2025-07-23T02:45:00", position = 8)
     private LocalDateTime lastUpdated;
 
-    @ApiModelProperty(value = "핫게시판 등록 시간", example = "2025-07-23T03:00:00", position = 9)
-    private LocalDateTime hotBoardTime;
-
     @ApiModelProperty(value = "익명 여부", example = "true", position = 10)
     private boolean isAnonymous;
+
+    @ApiModelProperty(value = "작성자 닉네임", example = "홍길동", position = 9)
+    private String nickname;
 
     @ApiModelProperty(value = "좋아요 수", example = "15", position = 11)
     private int likeCount;
@@ -57,44 +53,47 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "댓글 수", example = "5", position = 12)
     private int commentCount;
 
+    private boolean isLiked;
+    private boolean isScraped;
+    private int scrapCount;
+
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
     private String status;
-
-    @ApiModelProperty(value = "첨부파일 목록", position = 14)
-    private List<PostAttachmentVO> attaches;
-
-    @ApiModelProperty(value = "업로드할 파일 목록", dataType = "java.util.List", position = 15, notes = "MultipartFile 리스트")
-    private List<MultipartFile> files;
-
-    @ApiModelProperty(value = "카테고리 태그 이름", example = "RECOMMEND", position = 17)
-    private String categoryTag;
 
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
 
-    public static PostListResponseDTO of(PostVO vo) {
-        return vo == null ? null : PostListResponseDTO.builder()
+//    @ApiModelProperty(value = "첨부파일 개수", example = "3", position = 18)
+//    private int attachmentCount;
+
+    public static PostListResponseDTO of(PostVO vo, String nickname) {
+        if (vo == null) return null;
+
+        String displayName = vo.isAnonymous() ? "익명" : nickname;
+
+        return PostListResponseDTO.builder()
                 .postId(vo.getPostId())
                 .boardId(vo.getBoardId())
                 .memberId(vo.getMemberId())
+                .nickname(displayName)
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .createdAt(vo.getCreatedAt())
                 .lastUpdated(vo.getLastUpdated())
-                .hotBoardTime(vo.getHotBoardTime())
                 .isAnonymous(vo.isAnonymous())
                 .likeCount(vo.getLikeCount())
                 .commentCount(vo.getCommentCount())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
-                .attaches(vo.getAttaches())
-                .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
+                .isLiked(vo.isLiked())
+                .isScraped(vo.isScraped())
+                .scrapCount(vo.getScrapCount())
                 .build();
     }
 
+
     public PostVO toVo() {
         PostStatus postStatusEnum = PostStatus.fromCode(status);
-        CategoryTag categoryTagEnum = CategoryTag.fromCode(categoryTag);
         ProductTag productTagEnum = ProductTag.fromCode(productTag);
 
         return PostVO.builder()
@@ -105,14 +104,14 @@ public class PostListResponseDTO {
                 .content(content)
                 .createdAt(createdAt)
                 .lastUpdated(lastUpdated)
-                .hotBoardTime(hotBoardTime)
                 .isAnonymous(isAnonymous)
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .status(postStatusEnum)
-                .attaches(attaches)
-                .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
+                .isLiked(isLiked)
+                .isScraped(isScraped)
+                .scrapCount(scrapCount)
                 .build();
     }
 }
