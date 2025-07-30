@@ -158,4 +158,68 @@
         FROM pension_option
         WHERE option_id = #{optionId}
     </select>
+
+    <select id="findByProductIds" resultType="org.scoula.products.dto.response.pension.PensionProductDTO">
+        SELECT
+            fp.product_id AS productId,
+            fp.fin_co_no AS finCoNo,
+            fp.fin_prdt_cd AS finPrdtCd,
+            fp.product_name AS finPrdtNm,
+            fp.kor_co_nm AS korCoNm,
+            fp.risk_level AS riskLevel,
+            fp.external_link AS externalLink,
+            fp.wishlist_count AS wishlistCount,
+            fp.created_at AS createdAt,
+            fp.dcls_month AS dclsMonth,
+            fp.subcategory_id AS subcategoryId,
+            fp.category_id AS categoryId,
+            pp.pnsn_kind AS pnsnKind,
+            pp.pnsn_kind_nm AS pnsnKindNm,
+            pp.sale_strt_day AS saleStrtDay,
+            pp.mntn_cnt AS mntnCnt,
+            pp.prdt_type AS prdtType,
+            pp.prdt_type_nm AS prdtTypeNm,
+            pp.dcls_rate AS dclsRate,
+            pp.guar_rate AS guarRate,
+            pp.btrm_prft_rate_1 AS profitRate1,
+            pp.btrm_prft_rate_2 AS profitRate2,
+            pp.btrm_prft_rate_3 AS profitRate3,
+            pp.etc,
+            pp.sale_co AS saleCo,
+            pp.dcls_strt_day AS dclsStrtDay,
+            pp.dcls_end_day AS dclsEndDay,
+            pp.fin_co_subm_day AS finCoSubmDay,
+            pp.category,
+            '정보 없음' AS joinWay,
+            '정보 없음' AS pnsnRcvMthd,
+            0 AS mnthPymAtm
+        FROM financial_product fp
+        JOIN pension_product pp ON fp.product_id = pp.product_id
+        WHERE fp.product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findOptionsByProductIds" resultType="org.scoula.products.dto.response.pension.PensionOptionDTO">
+        SELECT
+            option_id AS optionId,
+            product_id AS productId,
+            pnsn_recp_trm AS pnsnRecpTrm,
+            pnsn_recp_trm_nm AS pnsnRecpTrmNm,
+            pnsn_entr_age AS pnsnEntrAge,
+            pnsn_entr_age_nm AS pnsnEntrAgeNm,
+            mon_paym_atm AS monPaymAtm,
+            mon_paym_atm_nm AS monPaymAtmNm,
+            paym_prd AS paymPrd,
+            paym_prd_nm AS paymPrdNm,
+            pnsn_strt_age AS pnsnStrtAge,
+            pnsn_strt_age_nm AS pnsnStrtAgeNm,
+            pnsn_recp_amt AS pnsnRecpAmt
+        FROM pension_option
+        WHERE product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

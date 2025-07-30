@@ -67,4 +67,9 @@ public interface DepositProductMapper {
      */
     @MapKey("intr_rate_type")
     List<Map<String, String>> getDistinctInterestRateTypes(@Param("categoryId") Long categoryId);
+
+    List<DepositProductDTO> findByProductIds(List<Long> productIds);
+
+    List<DepositOptionDTO> findOptionsByProductIds(List<Long> productIds);
+
 }

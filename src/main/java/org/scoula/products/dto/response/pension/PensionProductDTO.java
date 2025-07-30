@@ -18,7 +18,7 @@ import java.util.Map;
  * 금융감독원 금융상품 한눈에 API 기준으로 구성
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class PensionProductDTO {

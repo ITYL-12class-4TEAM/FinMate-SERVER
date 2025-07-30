@@ -7,10 +7,7 @@ import org.scoula.products.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,17 +41,43 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<CategoryDTO> getCategoriesWithSubcategories() {
-        // 모든 카테고리 조회
+        // 1. 모든 카테고리 먼저 조회
         List<CategoryDTO> categories = getAllCategories();
 
-        // 각 카테고리에 하위 카테고리 정보 추가
+        if (categories.isEmpty()) {
+            return categories;
+        }
+
+        // 2. 모든 카테고리 ID 목록 추출
+        List<Long> categoryIds = categories.stream()
+                .map(CategoryDTO::getId)
+                .collect(Collectors.toList());
+
+        // 3. 모든 하위 카테고리를 한 번에 조회
+        List<SubcategoryDTO> allSubcategories = getAllSubcategoriesByMultipleCategoryIds(categoryIds);
+
+        // 4. 카테고리 ID를 기준으로 하위 카테고리 그룹화
+        Map<Long, List<SubcategoryDTO>> subcategoriesByCategory = allSubcategories.stream()
+                .collect(Collectors.groupingBy(SubcategoryDTO::getCategoryId));
+
+        // 5. 각 카테고리에 해당하는 하위 카테고리 할당
         for (CategoryDTO category : categories) {
-            List<SubcategoryDTO> subcategories = getSubcategoriesByCategoryId(category.getId());
+            List<SubcategoryDTO> subcategories = subcategoriesByCategory.getOrDefault(category.getId(), Collections.emptyList());
             category.setSubcategories(subcategories);
         }
 
         return categories;
     }
+
+    /**
+     * 여러 카테고리 ID에 대한 모든 하위 카테고리 조회
+     */
+    private List<SubcategoryDTO> getAllSubcategoriesByMultipleCategoryIds(List<Long> categoryIds) {
+        return categoryMapper.findSubcategoriesByMultipleCategoryIds(categoryIds).stream()
+                .map(this::mapToSubcategory)
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * Map을 CategoryDTO로 변환

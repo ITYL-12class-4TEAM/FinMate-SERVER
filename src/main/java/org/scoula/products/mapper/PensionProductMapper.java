@@ -64,4 +64,8 @@ public interface PensionProductMapper {
      * @return 연금 상품 옵션 정보
      */
     PensionOptionDTO findOptionById(@Param("optionId") Long optionId);
+
+
+    List<PensionProductDTO> findByProductIds(List<Long> productIds);
+    List<PensionOptionDTO> findOptionsByProductIds(List<Long> productIds);
 }

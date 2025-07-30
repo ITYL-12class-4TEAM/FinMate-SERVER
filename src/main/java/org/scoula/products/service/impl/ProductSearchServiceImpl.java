@@ -245,6 +245,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         } else {
             // 일반 금융 상품 조회 로직 (예금 카테고리의 모든 서브카테고리)
             List<Map<String, Object>> products = financialProductMapper.findProducts(
+                    null,
                     categoryName,
                     request.getCategoryId(),
                     request.getSubCategoryId(),
@@ -361,6 +362,9 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     // Map 객체를 ProductSummary로 변환하는 메서드
     private ProductListResponse.ProductSummary convertToProductSummary(Map<String, Object> product) {
         return ProductListResponse.ProductSummary.builder()
+                // null 체크 추가
+                .productId(product.get("product_id") != null ?
+                                Long.parseLong(product.get("product_id").toString()) : null)
                 .finPrdtCd(product.get("fin_prdt_cd").toString())
                 .korCoNm(product.get("kor_co_nm").toString())
                 .finPrdtNm(product.get("product_name").toString())

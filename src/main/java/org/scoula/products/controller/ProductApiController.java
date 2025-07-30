@@ -74,7 +74,7 @@ public class ProductApiController {
             return ApiResponse.fail(ResponseCode.CATEGORY_NOT_FOUND);
         }
 
-        List<Map<String, Object>> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
+        List<SubcategoryDTO> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
         return ApiResponse.success(ResponseCode.SUBCATEGORY_SUCCESS, subcategories);
     }
 

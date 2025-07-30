@@ -8,6 +8,7 @@
                dp.min_deposit             as joinAmt,
                dp.max_limit               as maxLimit,
                dp.preferential_conditions as spclCnd,
+               fp.product_id              as productId,
                fp.fin_co_no,
                fp.fin_prdt_cd,
                fp.product_name            as fin_prdt_nm,
@@ -118,5 +119,68 @@
                  JOIN deposit_product dp ON do.product_id = dp.product_id
                  JOIN financial_product fp ON dp.product_id = fp.product_id
         WHERE fp.category_id = #{categoryId}
+    </select>
+
+    <select id="findByProductIds" resultType="org.scoula.products.dto.response.deposit.DepositProductDTO">
+        SELECT
+            fp.product_id AS productId,
+            fp.fin_co_no AS finCoNo,
+            fp.fin_prdt_cd AS finPrdtCd,
+            fp.product_name AS finPrdtNm,
+            fp.kor_co_nm AS korCoNm,
+            fp.risk_level AS riskLevel,
+            fp.external_link AS externalLink,
+            fp.wishlist_count AS wishlistCount,
+            fp.created_at AS createdAt,
+            fp.dcls_month AS dclsMonth,
+            fp.subcategory_id AS subcategoryId,
+            fp.category_id AS categoryId,
+
+            dp.min_deposit AS minDeposit,
+            dp.min_deposit AS joinAmt,
+            dp.preferential_conditions AS preferentialConditions,
+            dp.preferential_conditions AS spclCnd,
+            dp.inquiry_url AS inquiryUrl,
+            dp.etc_note AS etcNote,
+            dp.max_limit AS maxLimit,
+            dp.dcls_strt_day AS dclsStrtDay,
+            dp.dcls_end_day AS dclsEndDay,
+            dp.fin_co_subm_day AS finCoSubmDay,
+            dp.preferential_tags AS preferentialTags,
+            dp.contract_period AS contractPeriod,
+            dp.interest_payment_type AS interestPaymentType,
+            dp.interest_payment_type AS mtrtInt,
+            dp.is_digital_only AS isDigitalOnly,
+            dp.one_account_per_person AS oneAccountPerPerson,
+            dp.account_limit_note AS accountLimitNote,
+            dp.rotation_cycle AS rotationCycle,
+
+            NULL AS joinWay,
+            '제한없음' AS joinMember,
+            '없음' AS joinDeny
+        FROM financial_product fp
+        JOIN deposit_product dp ON fp.product_id = dp.product_id
+        WHERE fp.product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findOptionsByProductIds" resultType="org.scoula.products.dto.response.deposit.DepositOptionDTO">
+        SELECT
+            option_id,
+            save_trm,
+            intr_rate_type,
+            intr_rate_type_nm,
+            intr_rate,
+            intr_rate2,
+            rsrv_type,
+            rsrv_type_nm,
+            product_id AS productId
+        FROM deposit_option
+        WHERE product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

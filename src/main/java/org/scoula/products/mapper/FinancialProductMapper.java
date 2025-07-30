@@ -20,6 +20,7 @@ public interface FinancialProductMapper {
      */
     @MapKey("product_id")
     List<Map<String, Object>> findProducts(
+            @Param("productId") Long productId,
             @Param("categoryName") String categoryName,
             @Param("CategoryId") Long categoryId,
             @Param("subCategoryId") Long subCategoryId,

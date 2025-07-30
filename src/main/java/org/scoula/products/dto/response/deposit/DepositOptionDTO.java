@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepositOptionDTO {
+    @JsonProperty("product_id")
+    private Long productId;
 
     // 금융상품 코드
     @JsonProperty("fin_prdt_cd")

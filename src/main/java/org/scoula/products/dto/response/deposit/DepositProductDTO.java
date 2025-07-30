@@ -16,10 +16,14 @@ import java.util.List;
  * 금융감독원 금융상품 한눈에 API 기준으로 구성
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepositProductDTO {
+
+    // 상품 ID (예: product_id)
+    @JsonProperty("product_id")
+    private Long productId;
 
     // 금융회사 코드
     @JsonProperty("fin_co_no")

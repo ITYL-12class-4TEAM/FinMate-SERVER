@@ -17,6 +17,8 @@ import org.scoula.products.dto.response.saving.SavingProductDTO;
 @AllArgsConstructor
 public class ProductDetailResponse {
 
+    private Long productId;
+
     // 상품 유형 (deposit: 예금, saving: 적금, pension: 연금저축)
     private String productType;
 
@@ -53,6 +55,7 @@ public class ProductDetailResponse {
     public ProductDetailResponse(DepositProductDTO deposit, String productType) {
         this.productType = productType;
         this.productDetail = deposit;
+        this.productId = deposit.getProductId();
         this.finCoNo = deposit.getFinCoNo();
         this.korCoNm = deposit.getKorCoNm();
         this.finPrdtCd = deposit.getFinPrdtCd();
