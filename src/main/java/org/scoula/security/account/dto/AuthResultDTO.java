@@ -15,5 +15,6 @@ public class AuthResultDTO {
     private String refreshToken;
     private UserInfoDTO userInfo;
     private boolean isNewMember;
+
 }
 

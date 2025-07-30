@@ -31,9 +31,8 @@ public class MemberVO {
     private String socialId;
     private String accessToken;
     private String refreshToken;
-    private Boolean receivePushNotification;
-    private String status;
     private Boolean isNewMember;
+    private Boolean receivePushNotification;
 //    private List<AuthVO> authList;        // 권한 목록, join 처리 필요
 
 }

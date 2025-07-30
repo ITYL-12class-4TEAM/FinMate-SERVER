@@ -18,7 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import java.net.URLEncoder;
 
 
 @Log4j2
@@ -74,11 +74,20 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                         user.getMember().getMemberId(),
                         user.getUsername()
                 );
+                // 이메일과 이름 정보 추가
+                String email = user.getMember().getEmail();
+                String username = user.getMember().getUsername();
 
-                // 프론트엔드로 리다이렉트 (신규 회원)
+                // URL 인코딩
+                String encodedEmail = URLEncoder.encode(email, "UTF-8");
+                String encodedUsername = URLEncoder.encode(username, "UTF-8");
+
+                // 프론트엔드로 리다이렉트 (신규 회원 - 이메일, 이름 포함)
                 String redirectUrl = String.format(
-                        "http://localhost:5173/auth/oauth2/redirect?token=%s&isNewMember=true",
-                        tempToken
+                        "http://localhost:5173/auth/oauth2/redirect?token=%s&isNewMember=true&email=%s&username=%s",
+                        tempToken,
+                        encodedEmail,
+                        encodedUsername
                 );
                 response.sendRedirect(redirectUrl);
                 return;

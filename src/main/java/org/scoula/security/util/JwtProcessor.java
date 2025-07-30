@@ -16,7 +16,6 @@ import java.util.Date;
 
 @Log4j2
 @Component
-
 public class JwtProcessor {
 
     private static final long ACCESS_TOKEN_VALID_MILLIS = 1000L * 60 * 30;

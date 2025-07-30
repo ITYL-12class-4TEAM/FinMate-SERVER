@@ -81,14 +81,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private MemberVO registerNewUser(String registrationId, OAuth2UserInfo oauth2UserInfo) {
         MemberVO newMember = MemberVO.builder()
                 .email(oauth2UserInfo.getEmail())
-                .nickname(oauth2UserInfo.getName())
                 .username(oauth2UserInfo.getName())
                 .profileImage(oauth2UserInfo.getImageUrl())
                 .socialType(registrationId)
                 .socialId(oauth2UserInfo.getId())
                 .role("USER")
                 .level(1)
-                .status("ACTIVE")
                 .isNewMember(true)  // 신규 회원 표시
                 .createdAt(new Date())
                 .build();
@@ -101,7 +99,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         MemberVO updatedMember = MemberVO.builder()
                 .memberId(existingMember.getMemberId())
                 .email(oauth2UserInfo.getEmail())
-                .nickname(oauth2UserInfo.getName())
+                .nickname(existingMember.getNickname())
                 .username(existingMember.getUsername())
                 .profileImage(oauth2UserInfo.getImageUrl())
                 .socialType(existingMember.getSocialType())

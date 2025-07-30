@@ -105,10 +105,10 @@
     <!-- 소셜 회원 최초 등록 -->
     <insert id="insertSocialMember" parameterType="org.scoula.security.account.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         INSERT INTO member (
-            profile_image, username, level, nickname, email,
+            profile_image, username, level, email,
             social_type, social_id, role, status, is_new_member, created_at
         ) VALUES (
-                     #{profileImage}, #{username}, #{level}, #{nickname}, #{email},
+                     #{profileImage}, #{username}, #{level}, #{email},
                      #{socialType}, #{socialId}, 'USER', 'ACTIVE', #{isNewMember}, #{createdAt}
                  )
     </insert>
@@ -128,7 +128,6 @@
     <update id="completeSocialSignup" parameterType="org.scoula.security.account.domain.MemberVO">
         UPDATE member
         SET nickname = #{nickname},
-            phone_number = #{phoneNumber},
             birth_date = #{birthDate},
             gender = #{gender},
             receive_push_notification = #{receivePushNotification},

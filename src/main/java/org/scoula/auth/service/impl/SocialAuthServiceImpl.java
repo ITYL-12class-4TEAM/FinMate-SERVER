@@ -79,7 +79,6 @@ public class SocialAuthServiceImpl implements SocialAuthService {
                 .socialId(member.getSocialId())
                 .role(member.getRole())
                 .level(member.getLevel())
-                .status(member.getStatus())
                 .phoneNumber(request.getPhoneNumber())
                 .birthDate(request.getBirthDate())
                 .gender(request.getGender())

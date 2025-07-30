@@ -25,11 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         MemberVO vo = memberMapper.selectByEmail(email);
         log.info("[DEBUG] 로그인 요청 이메일: {}", email);
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encoded = encoder.encode("1234"); // 원하는 비밀번호
-        System.out.println(encoded);
-
-
         return new CustomUser(vo);
     }
 

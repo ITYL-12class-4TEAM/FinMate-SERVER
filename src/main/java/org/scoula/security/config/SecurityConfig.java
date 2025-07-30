@@ -68,8 +68,7 @@ public class SecurityConfig {
     public ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
                 .clientId(oauth2Properties.getKakao().getClientId())
-                .clientSecret(oauth2Properties.getKakao().getClientSecret())
-                .scope("profile_nickname", "profile_image", "account_email")
+                .scope("profile_nickname", "account_email")
                 .authorizationUri("https://kauth.kakao.com/oauth/authorize")
                 .tokenUri("https://kauth.kakao.com/oauth/token")
                 .userInfoUri("https://kapi.kakao.com/v2/user/me")
@@ -77,6 +76,7 @@ public class SecurityConfig {
                 .clientName("Kakao")
                 .redirectUri(oauth2Properties.getKakao().getRedirectUri())
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE) // 중요: NONE으로 설정
                 .build();
     }
 
@@ -88,16 +88,12 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
-                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup",
+                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
                         "/v2/api-docs", "/swagger-resources/**", "/webjars/**",
                         "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
                 .permitAll()
-                .authorizeRequests()
-                // 완전 공개 API (비회원 접근 가능)
-                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup",
-                        "/resources/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/v2/api-docs", "/swagger-resources/**", "/webjars/**").permitAll()
+
 
                 // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
                 .antMatchers("/api/chatbot/**").permitAll()                          // 챗봇 (비회원도 금융 질문 가능)
@@ -150,9 +146,6 @@ public class SecurityConfig {
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement().disable();
-    }
 
         return http.build();
     }
