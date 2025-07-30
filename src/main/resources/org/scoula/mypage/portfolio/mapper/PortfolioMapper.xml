@@ -191,4 +191,19 @@
 
 
     </select>
+
+    <!-- 포트폴리오 존재 여부 확인 -->
+    <select id="existsById" parameterType="Long" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+    </select>
+
+    <!-- 포트폴리오 소유권 확인 -->
+    <select id="isOwner" parameterType="map" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+          AND member_id = #{memberId}
+    </select>
 </mapper>

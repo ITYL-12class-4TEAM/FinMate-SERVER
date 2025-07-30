@@ -46,15 +46,27 @@
         LIMIT 20
     </select>
 
-    <delete id="deleteViewedProduct">
+    <!-- 최근 본 상품 기록 존재 여부 확인 -->
+    <select id="existsRecentView" parameterType="map" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM viewed_product
+        WHERE member_id = #{memberId}
+        AND product_id = #{productId}
+    </select>
+
+    <!-- 특정 상품의 최근 본 기록 삭제 -->
+    <delete id="deleteViewedProduct" parameterType="map">
         DELETE FROM viewed_product
-        WHERE member_id = #{memberId} AND product_id = #{productId}
+        WHERE member_id = #{memberId}
+        AND product_id = #{productId}
     </delete>
 
-    <delete id="deleteAllViewedProducts">
+    <!-- 모든 최근 본 상품 기록 삭제 -->
+    <delete id="deleteAllViewedProducts" parameterType="Long">
         DELETE FROM viewed_product
         WHERE member_id = #{memberId}
     </delete>
+
 
 
 </mapper>

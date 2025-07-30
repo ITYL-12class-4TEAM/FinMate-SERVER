@@ -9,5 +9,11 @@
         SELECT subcategory_id AS subcategoryId, name AS subcategoryName
         FROM product_subcategory
     </select>
+    <select id="existsById" parameterType="Long" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM financial_product
+        WHERE product_id = #{productId}
+    </select>
+
 
 </mapper>

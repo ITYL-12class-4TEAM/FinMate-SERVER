@@ -1,10 +1,14 @@
 package org.scoula.mypage.favorite.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.response.ResponseCode;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.mypage.favorite.dto.FavoriteProductResponse;
 import org.scoula.mypage.favorite.dto.PopularFavoriteGroupResponse;
 import org.scoula.mypage.favorite.dto.SubcategoryResponse;
+import org.scoula.mypage.favorite.exception.FavoriteAlreadyExistsException;
+import org.scoula.mypage.favorite.exception.FavoriteNotFoundException;
+import org.scoula.mypage.favorite.exception.ProductNotFoundException;
 import org.scoula.mypage.favorite.mapper.FavoriteProductMapper;
 import org.scoula.mypage.favorite.mapper.ProductMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +30,23 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      */
     public void addFavorite(Long productId, Integer saveTrm, String rsrvType) {
         Long memberId = getCurrentUserIdAsLong();
-        favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
-        favoriteProductMapper.increaseWishlistCount(productId);
+
+        // 상품 존재 여부 확인
+        if (!productMapper.existsById(productId)) {
+            throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 이미 즐겨찾기에 등록되어 있는지 확인
+        if (favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId)) {
+            throw new FavoriteAlreadyExistsException(ResponseCode.FAVORITE_ALREADY_EXISTS);
+        }
+
+        try {
+            favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
+            favoriteProductMapper.increaseWishlistCount(productId);
+        } catch (Exception e) {
+            throw new RuntimeException("즐겨찾기 추가 중 오류가 발생했습니다.", e);
+        }
     }
 
     /**
@@ -36,8 +55,17 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
     public void removeFavorite(Long productId) {
         Long memberId = getCurrentUserIdAsLong();
 
-        favoriteProductMapper.deleteFavorite(memberId, productId);
-        favoriteProductMapper.decreaseWishlistCount(productId);
+        // 즐겨찾기에 등록되어 있는지 확인
+        if (!favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId)) {
+            throw new FavoriteNotFoundException(ResponseCode.FAVORITE_NOT_FOUND);
+        }
+
+        try {
+            favoriteProductMapper.deleteFavorite(memberId, productId);
+            favoriteProductMapper.decreaseWishlistCount(productId);
+        } catch (Exception e) {
+            throw new RuntimeException("즐겨찾기 삭제 중 오류가 발생했습니다.", e);
+        }
     }
 
     /**
@@ -46,19 +74,22 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
     public List<FavoriteProductResponse> getFavorites() {
         Long memberId = getCurrentUserIdAsLong();
 
-        List<FavoriteProductResponse> favorites = favoriteProductMapper.selectFavoritesByMemberId(memberId);
+        try {
+            List<FavoriteProductResponse> favorites = favoriteProductMapper.selectFavoritesByMemberId(memberId);
 
-        for (FavoriteProductResponse dto : favorites) {
-            if ("연금".equals(dto.getCategoryName())) {
-                BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
-                dto.setBaseRate(pensionRate);
-                dto.setMaxRate(null);
+            for (FavoriteProductResponse dto : favorites) {
+                if ("연금".equals(dto.getCategoryName())) {
+                    BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
+                    dto.setBaseRate(pensionRate);
+                    dto.setMaxRate(null);
+                }
             }
+
+            return favorites;
+        } catch (Exception e) {
+            throw new RuntimeException("즐겨찾기 목록 조회 중 오류가 발생했습니다.", e);
         }
-
-        return favorites;
     }
-
 
     /**
      * 특정 상품이 즐겨찾기에 등록되어 있는지 확인
@@ -66,7 +97,16 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
     public boolean isFavorite(Long productId) {
         Long memberId = getCurrentUserIdAsLong();
 
-        return favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId);
+        // 상품 존재 여부 확인
+        if (!productMapper.existsById(productId)) {
+            throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
+        }
+
+        try {
+            return favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId);
+        } catch (Exception e) {
+            throw new RuntimeException("즐겨찾기 상태 확인 중 오류가 발생했습니다.", e);
+        }
     }
 
     /**
@@ -75,22 +115,41 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      * @return 카테고리별 인기 관심상품 목록
      */
     public List<PopularFavoriteGroupResponse> getPopularFavoritesByCategory(int days) {
-        List<SubcategoryResponse> subcategories = productMapper.getAllSubcategories();
+        if (days <= 0) {
+            throw new IllegalArgumentException("조회 기간은 1일 이상이어야 합니다.");
+        }
 
-        return subcategories.stream()
-                .map(sub -> {
-                    List<FavoriteProductResponse> products =
-                            favoriteProductMapper.selectPopularFavorites(sub.getSubcategoryId(), days);
-                    PopularFavoriteGroupResponse dto = new PopularFavoriteGroupResponse();
-                    dto.setSubcategoryId(sub.getSubcategoryId());
-                    dto.setSubcategoryName(sub.getSubcategoryName());
-                    dto.setProducts(products);
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        try {
+            List<SubcategoryResponse> subcategories = productMapper.getAllSubcategories();
+
+            return subcategories.stream()
+                    .map(sub -> {
+                        List<FavoriteProductResponse> products =
+                                favoriteProductMapper.selectPopularFavorites(sub.getSubcategoryId(), days);
+                        PopularFavoriteGroupResponse dto = new PopularFavoriteGroupResponse();
+                        dto.setSubcategoryId(sub.getSubcategoryId());
+                        dto.setSubcategoryName(sub.getSubcategoryName());
+                        dto.setProducts(products);
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("인기 관심상품 조회 중 오류가 발생했습니다.", e);
+        }
     }
+
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email);
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Long memberId = memberMapper.getMemberIdByEmail(email);
+
+            if (memberId == null) {
+                throw new RuntimeException("사용자 정보를 찾을 수 없습니다.");
+            }
+
+            return memberId;
+        } catch (Exception e) {
+            throw new RuntimeException("사용자 인증 정보를 가져오는데 실패했습니다.", e);
+        }
     }
 }

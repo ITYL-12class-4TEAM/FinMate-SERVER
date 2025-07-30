@@ -67,5 +67,17 @@ public interface PortfolioMapper {
     // 포트폴리오 멤버 수를 나이대별로 조회
     List<Map<String, Object>> getPortfolioMemberCountByAgeGroup();
 
+
+    // 포트폴리오 존재 여부
+    boolean existsById(Long portfolioId);
+
+    /**
+     * 포트폴리오 소유권 확인
+     * @param portfolioId 포트폴리오 ID
+     * @param memberId 회원 ID
+     * @return 소유자면 true, 아니면 false
+     */
+    boolean isOwner(Long portfolioId, Long memberId);
+
 }
 

@@ -1,10 +1,10 @@
-package org.scoula.mypage.exception;
+package org.scoula.mypage.portfolio.exception;
 
 import org.scoula.common.exception.BaseException;
 import org.scoula.response.ResponseCode;
 
 public class PortfolioAccessDeniedException extends BaseException {
-    public PortfolioAccessDeniedException() {
-        super(ResponseCode.PORTFOLIO_ACCESS_DENIED);
+    public PortfolioAccessDeniedException(ResponseCode responseCode) {
+        super(responseCode);
     }
 }

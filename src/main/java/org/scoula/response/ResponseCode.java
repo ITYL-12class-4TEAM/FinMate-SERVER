@@ -133,15 +133,17 @@ public enum ResponseCode {
     /**
      * Portfolio response
      */
-    PORTFOLIO_READ_SUCCESS(HttpStatus.OK, "포트폴리오 목록 조회 성공"),
     PORTFOLIO_CREATE_SUCCESS(HttpStatus.CREATED, "포트폴리오 생성 성공"),
+    PORTFOLIO_READ_SUCCESS(HttpStatus.OK, "포트폴리오 목록 조회 성공"),
     PORTFOLIO_UPDATE_SUCCESS(HttpStatus.OK, "포트폴리오 수정 성공"),
     PORTFOLIO_DELETE_SUCCESS(HttpStatus.OK, "포트폴리오 삭제 성공"),
     PORTFOLIO_SUMMARY_SUCCESS(HttpStatus.OK, "포트폴리오 요약 조회 성공"),
 
     PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "포트폴리오를 찾을 수 없습니다"),
-    PORTFOLIO_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 포트폴리오에 대한 접근 권한이 없습니다"),
-    INVALID_INPUT_FORMAT(HttpStatus.BAD_REQUEST, "입력 형식이 올바르지 않습니다"),
+    PORTFOLIO_ACCESS_DENIED(HttpStatus.FORBIDDEN, "포트폴리오 접근 권한이 없습니다"),
+    INVALID_AGE_INFO(HttpStatus.BAD_REQUEST, "유효하지 않은 나이 정보입니다"),
+    INVALID_ASSET_INFO(HttpStatus.BAD_REQUEST, "유효하지 않은 자산 정보입니다"),
+    INVALID_WMTI_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 WMTI 코드입니다"),
 
     /**
      * favorite response
@@ -152,12 +154,24 @@ public enum ResponseCode {
     FAVORITE_STATUS_CHECK_SUCCESS(HttpStatus.OK, "관심상품 여부 확인 성공"),
     POPULAR_FAVORITE_READ_SUCCESS(HttpStatus.OK, "인기 관심상품 조회 성공"),
 
-    // 에러 케이스도 추가
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "관심상품을 찾을 수 없습니다"),
-    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심상품으로 등록된 상품입니다");
+    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심상품으로 등록된 상품입니다"),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다"),
+
+    /**
+     * RecentView response
+     */
+    RECENT_VIEW_CREATE_SUCCESS(HttpStatus.CREATED, "최근 본 상품 저장 성공"),
+    RECENT_VIEW_READ_SUCCESS(HttpStatus.OK, "최근 본 상품 목록 조회 성공"),
+    RECENT_VIEW_DELETE_SUCCESS(HttpStatus.OK, "최근 본 상품 삭제 성공"),
+    RECENT_VIEW_DELETE_ALL_SUCCESS(HttpStatus.OK, "최근 본 상품 전체 삭제 성공"),
+
+    RECENT_VIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "최근 본 상품 기록을 찾을 수 없습니다");
 
     private final HttpStatus httpStatus;
     private final String message;
+
+
 
     ResponseCode(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;

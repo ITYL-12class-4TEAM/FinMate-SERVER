@@ -18,10 +18,12 @@ public interface ViewedProductMapper {
     // 최근 본 상품 목록 조회
     List<RecentProductResponse> selectRecentViewedProducts(@Param("memberId") Long memberId);
 
-    // 특정 상품의 최근 본 기록 삭제
-    void deleteViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId);
+    // 특정 상품의 최근 본 기록 삭제 (삭제된 레코드 수 반환)
+    int deleteViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId);
 
-    // 모든 최근 본 상품 기록 삭제
-    void deleteAllViewedProducts(@Param("memberId") Long memberId);
+    // 모든 최근 본 상품 기록 삭제 (삭제된 레코드 수 반환)
+    int deleteAllViewedProducts(@Param("memberId") Long memberId);
 
+    // 특정 회원의 최근 본 상품 목록에서 상품이 존재하는지 확인
+    boolean existsRecentView(@Param("memberId") Long memberId, @Param("productId") Long productId);
 }
