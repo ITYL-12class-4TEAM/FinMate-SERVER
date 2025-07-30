@@ -18,7 +18,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -42,7 +41,9 @@ import javax.sql.DataSource;
         "org.scoula.community.commentlike.mapper",
         "org.scoula.member.mapper",
         "org.scoula.community.board.mapper",
-        "org.scoula.mypage.mapper",
+        "org.scoula.mypage.portfolio.mapper",
+        "org.scoula.mypage.recentView.mapper",
+        "org.scoula.mypage.favorite.mapper",
         "org.scoula.community.scrap.mapper"
 })
 public class RootConfig {

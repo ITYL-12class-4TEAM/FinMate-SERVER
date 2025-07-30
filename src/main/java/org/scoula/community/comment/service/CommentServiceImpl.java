@@ -10,7 +10,8 @@ import org.scoula.community.comment.dto.CommentResponseDTO;
 import org.scoula.community.comment.exception.CommentNotFoundException;
 import org.scoula.community.comment.exception.CommentParentMismatchException;
 import org.scoula.community.comment.mapper.CommentMapper;
-import org.scoula.community.post.dto.PostListResponseDTO;
+import org.scoula.community.commentlike.mapper.CommentLikeMapper;
+import org.scoula.community.commentlike.service.CommentLikeService;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.member.mapper.MemberMapper;
@@ -26,6 +27,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final PostMapper postMapper;
     private final MemberMapper memberMapper;
+    private final CommentLikeService commentLikeService;
+    private final CommentLikeMapper commentLikeMapper;
 
     @Override
     @Transactional
@@ -60,7 +63,13 @@ public class CommentServiceImpl implements CommentService {
         if (comment == null) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
-        return CommentResponseDTO.of(comment);
+        Long currentUserId = getCurrentUserIdAsLong();
+        boolean isLiked = false;
+
+        if (currentUserId != null) {
+            isLiked = commentLikeService.isLikedByMember(commentId, currentUserId);
+        }
+        return CommentResponseDTO.of(comment, isLiked);
     }
 
     @Transactional
@@ -97,8 +106,26 @@ public class CommentServiceImpl implements CommentService {
         if (comments == null || comments.isEmpty()) {
             return List.of();
         }
+
+        Long currentUserId = getCurrentUserIdAsLong();
+        if (currentUserId == null) {
+            // 로그인 안 된 사용자면 isLiked false로 처리
+            return comments.stream()
+                    .map(comment -> CommentResponseDTO.of(comment, false))
+                    .toList();
+        }
+
+        List<Long> commentIds = comments.stream()
+                .map(CommentVO::getCommentId)
+                .toList();
+
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(currentUserId, commentIds);
+
         return comments.stream()
-                .map(CommentResponseDTO::of)
+                .map(comment -> {
+                    boolean isLiked = likedCommentIds.contains(comment.getCommentId());
+                    return CommentResponseDTO.of(comment, isLiked);
+                })
                 .toList();
     }
 
@@ -114,18 +141,52 @@ public class CommentServiceImpl implements CommentService {
         if (comments == null || comments.isEmpty()) {
             return List.of();
         }
+
+        Long currentUserId = getCurrentUserIdAsLong();
+        if (currentUserId == null) {
+            return comments.stream()
+                    .map(comment -> CommentResponseDTO.of(comment, false))
+                    .toList();
+        }
+
+        List<Long> commentIds = comments.stream()
+                .map(CommentVO::getCommentId)
+                .toList();
+
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(currentUserId, commentIds);
+
         return comments.stream()
-                .map(CommentResponseDTO::of)
+                .map(comment -> {
+                    boolean isLiked = likedCommentIds.contains(comment.getCommentId());
+                    return CommentResponseDTO.of(comment, isLiked);
+                })
                 .toList();
     }
+
     @Override
     public List<CommentResponseDTO> getMyComments() {
         log.info("getMyComments..........");
         Long currentUserId = getCurrentUserIdAsLong();
-        return commentMapper.getCommentsByMemberId(currentUserId).stream()
-                .map(CommentResponseDTO::of)
+
+        List<CommentVO> comments = commentMapper.getCommentsByMemberId(currentUserId);
+        if (comments == null || comments.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> commentIds = comments.stream()
+                .map(CommentVO::getCommentId)
+                .toList();
+
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(currentUserId, commentIds);
+
+        return comments.stream()
+                .map(comment -> {
+                    boolean isLiked = likedCommentIds.contains(comment.getCommentId());
+                    return CommentResponseDTO.of(comment, isLiked);
+                })
                 .toList();
     }
+
 
     private Long getCurrentUserIdAsLong() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

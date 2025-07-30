@@ -19,6 +19,5 @@ public interface CommentMapper {
     CommentVO findById(Long commentId);
     List<CommentVO> getListByPostId(Long postId);
     List<CommentVO> getParentAndReplies(Long parentCommentId);
-
-    List<CommentVO> getCommentsByMemberId(Long currentUserId);
+    List<CommentVO> getCommentsByMemberId(Long memberId);
 }

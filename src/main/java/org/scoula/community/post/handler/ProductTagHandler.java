@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.scoula.community.post.domain.CategoryTag;
 import org.scoula.community.post.domain.ProductTag;
 
 public class ProductTagHandler extends BaseTypeHandler<ProductTag> {

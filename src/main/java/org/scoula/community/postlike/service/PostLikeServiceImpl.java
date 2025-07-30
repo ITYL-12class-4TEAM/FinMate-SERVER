@@ -10,6 +10,7 @@ import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.domain.PostLikeVO;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
+import org.scoula.community.scrap.mapper.ScrapMapper;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeMapper postLikeMapper;
     private final PostMapper postMapper;
     private final MemberMapper memberMapper;
+    private final ScrapMapper scrapMapper;
 
     @Override
     @Transactional
@@ -45,8 +47,9 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public boolean isLikedByMember(Long postId, Long memberId) {
+    public boolean isLikedByMember(Long postId) {
         validatePostExists(postId);
+        Long memberId = getCurrentUserIdAsLong();
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
         return like != null && like.isLiked();
     }
@@ -54,8 +57,28 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public List<PostListResponseDTO> getMyLikedPosts() {
         Long memberId = getCurrentUserIdAsLong();
+
         return postLikeMapper.getLikedPostsByMemberId(memberId).stream()
-                .map(PostListResponseDTO::of)
+                .map(post -> {
+                    Long currentUserId = getCurrentUserIdAsLong();
+                    int likeCount = postLikeMapper.countByPostId(post.getPostId());
+                    int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+                    int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+
+                    post.setLikeCount(likeCount);
+                    post.setCommentCount(commentCount);
+                    post.setScrapCount(scrapCount); // scrapCount 필드 및 메서드 필요
+
+                    boolean isLiked = false;
+                    boolean isScraped = false;
+                    if (currentUserId != null) {
+                        isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+                        isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+                    }
+                    post.setLiked(isLiked);
+                    post.setScraped(isScraped);
+                    return PostListResponseDTO.of(post);
+                })
                 .toList();
     }
 

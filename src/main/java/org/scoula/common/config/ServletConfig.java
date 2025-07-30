@@ -34,7 +34,12 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.community.scrap.controller",
         "org.scoula.auth.controller",
         "org.scoula.member.controller",
-        "org.scoula.mypage.controller"
+        "org.scoula.mypage.portfolio.controller",
+        "org.scoula.mypage.portfolio.service",
+        "org.scoula.mypage.recentView.controller",
+        "org.scoula.mypage.recentView.service",
+        "org.scoula.mypage.favorite.controller",
+        "org.scoula.mypage.favorite.service",
 
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
 public class ServletConfig implements WebMvcConfigurer {

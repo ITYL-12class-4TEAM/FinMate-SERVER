@@ -66,6 +66,17 @@ public enum ResponseCode {
     ATTACHMENT_DOWNLOAD_SUCCESS(HttpStatus.OK, "첨부파일 다운로드 성공"),
     ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
 
+    // 스케줄러 관련
+    SCHEDULER_UPDATE_SUCCESS(HttpStatus.OK, "스케줄러 업데이트 성공"),
+    SCHEDULER_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄러 업데이트 실패"),
+
+    // 핫게시물 관련
+    HOT_POSTS_UPDATE_SUCCESS(HttpStatus.OK, "핫게시물 업데이트 성공"),
+    HOT_POSTS_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 업데이트 실패"),
+    HOT_POSTS_CACHE_CLEAR_SUCCESS(HttpStatus.OK, "핫게시물 캐시 삭제 성공"),
+    HOT_POSTS_CACHE_CLEAR_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 캐시 삭제 실패"),
+
+
     /**
      * Community - Scrap
      */
@@ -130,7 +141,20 @@ public enum ResponseCode {
 
     PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "포트폴리오를 찾을 수 없습니다"),
     PORTFOLIO_ACCESS_DENIED(HttpStatus.FORBIDDEN, "해당 포트폴리오에 대한 접근 권한이 없습니다"),
-    INVALID_INPUT_FORMAT(HttpStatus.BAD_REQUEST, "입력 형식이 올바르지 않습니다");
+    INVALID_INPUT_FORMAT(HttpStatus.BAD_REQUEST, "입력 형식이 올바르지 않습니다"),
+
+    /**
+     * favorite response
+     */
+    FAVORITE_CREATE_SUCCESS(HttpStatus.CREATED, "관심상품 등록 성공"),
+    FAVORITE_DELETE_SUCCESS(HttpStatus.OK, "관심상품 삭제 성공"),
+    FAVORITE_READ_SUCCESS(HttpStatus.OK, "관심상품 목록 조회 성공"),
+    FAVORITE_STATUS_CHECK_SUCCESS(HttpStatus.OK, "관심상품 여부 확인 성공"),
+    POPULAR_FAVORITE_READ_SUCCESS(HttpStatus.OK, "인기 관심상품 조회 성공"),
+
+    // 에러 케이스도 추가
+    FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "관심상품을 찾을 수 없습니다"),
+    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심상품으로 등록된 상품입니다");
 
     private final HttpStatus httpStatus;
     private final String message;

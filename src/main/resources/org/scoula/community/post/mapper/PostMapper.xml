@@ -9,21 +9,21 @@
     <insert id="create" parameterType="org.scoula.community.post.domain.PostVO" useGeneratedKeys="true" keyProperty="postId">
         INSERT INTO finmate.post (
             board_id, member_id, title, content, created_at, last_updated,
-            is_anonymous, status, category_tag, product_tag
+            is_anonymous, status, product_tag
         ) VALUES (
                      #{boardId}, #{memberId}, #{title}, #{content}, NOW(), NOW(),
-                     #{anonymous}, #{status.code}, #{categoryTag}, #{productTag}
+                     #{anonymous}, COALESCE(#{status.code}, 'NORMAL'), #{productTag}
                  )
     </insert>
 
-    <!-- 첨부파일 등록 -->
-    <insert id="createAttachment" parameterType="org.scoula.community.post.domain.PostAttachmentVO" useGeneratedKeys="true" keyProperty="no">
-        INSERT INTO finmate.post_attachment (
-            bno, filename, path, content_type, size, created_at
-        ) VALUES (
-                     #{bno}, #{filename}, #{path}, #{contentType}, #{size}, NOW()
-                 )
-    </insert>
+<!--    &lt;!&ndash; 첨부파일 등록 &ndash;&gt;-->
+<!--    <insert id="createAttachment" parameterType="org.scoula.community.post.domain.PostAttachmentVO" useGeneratedKeys="true" keyProperty="no">-->
+<!--        INSERT INTO finmate.post_attachment (-->
+<!--            bno, filename, path, content_type, size, created_at-->
+<!--        ) VALUES (-->
+<!--                     #{bno}, #{filename}, #{path}, #{contentType}, #{size}, NOW()-->
+<!--                 )-->
+<!--    </insert>-->
 
     <!-- 게시글 수정 -->
     <update id="update" parameterType="org.scoula.community.post.domain.PostVO">
@@ -34,7 +34,6 @@
             last_updated = NOW(),
             is_anonymous = #{anonymous},
             status = #{status.code},
-            category_tag = #{categoryTag.code},
             product_tag = #{productTag.code}
         WHERE post_id = #{postId}
     </update>
@@ -44,21 +43,21 @@
         DELETE FROM finmate.post WHERE post_id = #{postId}
     </delete>
 
-    <!-- 첨부파일 삭제 -->
-    <delete id="deleteAttachment" parameterType="long">
-        DELETE FROM finmate.post_attachment WHERE bno = #{postId}
-    </delete>
+<!--    &lt;!&ndash; 첨부파일 삭제 &ndash;&gt;-->
+<!--    <delete id="deleteAttachment" parameterType="long">-->
+<!--        DELETE FROM finmate.post_attachment WHERE bno = #{postId}-->
+<!--    </delete>-->
 
-    <delete id="deleteAttachmentsByPostId" parameterType="long">
-        DELETE FROM finmate.post_attachment WHERE bno = #{postId}
-    </delete>
+<!--    <delete id="deleteAttachmentsByPostId" parameterType="long">-->
+<!--        DELETE FROM finmate.post_attachment WHERE bno = #{postId}-->
+<!--    </delete>-->
 
     <!-- 게시글 목록 조회 -->
     <select id="getList" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         ORDER BY created_at DESC
     </select>
@@ -66,8 +65,8 @@
     <select id="getListByBoard" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE board_id = #{boardId}
         ORDER BY created_at DESC
@@ -78,28 +77,28 @@
     <select id="get" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE post_id = #{postId}
     </select>
 
-    <!-- 첨부파일 목록 조회 -->
-    <select id="getAttachmentList" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">
-        SELECT
-            no, bno, filename, path, content_type, size, created_at
-        FROM finmate.post_attachment
-        WHERE bno = #{postId}
-        ORDER BY created_at ASC
-    </select>
+<!--    &lt;!&ndash; 첨부파일 목록 조회 &ndash;&gt;-->
+<!--    <select id="getAttachmentList" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">-->
+<!--        SELECT-->
+<!--            no, bno, filename, path, content_type, size, created_at-->
+<!--        FROM finmate.post_attachment-->
+<!--        WHERE bno = #{postId}-->
+<!--        ORDER BY created_at ASC-->
+<!--    </select>-->
 
-    <!-- 첨부파일 단건 조회 -->
-    <select id="getAttachment" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">
-        SELECT
-            no, bno, filename, path, content_type, size, created_at
-        FROM finmate.post_attachment
-        WHERE no = #{no}
-    </select>
+<!--    &lt;!&ndash; 첨부파일 단건 조회 &ndash;&gt;-->
+<!--    <select id="getAttachment" parameterType="long" resultType="org.scoula.community.post.domain.PostAttachmentVO">-->
+<!--        SELECT-->
+<!--            no, bno, filename, path, content_type, size, created_at-->
+<!--        FROM finmate.post_attachment-->
+<!--        WHERE no = #{no}-->
+<!--    </select>-->
 
     <select id="existsById" resultType="boolean">
         SELECT COUNT(*) > 0 FROM finmate.post WHERE post_id = #{postId}
@@ -117,11 +116,18 @@
     <select id="getPostsByMemberId" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
         SELECT
             post_id, board_id, member_id, title, content,
-            created_at, last_updated, hot_board_time,
-            is_anonymous, like_count, comment_count, status, category_tag, product_tag
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
         FROM finmate.post
         WHERE member_id = #{memberId}
         ORDER BY created_at DESC
+    </select>
+    <select id="countPostsByBoardId" resultType="int">
+        SELECT COUNT(*) FROM post WHERE board_id = #{boardId}
+    </select>
+
+    <select id="findOldestPostByBoardId" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT * FROM post WHERE board_id = #{boardId} ORDER BY created_at ASC LIMIT 1
     </select>
     <update id="updateLikeCount">
         UPDATE post
@@ -143,5 +149,28 @@
         SET comment_count = GREATEST(comment_count - #{count}, 0)
         WHERE post_id = #{postId}
     </update>
+
+    <select id="getHotPostsByBoard" parameterType="long" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT
+            post_id, board_id, member_id, title, content,
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
+        FROM finmate.post
+        WHERE board_id = #{boardId}
+          AND DATE(created_at) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))  -- 전날 작성된 게시물
+        ORDER BY like_count DESC, created_at DESC
+        LIMIT 5  -- 상위 10개만
+    </select>
+
+    <select id="getAllHotPosts" resultType="org.scoula.community.post.domain.PostVO">
+        SELECT
+            post_id, board_id, member_id, title, content,
+            created_at, last_updated,
+            is_anonymous, like_count, comment_count, status, product_tag
+        FROM finmate.post
+        WHERE DATE(created_at) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))
+        ORDER BY like_count DESC, created_at DESC
+        LIMIT 5
+    </select>
 
 </mapper>
