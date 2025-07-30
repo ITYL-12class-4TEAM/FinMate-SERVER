@@ -38,7 +38,7 @@
     </select>
     <select id="existsByPostIdAndMemberId" resultType="java.lang.Boolean">
         SELECT COUNT(*) > 0
-        FROM scrap
-        WHERE post_id = #{postId} AND member_id = #{memberId}
+        FROM post_like
+        WHERE post_id = #{postId} AND member_id = #{memberId} AND is_liked = true
     </select>
 </mapper>
