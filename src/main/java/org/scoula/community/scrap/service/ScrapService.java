@@ -7,7 +7,7 @@ import org.scoula.community.scrap.dto.ScrapResponseDTO;
 
 public interface ScrapService {
     ScrapResponseDTO toggleScrap(Long postId);
-    boolean isScraped(Long postId, Long memberId);
+    boolean isScraped(Long postId);
     List<PostListResponseDTO> getMyScrapList();
     ScrapCountResponseDTO getScrapCount(Long postId);
     void deleteScrapsByPostId(Long postId); // 게시글 삭제시 사용

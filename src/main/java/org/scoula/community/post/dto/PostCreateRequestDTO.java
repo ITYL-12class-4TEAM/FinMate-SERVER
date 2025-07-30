@@ -3,19 +3,13 @@ package org.scoula.community.post.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.scoula.community.post.domain.CategoryTag;
-import org.scoula.community.post.domain.PostAttachmentVO;
 import org.scoula.community.post.domain.PostStatus;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.domain.ProductTag;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -38,18 +32,16 @@ public class PostCreateRequestDTO {
     private boolean isAnonymous;
 
     @ApiModelProperty(value = "게시글 상태 코드 (NORMAL, DELETED 등)", example = "NORMAL", position = 13)
-    private String status;
-
-    @ApiModelProperty(value = "카테고리 태그 이름", example = "RECOMMEND", position = 17)
-    private String categoryTag;
+    @Builder.Default
+    private String status = PostStatus.NORMAL.getCode();
 
     @ApiModelProperty(value = "상품 태그 이름", example = "DEPOSIT", position = 17)
     private String productTag;
 
-    @ApiModelProperty(value = "첨부파일 목록", position = 14)
-    private List<PostAttachmentVO> attaches;
-
-    List<MultipartFile> files = new ArrayList<>();
+//    @ApiModelProperty(value = "첨부파일 목록", position = 14)
+//    private List<PostAttachmentVO> attaches;
+//
+//    List<MultipartFile> files = new ArrayList<>();
 
     public static PostCreateRequestDTO of(PostVO vo) {
         return vo == null ? null : PostCreateRequestDTO.builder()
@@ -58,15 +50,15 @@ public class PostCreateRequestDTO {
                 .content(vo.getContent())
                 .isAnonymous(vo.isAnonymous())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
-                .categoryTag(vo.getCategoryTag().getCode())
                 .productTag(vo.getProductTag().getCode())
-                .attaches(vo.getAttachments())
+//                .attaches(vo.getAttachments())
                 .build();
     }
 
     public PostVO toVo() {
-        PostStatus postStatusEnum = PostStatus.fromCode(status);
-        CategoryTag categoryTagEnum = CategoryTag.fromCode(categoryTag);
+        PostStatus postStatusEnum = status != null
+                ? PostStatus.fromCode(status)
+                : PostStatus.NORMAL;
         ProductTag productTagEnum = ProductTag.fromCode(productTag);
 
         return PostVO.builder()
@@ -75,9 +67,8 @@ public class PostCreateRequestDTO {
                 .content(content)
                 .isAnonymous(isAnonymous)
                 .status(postStatusEnum)
-                .categoryTag(categoryTagEnum)
                 .productTag(productTagEnum)
-                .attachments(attaches)
+//                .attachments(attaches)
                 .build();
     }
 }

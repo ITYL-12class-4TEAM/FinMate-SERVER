@@ -8,6 +8,7 @@ import org.scoula.security.handler.LoginSuccessHandler;
 import org.scoula.security.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,19 +46,48 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**","/api/sms/**","/api/validation/**" ,"/api/signup", "/api/wmti/questions","/resources/**",
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/v2/api-docs",
-                        "/swagger-resources/**",
-                        "/webjars/**").permitAll()
+          
+                // 완전 공개 API (비회원 접근 가능)
+                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup",
+                        "/api/wmti/questions", "/resources/**", "/swagger-ui.html", "/swagger-ui/**",
+                        "/v2/api-docs", "/swagger-resources/**", "/webjars/**").permitAll()
+
+                // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
+                .antMatchers("/api/chatbot/**").permitAll()                          // 챗봇 (비회원도 금융 질문 가능)
+                .antMatchers("/api/posts/hot").permitAll()                           // 핫 게시물 조회
+                .antMatchers("/api/posts/board/{boardId}").permitAll()               // 게시판별 게시물 조회
+                .antMatchers("/api/posts/board/{boardId}/hot").permitAll()           // 게시판별 핫 게시물
+                .antMatchers("/api/board").permitAll()                               // 게시판 목록 조회
+                .antMatchers(HttpMethod.GET, "/api/posts").permitAll()               // 게시물 목록 조회 (GET만)
+                .antMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()          // 개별 게시물 읽기
+
+                // 댓글 조회 (비회원 접근 가능)
+                .antMatchers(HttpMethod.GET, "/api/comments/{commentId}").permitAll()           // 댓글 단건 조회
+                .antMatchers(HttpMethod.GET, "/api/comments/parent/{parentCommentId}").permitAll() // 부모댓글+대댓글 조회
+                .antMatchers(HttpMethod.GET, "/api/comments/post/{postId}").permitAll()         // 게시글 댓글 리스트
+
+                // 금융 상품 비교/요약 (비회원 접근 가능)
+                .antMatchers("/api/chat/compare").permitAll()                        // 금융 상품 비교
+                .antMatchers("/api/chat/summary").permitAll()                        // 금융 상품 요약
+
+                // 회원만 접근 가능한 개인화 기능
+                .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능
+                .antMatchers("/api/scraps/**").authenticated()                       // 스크랩 기능
+                .antMatchers("/api/posts/my").authenticated()                        // ⭐ 내가 쓴 글 (회원 전용)
+                .antMatchers("/api/comments/my").authenticated()                     // ⭐ 내가 쓴 댓글 (회원 전용)
+                .antMatchers(HttpMethod.POST, "/api/posts/**").authenticated()       // 게시물 작성
+                .antMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()        // 게시물 수정
+                .antMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()     // 게시물 삭제
+                .antMatchers(HttpMethod.POST, "/api/comments/**").authenticated()    // 댓글 작성
+                .antMatchers(HttpMethod.PUT, "/api/comments/**").authenticated()     // 댓글 수정
+                .antMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()  // 댓글 삭제
+
                 .anyRequest().authenticated()
                 .and()
                 .logout().disable()
-                // JWT 인증필터
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement().disable(); // JWT 사용 시 세션 미사용
+                .sessionManagement().disable();
     }
 
     // 사용자 정의 인증 서비스 + 암호화 설정

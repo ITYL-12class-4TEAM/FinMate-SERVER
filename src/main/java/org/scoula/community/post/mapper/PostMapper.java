@@ -20,10 +20,10 @@ public interface PostMapper {
     public int delete(Long no);
     boolean existsById(Long postId);
 
-    public void createAttachment(PostAttachmentVO attach);
-    public List<PostAttachmentVO> getAttachmentList(Long bno);
-    public PostAttachmentVO getAttachment(Long no);
-    public int deleteAttachment(Long no);
+//    public void createAttachment(PostAttachmentVO attach);
+//    public List<PostAttachmentVO> getAttachmentList(Long bno);
+//    public PostAttachmentVO getAttachment(Long no);
+//    public int deleteAttachment(Long no);
 
     List<CommentVO> getCommentsByPostId(Long no);
     void updateLikeCount(Long postId);
@@ -32,7 +32,13 @@ public interface PostMapper {
     void incrementCommentCount(Long postId);
     void decrementCommentCountBy(@Param("postId") Long postId, @Param("count") int count);
 
-    void deleteAttachmentsByPostId(Long postId);
+//    void deleteAttachmentsByPostId(Long postId);
 
     List<PostVO> getPostsByMemberId(Long currentUserId);
+
+    PostVO findOldestPostByBoardId(Long hotBoardId);
+    int countPostsByBoardId(Long hotBoardId);
+
+    List<PostVO> getHotPostsByBoard(Long boardId);
+    List<PostVO> getAllHotPosts();
 }

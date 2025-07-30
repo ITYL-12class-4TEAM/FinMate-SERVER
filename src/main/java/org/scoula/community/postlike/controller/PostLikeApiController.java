@@ -44,9 +44,8 @@ public class PostLikeApiController {
 
     @GetMapping("/{postId}/me")
     @ApiOperation("해당 게시글 좋아요 여부 조회")
-    public ApiResponse<?> getMyLikeStatus(@PathVariable Long postId,
-                                          @RequestParam("memberId") Long memberId) {
-        boolean liked = postLikeService.isLikedByMember(postId, memberId);
+    public ApiResponse<?> getMyLikeStatus(@PathVariable Long postId) {
+        boolean liked = postLikeService.isLikedByMember(postId);
         return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
     }
 

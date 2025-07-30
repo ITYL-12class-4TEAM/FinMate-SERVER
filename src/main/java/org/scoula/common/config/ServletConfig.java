@@ -34,6 +34,7 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.community.scrap.controller",
         "org.scoula.auth.controller",
         "org.scoula.member.controller",
+        "org.scoula.products.controller",
         "org.scoula.preinfo.controller",
         "org.scoula.wmti.controller",
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지

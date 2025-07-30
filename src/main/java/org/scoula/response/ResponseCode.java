@@ -38,7 +38,7 @@ public enum ResponseCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
-
+    UNAUTHORIZED_USER(HttpStatus.FORBIDDEN, "로그인이 필요합니다."),
     /**
      * SMS response
      */
@@ -72,6 +72,17 @@ public enum ResponseCode {
 
     ATTACHMENT_DOWNLOAD_SUCCESS(HttpStatus.OK, "첨부파일 다운로드 성공"),
     ATTACHMENT_DELETE_SUCCESS(HttpStatus.OK, "첨부파일 삭제 성공"),
+
+    // 스케줄러 관련
+    SCHEDULER_UPDATE_SUCCESS(HttpStatus.OK, "스케줄러 업데이트 성공"),
+    SCHEDULER_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "스케줄러 업데이트 실패"),
+
+    // 핫게시물 관련
+    HOT_POSTS_UPDATE_SUCCESS(HttpStatus.OK, "핫게시물 업데이트 성공"),
+    HOT_POSTS_UPDATE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 업데이트 실패"),
+    HOT_POSTS_CACHE_CLEAR_SUCCESS(HttpStatus.OK, "핫게시물 캐시 삭제 성공"),
+    HOT_POSTS_CACHE_CLEAR_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 캐시 삭제 실패"),
+
 
     /**
      * Community - Scrap
@@ -108,14 +119,13 @@ public enum ResponseCode {
     COMMENT_LIKE_STATUS_SUCCESS(HttpStatus.OK, "댓글 좋아요 여부 조회 성공"),
 
     /**
-     *  ChatBot response
+     * ChatBot response
      */
     CHATBOT_SESSION_CREATED(HttpStatus.OK, "챗봇 세션이 생성되었습니다."),
     CHATBOT_RESPONSE_SUCCESS(HttpStatus.OK, "응답 생성 완료"),
     CHATBOT_SESSION_TERMINATED(HttpStatus.OK, "세션 종료 완료"),
     CHATBOT_SESSION_RESTORED(HttpStatus.OK, "세션이 복원되었습니다."),
     CHATBOT_HISTORY_ROLLED_BACK(HttpStatus.OK, "대화 히스토리 롤백 완료"),
-
     /**
      * ChatGPT response
      */
@@ -126,6 +136,22 @@ public enum ResponseCode {
     CHATGPT_RETRIEVAL_FAILED(HttpStatus.UNAUTHORIZED, "금융 상품 분석 요청에 실패했습니다."),
     CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다."),
     /**
+     * Product response
+     */
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+    PRODUCT_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "금융상품 API 호출 중 오류가 발생했습니다."),
+    PRODUCT_SEARCH_SUCCESS(HttpStatus.OK, "상품 검색이 성공적으로 처리되었습니다."),
+    PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "상품 상세 정보를 성공적으로 조회했습니다."),
+    PRODUCT_COMPARE_SUCCESS(HttpStatus.OK, "상품 비교가 성공적으로 처리되었습니다."),
+    INVALID_PRODUCT_TYPE_ERROR(HttpStatus.BAD_REQUEST, "유효하지 않는 상품 유형입니다"),
+    PRODUCT_INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 상품 파라미터가 입력되었습니다."),
+    PRODUCT_AUTOCOMPLETE_SUCCESS(HttpStatus.OK, "상품 검색 자동완성을 성공했습니다."),
+    PRODUCT_CATEGORY_SUCCESS(HttpStatus.OK, "상품 카테고리 목록 조회를 성공했습니다."),
+    PRODUCT_FILTER_OPTIONS_SUCCESS(HttpStatus.OK, "상품 필터링 기능이 성공적으로 처리되었습니다."),
+    PRODUCT_COMPARISON_SUCCESS(HttpStatus.OK, "상품 비교를 성공했습니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 조회에 실패했습니다."),
+    SUBCATEGORY_SUCCESS(HttpStatus.OK, "서브 카테고리 조회에 성공했습니다.");
+    /**
      * PreInfo response
      */
     PREINFO_USER_PROFILE_SUBMIT_SUCCESS(HttpStatus.CREATED, "사용자 프로필이 성공적으로 제출되었습니다."),
@@ -134,8 +160,6 @@ public enum ResponseCode {
     PREINFO_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 동일한 사전 정보가 존재합니다."),
     PREINFO_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사전 정보 분석 중 오류가 발생했습니다."),
     PREINFO_ILLEGAL_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
-
-
     /**
      * WMTI response
      */

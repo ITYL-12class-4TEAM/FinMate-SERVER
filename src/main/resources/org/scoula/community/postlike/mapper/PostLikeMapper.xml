@@ -36,4 +36,9 @@
         WHERE pl.member_id = #{memberId}
         ORDER BY pl.created_at DESC
     </select>
+    <select id="existsByPostIdAndMemberId" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM post_like
+        WHERE post_id = #{postId} AND member_id = #{memberId} AND is_liked = true
+    </select>
 </mapper>

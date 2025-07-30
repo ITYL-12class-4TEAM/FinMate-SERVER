@@ -7,6 +7,6 @@ import org.scoula.community.post.dto.PostListResponseDTO;
 public interface PostLikeService {
     boolean toggleLike(Long postId);
     int getLikeCount(Long postId);
-    boolean isLikedByMember(Long postId, Long memberId);
+    boolean isLikedByMember(Long postId);
     List<PostListResponseDTO> getMyLikedPosts();
 }
