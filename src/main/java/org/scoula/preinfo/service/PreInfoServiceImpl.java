@@ -8,6 +8,7 @@ import org.scoula.preinfo.entity.PreInformation;
 import org.scoula.preinfo.enums.InvestmentCapacity;
 import org.scoula.preinfo.enums.InvestmentType;
 import org.scoula.preinfo.mapper.PreInfoMapper;
+import org.scoula.preinfo.util.PreInfoMapperUtil;
 import org.scoula.security.util.JwtProcessor;
 import org.scoula.wmti.enums.RiskPreference;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class PreInfoServiceImpl implements PreInfoService {
         InvestmentCapacity investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate, surplus, dto.getMonthlyIncome(), dto.getAge(), dto.getMarried());
         RiskPreference riskPreference = calculator.calculateRiskPreference(dto, surplus, savingsRate);
         InvestmentType resultType = calculator.calculateResultType(score);
-        long recommendedMonthlyInvestment = calculator.calculateRecommendedMonthlyInvestment(dto.getPeriod(), riskPreference, surplus);
+        long recommended = calculator.calculateRecommendedMonthlyInvestment(dto.getPeriod(), riskPreference, surplus);
 
 
         //고유 ID + 토큰생성
@@ -55,28 +56,10 @@ public class PreInfoServiceImpl implements PreInfoService {
         String token = jwtUtil.generateSurveyToken(userId); // JwtUtil 직접 구현 필요
 
         //엔티티 구성
-        PreInformation profile = PreInformation.builder()
-                .preInfoId(preInfoId)
-                .memberId(userId)
-                .username(dto.getUsername())
-                .age(dto.getAge())
-                .married(dto.getMarried())
-                .monthlyIncome(dto.getMonthlyIncome())
-                .fixedCost(dto.getFixedCost())
-                .surplusAmount(surplus)
-                .period(dto.getPeriod())
-                .purposeCategory(dto.getPurposeCategory())
-                .savingsRate(savingsRate)
-                .financialHealthScore(score)
-                .investmentCapacity(investmentCapacity)
-                .recommendedMonthlyInvestment(recommendedMonthlyInvestment)
-                .resultType(resultType)
-                .riskPreference(riskPreference)
-                .platform(dto.getPlatform())
-                .userAgent(dto.getUserAgent())
-                .screenSize(dto.getScreenSize())
-                .createdAt(now)
-                .build();
+        PreInformation profile = PreInfoMapperUtil.toEntity(
+                preInfoId, userId, dto, surplus, savingsRate, score,
+                recommended, investmentCapacity, riskPreference, resultType, now
+        );
 
         // DB 저장 -> insert/update 분기
         PreInformation existing = preInfoMapper.findByMemberId(userId);
@@ -87,26 +70,11 @@ public class PreInfoServiceImpl implements PreInfoService {
         }
 
         // DTO 로 응답 구성
-        return PreInfoResponseDTO.builder()
-                .preInfoId(preInfoId)
-                .userId(userId)
-                .savedAt(now)
-                .surveyToken(token)
-                .analysis(PreInfoResponseDTO.AnalysisResult.builder()
-                        .disposableIncome(surplus)
-                        .savingsRate(savingsRate)
-                        .financialHealthScore(score)
-                        .investmentCapacity(investmentCapacity)
-                        .recommendedMonthlyInvestment(recommendedMonthlyInvestment)
-                        .resultType(resultType)
-                        .riskPreference(riskPreference)
-                        .build())
-                .nextStep(PreInfoResponseDTO.NextStep.builder()
-                        .url("/survey/questionnaire")
-                        .description("이제 투자 성향 검사를 진행해주세요.")
-                        .build())
-                .estimatedTime("15분") //예상소요시간 안내(고정문자열)
-                .build();
+        return PreInfoMapperUtil.toResponseDTO(
+                preInfoId, userId, token, now,
+                surplus, savingsRate, score, recommended,
+                investmentCapacity, resultType, riskPreference
+        );
     }
 
     //입력양식에 따른 PREINFO_ID 명명
