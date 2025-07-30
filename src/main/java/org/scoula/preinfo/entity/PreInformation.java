@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.scoula.preinfo.enums.InvestmentCapacity;
 import org.scoula.preinfo.enums.InvestmentPeriod;
+import org.scoula.preinfo.enums.InvestmentType;
 import org.scoula.preinfo.enums.PurposeCategory;
 import org.scoula.wmti.enums.RiskPreference;
 
@@ -31,9 +33,9 @@ public class PreInformation {
     private Long surplusAmount; //사용자의 월 잉여자산(운용가능자산) income - fixedCost
     private Integer savingsRate;                // 소득대비저축률 (%)
     private Integer financialHealthScore;       // 재무건정성 점수 : 0~100
-    private String investmentCapacity;          // 예: 부족 / 보통 / 양호
+    private InvestmentCapacity investmentCapacity;          // 예: 부족 / 보통 / 양호
     private Long recommendedMonthlyInvestment;  // 예: 500000
-    private String resultType;  //사전정보입력 결과 도출된 투자자유형
+    private InvestmentType resultType;  //사전정보입력 결과 도출된 투자자유형
     private RiskPreference riskPreference; //사전정보입력 결과 도출된 위험 성향 ENUM(’안정형’, ‘안정추구형’, ‘위험중립형’, ‘적극투자형’, ‘공격투자형’)
 
     // 디바이스 정보

@@ -5,6 +5,8 @@ import org.scoula.preinfo.domain.PreInfoCalculator;
 import org.scoula.preinfo.dto.PreInfoRequestDTO;
 import org.scoula.preinfo.dto.PreInfoResponseDTO;
 import org.scoula.preinfo.entity.PreInformation;
+import org.scoula.preinfo.enums.InvestmentCapacity;
+import org.scoula.preinfo.enums.InvestmentType;
 import org.scoula.preinfo.mapper.PreInfoMapper;
 import org.scoula.security.util.JwtProcessor;
 import org.scoula.wmti.enums.RiskPreference;
@@ -42,9 +44,9 @@ public class PreInfoServiceImpl implements PreInfoService {
         long surplus = calculator.calculateSurplusAmount(dto.getMonthlyIncome(), dto.getFixedCost());
         int savingsRate = calculator.calculateSavingsRate(dto.getMonthlyIncome(), surplus);
         int score = calculator.calculateFinancialHealthScore(savingsRate);
-        String investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate, surplus, dto.getMonthlyIncome(), dto.getAge(), dto.getMarried());
+        InvestmentCapacity investmentCapacity = calculator.calculateInvestmentCapacity(savingsRate, surplus, dto.getMonthlyIncome(), dto.getAge(), dto.getMarried());
         RiskPreference riskPreference = calculator.calculateRiskPreference(dto, surplus, savingsRate);
-        String resultType = calculator.calculateResultType(score);
+        InvestmentType resultType = calculator.calculateResultType(score);
         long recommendedMonthlyInvestment = calculator.calculateRecommendedMonthlyInvestment(dto.getPeriod(), riskPreference, surplus);
 
 
