@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/preinfo")
 @Api(tags = "사전 정보 입력 API", description = "투자성향 검사 전에 입력하는 기본 정보를 등록합니다.")
 public class PreInfoController {
+    
     private final PreInfoService preInfoService;
     private final JwtProcessor jwtProcessor;
 

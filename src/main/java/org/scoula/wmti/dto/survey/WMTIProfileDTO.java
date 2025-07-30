@@ -7,6 +7,12 @@ import java.util.List;
 
 @Data
 public class WMTIProfileDTO {
+    @ApiModelProperty(value = "식별 ID", example = "1")
+    private Integer id;
+
+    @ApiModelProperty(value = "WMTI 성향 코드", example = "APML")
+    private String code;
+
     @ApiModelProperty(value = "성향 코드 별 별칭", example = "타고난 리더형 투자 지도자")
     private String aka;
 

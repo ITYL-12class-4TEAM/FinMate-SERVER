@@ -1,5 +1,7 @@
 package org.scoula.wmti.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +14,8 @@ import org.scoula.wmti.dto.survey.WMTIHistoryDTO;
 import org.scoula.wmti.dto.survey.WMTIProfileDTO;
 import org.scoula.wmti.entity.SurveyResult;
 import org.scoula.wmti.service.WMTIService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
@@ -19,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.scoula.wmti.dto.survey.SurveyRequestDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +170,28 @@ public class WMTIController {
             return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, analysisResult);
         } catch (Exception e) {
             return ApiResponse.fail(ResponseCode.WMTI_ANALYSIS_FAILED, "분석 결과 처리 중 오류가 발생했습니다.");
+        }
+    }
+    //wmti설문문항 전달API
+    @ApiOperation(value = "WMTI 설문 문항 조회", notes = "프론트에서 설문지를 렌더링할 수 있도록 20개의 WMTI 설문 문항을 반환합니다.")
+    @GetMapping("/questions")
+    public ApiResponse<?> getWMTIQuestions() {
+        try {
+            InputStream is = getClass().getResourceAsStream("/json/survey/wmti_question.json");
+            if (is == null) {
+                return ApiResponse.fail(ResponseCode.WMTI_QUESTION_NOT_FOUND, "설문 문항 JSON 파일을 찾을 수 없습니다.");
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, Object>> questions = objectMapper.readValue(
+                    is,
+                    new TypeReference<>() {}
+            );
+
+            return ApiResponse.success(ResponseCode.WMTI_QUESTION_RETRIEVED, questions);
+
+        } catch (Exception e) {
+            return ApiResponse.fail(ResponseCode.WMTI_QUESTION_LOAD_FAILED, "설문 문항 파싱 중 오류 발생: ");
         }
     }
 }
