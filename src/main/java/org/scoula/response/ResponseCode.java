@@ -131,6 +131,10 @@ public enum ResponseCode {
     PREINFO_USER_PROFILE_SUBMIT_SUCCESS(HttpStatus.CREATED, "사용자 프로필이 성공적으로 제출되었습니다."),
     PREINFO_NOT_FOUND(HttpStatus.NOT_FOUND, "사전 정보가 존재하지 않습니다."),
     PREINFO_RETRIEVED(HttpStatus.OK, "사전 정보가 성공적으로 조회되었습니다."),
+    PREINFO_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 동일한 사전 정보가 존재합니다."),
+    PREINFO_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사전 정보 분석 중 오류가 발생했습니다."),
+    PREINFO_ILLEGAL_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
+
 
     /**
      * WMTI response
@@ -153,8 +157,11 @@ public enum ResponseCode {
     WMTI_ANALYSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "분석 결과를 찾을 수 없습니다."),
     WMTI_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "분석 결과 처리 중 오류가 발생했습니다."),
     //공개/비공개 관련
-    WMTI_RESULT_PRIVATE(HttpStatus.FORBIDDEN, "비공개 상태의 결과입니다.");
-
+    WMTI_RESULT_PRIVATE(HttpStatus.FORBIDDEN, "비공개 상태의 결과입니다."),
+        //설문 질문문항 관련
+        WMTI_QUESTION_RETRIEVED(HttpStatus.OK, "WMTI 설문 문항 조회 성공"),
+        WMTI_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "WMTI 설문 문항 파일을 찾을 수 없음"),
+        WMTI_QUESTION_LOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "WMTI 설문 문항 파싱 실패");
     private final HttpStatus httpStatus;
     private final String message;
 

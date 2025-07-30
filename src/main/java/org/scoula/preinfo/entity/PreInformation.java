@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.scoula.preinfo.dto.PreInfoRequestDTO;
 import org.scoula.preinfo.enums.InvestmentCapacity;
 import org.scoula.preinfo.enums.InvestmentPeriod;
 import org.scoula.preinfo.enums.InvestmentType;
@@ -11,6 +12,7 @@ import org.scoula.preinfo.enums.PurposeCategory;
 import org.scoula.wmti.enums.RiskPreference;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -44,4 +46,17 @@ public class PreInformation {
     private String screenSize;
 
     private LocalDateTime createdAt;  // 사전정보 입력일
+
+    public boolean equalsInput(PreInfoRequestDTO dto) {
+        if (dto == null) return false;
+
+        return
+                Objects.equals(this.username, dto.getUsername()) &&
+                        Objects.equals(this.age, dto.getAge()) &&
+                        Objects.equals(this.married, dto.getMarried()) &&
+                        Objects.equals(this.monthlyIncome, dto.getMonthlyIncome()) &&
+                        Objects.equals(this.fixedCost, dto.getFixedCost()) &&
+                        Objects.equals(this.period, dto.getPeriod()) &&
+                        Objects.equals(this.purposeCategory, dto.getPurposeCategory());
+    }
 }
