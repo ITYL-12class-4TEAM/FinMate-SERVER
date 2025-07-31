@@ -80,5 +80,8 @@
     <select id="getMemberIdByEmail" resultType="long">
         SELECT member_id FROM member WHERE email = #{email}
     </select>
+    <select id="getNicknameByMemberId" resultType="java.lang.String">
+        SELECT member.nickname FROM member WHERE member_id = #{memberId}
+    </select>
 
 </mapper>

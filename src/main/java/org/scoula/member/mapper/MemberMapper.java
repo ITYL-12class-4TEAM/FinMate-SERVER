@@ -33,4 +33,6 @@ public interface MemberMapper {
     int updatePassword(@Param("memberId") Long memberId,
                        @Param("Password") String encodedPassword);
     Long getMemberIdByEmail(@Param("email") String email);
+
+    String getNicknameByMemberId(@Param("memberId") Long memberId);
 }
