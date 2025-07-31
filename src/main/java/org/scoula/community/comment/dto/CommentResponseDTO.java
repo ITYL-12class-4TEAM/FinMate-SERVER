@@ -18,6 +18,8 @@ public class CommentResponseDTO {
     private Long commentId;
     private Long postId;
     private Long memberId;
+    @ApiModelProperty(value = "작성자 닉네임", example = "홍길동", position = 9)
+    private String nickname;
     private String content;
     private boolean isAnonymous;
     private Long parentComment;
@@ -26,11 +28,14 @@ public class CommentResponseDTO {
     private int likeCount;
     private boolean isLiked;
 
-    public static CommentResponseDTO of(CommentVO vo, boolean isLiked) {
+    public static CommentResponseDTO of(CommentVO vo, boolean isLiked, String nickname) {
+        String displayName = vo.isAnonymous() ? "익명" : nickname;
+
         return vo == null ? null : CommentResponseDTO.builder()
                 .commentId(vo.getCommentId())
                 .postId(vo.getPostId())
                 .memberId(vo.getMemberId())
+                .nickname(displayName)
                 .content(vo.getContent())
                 .isAnonymous(vo.isAnonymous())
                 .parentComment(vo.getParentComment())
