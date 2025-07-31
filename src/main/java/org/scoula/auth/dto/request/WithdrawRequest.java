@@ -1,4 +1,4 @@
-package org.scoula.auth.dto;
+package org.scoula.auth.dto.request;
 
 import lombok.Data;
 import javax.validation.constraints.NotBlank;

@@ -10,7 +10,6 @@ import org.scoula.auth.service.AuthService;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JwtProcessor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "아이디 비밀번호 찾기 및 토큰 갱신 API")

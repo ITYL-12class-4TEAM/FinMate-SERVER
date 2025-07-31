@@ -1,6 +1,4 @@
-package org.scoula.auth.dto;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+package org.scoula.auth.dto.request;
 
 public class FindIdRequest {
     private String name;
