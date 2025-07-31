@@ -90,7 +90,7 @@ public class SecurityConfig {
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
                 .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/v2/api-docs", "/swagger-resources/**", "/webjars/**",
+                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**",
                         "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
                 .permitAll()
 

@@ -52,7 +52,10 @@ import javax.sql.DataSource;
         "org.scoula.member.mapper",
         "org.scoula.community.scrap.mapper",
         "org.scoula.community.post.mapper",
-        "org.scoula.member.mapper"
+        "org.scoula.member.mapper",
+        "org.scoula.wmti.mapper",
+        "org.scoula.preinfo.mapper",
+        "org.scoula.member.mapper",
 })
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 @MapperScan(basePackages = {"org.scoula.products.mapper"})
