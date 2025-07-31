@@ -1,17 +1,14 @@
 package org.scoula.mypage.favorite.service;
 
 import lombok.RequiredArgsConstructor;
+import org.scoula.mypage.favorite.exception.*;
+import org.scoula.mypage.util.SecurityUtil;
 import org.scoula.response.ResponseCode;
-import org.scoula.member.mapper.MemberMapper;
 import org.scoula.mypage.favorite.dto.FavoriteProductResponse;
 import org.scoula.mypage.favorite.dto.PopularFavoriteGroupResponse;
 import org.scoula.mypage.favorite.dto.SubcategoryResponse;
-import org.scoula.mypage.favorite.exception.FavoriteAlreadyExistsException;
-import org.scoula.mypage.favorite.exception.FavoriteNotFoundException;
-import org.scoula.mypage.favorite.exception.ProductNotFoundException;
 import org.scoula.mypage.favorite.mapper.FavoriteProductMapper;
 import org.scoula.mypage.favorite.mapper.ProductMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,13 +20,13 @@ import java.util.stream.Collectors;
 public class FavoriteProductServiceImpl implements FavoriteProductService {
     private final FavoriteProductMapper favoriteProductMapper;
     private final ProductMapper productMapper;
-    private final MemberMapper memberMapper;
+    private final SecurityUtil securityUtil;
 
     /**
      * 즐겨찾기 추가
      */
     public void addFavorite(Long productId, Integer saveTrm, String rsrvType) {
-        Long memberId = getCurrentUserIdAsLong();
+        Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         // 상품 존재 여부 확인
         if (!productMapper.existsById(productId)) {
@@ -45,7 +42,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
             favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
             favoriteProductMapper.increaseWishlistCount(productId);
         } catch (Exception e) {
-            throw new RuntimeException("즐겨찾기 추가 중 오류가 발생했습니다.", e);
+            throw new DatabaseOperationException(ResponseCode.DATABASE_ERROR);
         }
     }
 
@@ -53,7 +50,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      * 즐겨찾기 삭제
      */
     public void removeFavorite(Long productId) {
-        Long memberId = getCurrentUserIdAsLong();
+        Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         // 즐겨찾기에 등록되어 있는지 확인
         if (!favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId)) {
@@ -64,7 +61,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
             favoriteProductMapper.deleteFavorite(memberId, productId);
             favoriteProductMapper.decreaseWishlistCount(productId);
         } catch (Exception e) {
-            throw new RuntimeException("즐겨찾기 삭제 중 오류가 발생했습니다.", e);
+            throw new DatabaseOperationException(ResponseCode.DATABASE_ERROR);
         }
     }
 
@@ -72,22 +69,17 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      * 즐겨찾기 목록 조회
      */
     public List<FavoriteProductResponse> getFavorites() {
-        Long memberId = getCurrentUserIdAsLong();
+        Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         try {
             List<FavoriteProductResponse> favorites = favoriteProductMapper.selectFavoritesByMemberId(memberId);
 
-            for (FavoriteProductResponse dto : favorites) {
-                if ("연금".equals(dto.getCategoryName())) {
-                    BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
-                    dto.setBaseRate(pensionRate);
-                    dto.setMaxRate(null);
-                }
-            }
+            // 연금 상품에 대한 추가 정보 설정
+            processPensionProducts(favorites);
 
             return favorites;
         } catch (Exception e) {
-            throw new RuntimeException("즐겨찾기 목록 조회 중 오류가 발생했습니다.", e);
+            throw new FavoriteServiceException(ResponseCode.FAVORITE_READ_FAILED);
         }
     }
 
@@ -95,7 +87,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      * 특정 상품이 즐겨찾기에 등록되어 있는지 확인
      */
     public boolean isFavorite(Long productId) {
-        Long memberId = getCurrentUserIdAsLong();
+        Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         // 상품 존재 여부 확인
         if (!productMapper.existsById(productId)) {
@@ -105,7 +97,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
         try {
             return favoriteProductMapper.existsByMemberIdAndProductId(memberId, productId);
         } catch (Exception e) {
-            throw new RuntimeException("즐겨찾기 상태 확인 중 오류가 발생했습니다.", e);
+            throw new FavoriteServiceException(ResponseCode.FAVORITE_CHECK_FAILED);
         }
     }
 
@@ -115,41 +107,63 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
      * @return 카테고리별 인기 관심상품 목록
      */
     public List<PopularFavoriteGroupResponse> getPopularFavoritesByCategory(int days) {
-        if (days <= 0) {
-            throw new IllegalArgumentException("조회 기간은 1일 이상이어야 합니다.");
-        }
+        validateDaysParameter(days);
 
         try {
             List<SubcategoryResponse> subcategories = productMapper.getAllSubcategories();
 
             return subcategories.stream()
-                    .map(sub -> {
-                        List<FavoriteProductResponse> products =
-                                favoriteProductMapper.selectPopularFavorites(sub.getSubcategoryId(), days);
-                        PopularFavoriteGroupResponse dto = new PopularFavoriteGroupResponse();
-                        dto.setSubcategoryId(sub.getSubcategoryId());
-                        dto.setSubcategoryName(sub.getSubcategoryName());
-                        dto.setProducts(products);
-                        return dto;
-                    })
+                    .map(sub -> createPopularFavoriteGroup(sub, days))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new RuntimeException("인기 관심상품 조회 중 오류가 발생했습니다.", e);
+            throw new FavoriteServiceException(ResponseCode.POPULAR_FAVORITE_READ_FAILED);
         }
     }
 
-    private Long getCurrentUserIdAsLong() {
+    /**
+     * 연금 상품에 대한 추가 정보 처리
+     */
+    private void processPensionProducts(List<FavoriteProductResponse> favorites) {
         try {
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            Long memberId = memberMapper.getMemberIdByEmail(email);
-
-            if (memberId == null) {
-                throw new RuntimeException("사용자 정보를 찾을 수 없습니다.");
+            for (FavoriteProductResponse dto : favorites) {
+                if ("연금".equals(dto.getCategoryName())) {
+                    BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
+                    dto.setBaseRate(pensionRate);
+                    dto.setMaxRate(null);
+                }
             }
-
-            return memberId;
         } catch (Exception e) {
-            throw new RuntimeException("사용자 인증 정보를 가져오는데 실패했습니다.", e);
+            throw new FavoriteServiceException(ResponseCode.PENSION_RATE_PROCESSING_FAILED);
+        }
+    }
+
+    /**
+     * days 파라미터 유효성 검증
+     */
+    private void validateDaysParameter(int days) {
+        if (days <= 0) {
+            throw new ValidationException(ResponseCode.INVALID_DAYS_RANGE_MIN);
+        }
+        if (days > 365) {
+            throw new ValidationException(ResponseCode.INVALID_DAYS_RANGE_MAX);
+        }
+    }
+
+    /**
+     * 인기 즐겨찾기 그룹 생성
+     */
+    private PopularFavoriteGroupResponse createPopularFavoriteGroup(SubcategoryResponse sub, int days) {
+        try {
+            List<FavoriteProductResponse> products =
+                    favoriteProductMapper.selectPopularFavorites(sub.getSubcategoryId(), days);
+
+            PopularFavoriteGroupResponse dto = new PopularFavoriteGroupResponse();
+            dto.setSubcategoryId(sub.getSubcategoryId());
+            dto.setSubcategoryName(sub.getSubcategoryName());
+            dto.setProducts(products);
+            return dto;
+        } catch (Exception e) {
+            throw new DatabaseOperationException(ResponseCode.DATABASE_ERROR);
         }
     }
 }

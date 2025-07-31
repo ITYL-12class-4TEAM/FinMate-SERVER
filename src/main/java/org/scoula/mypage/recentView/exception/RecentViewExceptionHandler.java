@@ -1,5 +1,6 @@
 package org.scoula.mypage.recentView.exception;
 
+import org.scoula.mypage.favorite.exception.ValidationException;
 import org.scoula.response.ErrorResponse;
 import org.scoula.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,56 @@ public class RecentViewExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleProductNotFoundException(
             ProductNotFoundException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+
+    @ExceptionHandler(DatabaseOperationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleDatabaseOperationException(
+            DatabaseOperationException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+
+    @ExceptionHandler(RecentViewServiceException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleRecentViewServiceException(
+            RecentViewServiceException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(
+            ValidationException exception,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(

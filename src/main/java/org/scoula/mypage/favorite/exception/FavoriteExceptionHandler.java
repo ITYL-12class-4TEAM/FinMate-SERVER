@@ -30,6 +30,7 @@ public class FavoriteExceptionHandler {
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
 
+    //
     @ExceptionHandler(FavoriteAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleFavoriteAlreadyExistsException(
             FavoriteAlreadyExistsException exception,
@@ -63,4 +64,60 @@ public class FavoriteExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
+    // FavoriteExceptionHandler에 추가할 핸들러들
+
+    @ExceptionHandler(DatabaseOperationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleDatabaseOperationException(
+            DatabaseOperationException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+
+    @ExceptionHandler(FavoriteServiceException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleFavoriteServiceException(
+            FavoriteServiceException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+
+    // 전역 예외 처리기에 추가 (GlobalExceptionHandler)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
+            AuthenticationException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
+
+
+
 }

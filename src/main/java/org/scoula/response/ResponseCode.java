@@ -20,6 +20,7 @@ public enum ResponseCode {
     VALID_NICKNAME(HttpStatus.OK, "사용 가능한 닉네임입니다."),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다."),
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "본인인증이 필요합니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
     TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "토큰이 성공적으로 갱신되었습니다."),
@@ -31,6 +32,9 @@ public enum ResponseCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
+    INVALID_AGE_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 나이 범위입니다"),
+    INVALID_ASSET_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 자산 범위입니다"),
+    INVALID_WMTI_CODE_FORMAT(HttpStatus.BAD_REQUEST, "WMTI 코드 형식이 올바르지 않습니다"),
 
     /**
      * SMS response
@@ -138,12 +142,22 @@ public enum ResponseCode {
     PORTFOLIO_UPDATE_SUCCESS(HttpStatus.OK, "포트폴리오 수정 성공"),
     PORTFOLIO_DELETE_SUCCESS(HttpStatus.OK, "포트폴리오 삭제 성공"),
     PORTFOLIO_SUMMARY_SUCCESS(HttpStatus.OK, "포트폴리오 요약 조회 성공"),
-
+    PORTFOLIO_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포트폴리오 목록 조회에 실패했습니다"),
+    PORTFOLIO_SUMMARY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포트폴리오 요약 조회에 실패했습니다"),
+    PORTFOLIO_SUMMARY_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포트폴리오 요약 데이터 처리에 실패했습니다"),
+    PORTFOLIO_CALCULATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포트폴리오 계산에 실패했습니다"),
     PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "포트폴리오를 찾을 수 없습니다"),
     PORTFOLIO_ACCESS_DENIED(HttpStatus.FORBIDDEN, "포트폴리오 접근 권한이 없습니다"),
     INVALID_AGE_INFO(HttpStatus.BAD_REQUEST, "유효하지 않은 나이 정보입니다"),
     INVALID_ASSET_INFO(HttpStatus.BAD_REQUEST, "유효하지 않은 자산 정보입니다"),
     INVALID_WMTI_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 WMTI 코드입니다"),
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "날짜 형식이 올바르지 않습니다"),
+    CALCULATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "계산 처리 중 오류가 발생했습니다"),
+    COMPARISON_STATS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비교 통계 조회에 실패했습니다"),
+    AGE_GROUP_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "연령대별 비교 데이터 조회에 실패했습니다"),
+    AMOUNT_GROUP_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "자산 규모별 비교 데이터 조회에 실패했습니다"),
+    WMTI_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "WMTI별 비교 데이터 조회에 실패했습니다"),
+    AGE_GROUP_STATS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "나이대별 통계 조회에 실패했습니다"),
 
     /**
      * favorite response
@@ -157,6 +171,12 @@ public enum ResponseCode {
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "관심상품을 찾을 수 없습니다"),
     FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심상품으로 등록된 상품입니다"),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다"),
+    FAVORITE_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "즐겨찾기 목록 조회에 실패했습니다"),
+    FAVORITE_CHECK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "즐겨찾기 상태 확인에 실패했습니다"),
+    POPULAR_FAVORITE_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인기 관심상품 조회에 실패했습니다"),
+    PENSION_RATE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "연금 상품 정보 처리에 실패했습니다"),
+    DATA_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터 변환에 실패했습니다"),
+    DTO_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DTO 변환에 실패했습니다"),
 
     /**
      * RecentView response
@@ -166,7 +186,25 @@ public enum ResponseCode {
     RECENT_VIEW_DELETE_SUCCESS(HttpStatus.OK, "최근 본 상품 삭제 성공"),
     RECENT_VIEW_DELETE_ALL_SUCCESS(HttpStatus.OK, "최근 본 상품 전체 삭제 성공"),
 
-    RECENT_VIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "최근 본 상품 기록을 찾을 수 없습니다");
+    RECENT_VIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "최근 본 상품 기록을 찾을 수 없습니다"),
+    RECENT_VIEW_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "최근 본 상품 목록 조회에 실패했습니다"),
+    RECENT_VIEW_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "최근 본 상품 저장에 실패했습니다"),
+    RECENT_VIEW_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "최근 본 상품 삭제에 실패했습니다"),
+
+    /**
+     *  database operation response
+     */
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 오류가 발생했습니다"),
+
+    /**
+     * 유효성 검증 관련
+     */
+    INVALID_DAYS_RANGE_MIN(HttpStatus.BAD_REQUEST, "조회 기간은 1일 이상이어야 합니다"),
+    INVALID_DAYS_RANGE_MAX(HttpStatus.BAD_REQUEST, "조회 기간은 365일을 초과할 수 없습니다"),
+    INVALID_PRODUCT_ID(HttpStatus.BAD_REQUEST, "상품 ID는 필수입니다"),
+    INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "가입 금액은 0보다 커야 합니다"),
+    INVALID_SAVE_TERM(HttpStatus.BAD_REQUEST, "저축 기간은 0보다 커야 합니다"),
+    INVALID_MEMBER_ID(HttpStatus.BAD_REQUEST, "회원 ID는 양수여야 합니다");
 
     private final HttpStatus httpStatus;
     private final String message;
