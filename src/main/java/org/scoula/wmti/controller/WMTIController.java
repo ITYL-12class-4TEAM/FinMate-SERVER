@@ -56,7 +56,7 @@ public class WMTIController {
 
     // 설문 결과 조회 (GET)
     @ApiOperation(value = "최신 설문 결과 조회", notes = "회원의 최신 WMTI 성향 검사 결과를 조회합니다.")
-    @GetMapping("/{memberId}")
+    @GetMapping("result/{memberId}")
     public ApiResponse<SurveyResultDTO> getSurveyResult(
             @ApiParam(value = "회원 ID", required = true, example = "1")
             @PathVariable Long memberId,
