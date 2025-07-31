@@ -1,4 +1,4 @@
-package org.scoula.auth.dto;
+package org.scoula.auth.dto.request;
 
 public class UpdateProfileRequest {
     private Long memberId;

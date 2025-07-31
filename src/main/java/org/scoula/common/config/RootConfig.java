@@ -24,6 +24,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
@@ -58,6 +59,7 @@ import javax.sql.DataSource;
 })
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 @MapperScan(basePackages = {"org.scoula.products.mapper"})
+
 public class RootConfig {
 
   @Value("${jdbc.driver}")
@@ -169,5 +171,9 @@ public class RootConfig {
   public DataSourceTransactionManager transactionManager(DataSource dataSource) {
     DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource);
     return manager;
+  }
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 }

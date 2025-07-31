@@ -2,7 +2,11 @@ package org.scoula.auth.controller;
 
 import io.swagger.annotations.Api;
 import javax.servlet.http.HttpServletRequest;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.scoula.auth.exception.TokenValidationException;
 import org.scoula.auth.service.impl.LogoutServiceImpl;
 import org.scoula.member.exception.MemberNotFoundException;
@@ -21,6 +25,8 @@ public class LogoutApiController {
     private final LogoutServiceImpl logoutServiceImpl;
 
     @PostMapping("/logout")
+    @ApiOperation(value = "로그아웃", notes = "액세스 토큰을 이용한 로그아웃")
+
     public ApiResponse<?> logout(HttpServletRequest request) {
         String accessToken = extractAccessToken(request);
 

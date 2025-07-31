@@ -46,8 +46,8 @@
     </select>
 
     <insert id="insert" parameterType="org.scoula.security.account.domain.MemberVO">
-        INSERT INTO member (username, password, nickname, email, phone_number, birth_date, gender)
-        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender})
+        INSERT INTO member (username, password, nickname, email, phone_number, birth_date, gender, receive_push_notification)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{birthDate}, #{gender}, #{receivePushNotification})
     </insert>
 
     <!-- MemberMapper.xml -->
@@ -80,6 +80,61 @@
     <select id="getMemberIdByEmail" resultType="long">
         SELECT member_id FROM member WHERE email = #{email}
     </select>
+    <update id="updateProfileImage">
+        UPDATE member
+        SET profile_image = #{profileImage}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <delete id="deleteMember">
+        DELETE FROM member WHERE member_id = #{memberId}
+    </delete>
+
+    <!-- 소셜 로그인 관련 쿼리들 -->
+    <select id="findByEmail" resultMap="memberMap">
+        SELECT * FROM member WHERE email = #{email} AND status = 'ACTIVE'
+    </select>
+
+    <select id="findBySocialTypeAndSocialId" resultMap="memberMap">
+        SELECT * FROM member
+        WHERE social_type = #{socialType}
+        AND social_id = #{socialId}
+        AND status = 'ACTIVE'
+    </select>
+
+    <!-- 소셜 회원 최초 등록 -->
+    <insert id="insertSocialMember" parameterType="org.scoula.security.account.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
+        INSERT INTO member (
+            profile_image, username, level, email,
+            social_type, social_id, role, status, is_new_member, created_at
+        ) VALUES (
+                     #{profileImage}, #{username}, #{level}, #{email},
+                     #{socialType}, #{socialId}, 'USER', 'ACTIVE', #{isNewMember}, #{createdAt}
+                 )
+    </insert>
+
+    <!-- 소셜 회원 정보 업데이트 -->
+    <update id="updateSocialMember" parameterType="org.scoula.security.account.domain.MemberVO">
+        UPDATE member
+        SET profile_image = #{profileImage},
+            nickname = #{nickname},
+            social_id = #{socialId},
+            is_new_member = #{isNewMember},
+            updated_at = #{updatedAt}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <!-- 소셜 회원가입 완료 -->
+    <update id="completeSocialSignup" parameterType="org.scoula.security.account.domain.MemberVO">
+        UPDATE member
+        SET nickname = #{nickname},
+            birth_date = #{birthDate},
+            gender = #{gender},
+            receive_push_notification = #{receivePushNotification},
+            is_new_member = false,
+            updated_at = #{updatedAt}
+        WHERE member_id = #{memberId}
+    </update>
     <select id="getNicknameByMemberId" resultType="java.lang.String">
         SELECT member.nickname FROM member WHERE member_id = #{memberId}
     </select>

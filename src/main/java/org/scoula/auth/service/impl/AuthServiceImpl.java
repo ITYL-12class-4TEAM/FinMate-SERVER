@@ -1,11 +1,9 @@
 package org.scoula.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.scoula.auth.dto.FindIdRequest;
+import org.scoula.auth.dto.request.*;
 import org.scoula.auth.dto.FindIdResponseDTO;
-import org.scoula.auth.dto.ResetPasswordRequest;
 import org.scoula.auth.dto.TokenResponseDTO;
-import org.scoula.auth.dto.UpdateProfileRequest;
 import org.scoula.auth.exception.AuthenticationException;
 import org.scoula.auth.exception.InvalidPasswordFormatException;
 import org.scoula.auth.exception.PasswordMismatchException;
@@ -18,8 +16,10 @@ import org.scoula.member.service.impl.SignupServiceImpl;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.account.domain.MemberVO;
 import org.scoula.security.util.JwtProcessor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public FindIdResponseDTO findUsernameByNameAndPhone(FindIdRequest request) {
-        if (!request.isVerified()) {
+        String verificationKey = "phone_verified:" + request.getPhoneNumber();
+        String isVerified = redisService.get(verificationKey);
+        if (!"true".equals(isVerified)) {
             throw new AuthenticationException(ResponseCode.AUTHENTICATION_REQUIRED);
         }
         String username = memberMapper.findUsernameByNameAndPhone(request.getName(), request.getPhoneNumber());
@@ -70,9 +72,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public FindIdResponseDTO findPassword(FindIdRequest request) {
-        if (!request.isVerified()) {
+        String verificationKey = "phone_verified:" + request.getPhoneNumber();
+        String isVerified = redisService.get(verificationKey);
+        if (!"true".equals(isVerified)) {
             throw new AuthenticationException(ResponseCode.AUTHENTICATION_REQUIRED);
         }
+
         String username = memberMapper.findUsernameByNameAndPhone(request.getName(), request.getPhoneNumber());
         if (username == null) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_NOT_FOUND);
@@ -105,4 +110,28 @@ public class AuthServiceImpl implements AuthService {
                 request.getReceivePushNotification()
         );
     }
+
+    @Override
+    public void withdrawMember(WithdrawRequest request) {
+        MemberVO member = memberMapper.selectByEmail(request.getUsername());
+        if (member == null) {
+            throw new MemberNotFoundException(ResponseCode.MEMBER_NOT_FOUND);
+        }
+        if (!encoder.matches(request.getPassword(), member.getPassword())) {
+            throw new AuthenticationException(ResponseCode.PASSWORD_MISMATCH);
+        }
+        if (memberMapper.deleteMember(member.getMemberId()) == 0) {
+            throw new MemberNotFoundException(ResponseCode.MEMBER_WITHDRAW_FAILED);
+        }
+    }
+    @Override
+    public void checkPassword(PasswordCheckRequest request, String email) {
+
+        MemberVO member = memberMapper.selectByEmail(email);
+
+        if (!encoder.matches(request.getPassword(), member.getPassword())) {
+            throw new AuthenticationException(ResponseCode.PASSWORD_MISMATCH);
+        }
+    }
+
 }

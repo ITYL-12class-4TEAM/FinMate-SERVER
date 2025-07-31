@@ -31,8 +31,21 @@ public interface MemberMapper {
     void clearRefreshToken(@Param("username") String username);
 
     int updatePassword(@Param("memberId") Long memberId,
-                       @Param("Password") String encodedPassword);
-    Long getMemberIdByEmail(@Param("email") String email);
+                   @Param("Password") String encodedPassword);
+    long getMemberIdByEmail(@Param("email") String email);
+
+    int deleteMember(@Param("memberId") Long memberId);
+
+    void updateProfileImage(@Param("memberId") Long memberId,
+                        @Param("profileImage") String profileImage);
+
+// 소셜 로그인 관련 메서드들
+    MemberVO findByEmail(String email);
+    MemberVO findBySocialTypeAndSocialId(@Param("socialType") String socialType,
+                                    @Param("socialId") String socialId);
+    void insertSocialMember(MemberVO member);
+    void updateSocialMember(MemberVO member);
+    void completeSocialSignup(MemberVO member);
 
     String getNicknameByMemberId(@Param("memberId") Long memberId);
 }
