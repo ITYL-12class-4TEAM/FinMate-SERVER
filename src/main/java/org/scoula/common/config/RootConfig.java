@@ -51,7 +51,7 @@ import javax.sql.DataSource;
         "org.scoula.member.mapper",
         "org.scoula.community.scrap.mapper",
         "org.scoula.community.post.mapper",
-        "org.scoula.member.mapper"
+        "org.scoula.member.mapper",
         "org.scoula.wmti.mapper",
         "org.scoula.preinfo.mapper",
         "org.scoula.member.mapper",
