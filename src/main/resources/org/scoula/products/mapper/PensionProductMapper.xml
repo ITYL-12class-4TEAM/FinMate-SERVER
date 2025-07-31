@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.scoula.products.mapper.PensionProductMapper">
+
+    <!-- 연금 상품 목록 조회 -->
+    <select id="findPensionProducts" resultType="org.scoula.products.dto.response.pension.PensionProductDTO">
+        SELECT
+        fp.product_id as productId,
+        fp.fin_co_no as finCoNo,
+        fp.fin_prdt_cd as finPrdtCd,
+        fp.product_name as finPrdtNm,
+        fp.kor_co_nm as korCoNm,
+        pp.pnsn_kind as pnsnKind,
+        pp.pnsn_kind_nm as pnsnKindNm,
+        pp.prdt_type as prdtType,
+        pp.prdt_type_nm as prdtTypeNm,
+        pp.dcls_rate as dclsRate,
+        pp.category,
+        pp.guar_rate as guarRate,
+        pp.dcls_rate as dclsRate,
+        pp.btrm_prft_rate_1 as profitRate1,
+        pp.btrm_prft_rate_2 as profitRate2,
+        pp.btrm_prft_rate_3 as profitRate3,
+        pp.etc as etcNote
+        FROM
+        financial_product fp
+        JOIN
+        pension_product pp ON fp.product_id = pp.product_id
+        WHERE
+        fp.category_id = 5
+        <if test="searchText != null and searchText != ''">
+            AND (fp.product_name LIKE CONCAT('%', #{searchText}, '%')
+            OR fp.kor_co_nm LIKE CONCAT('%', #{searchText}, '%'))
+        </if>
+        <if test="joinWay != null and joinWay != ''">
+            AND fp.join_way LIKE CONCAT('%', #{joinWay}, '%')
+        </if>
+        <if test="minGuarRate != null">
+            AND pp.guar_rate >= #{minGuarRate}
+        </if>
+        ORDER BY pp.btrm_prft_rate_1 DESC
+    </select>
+
+    <!-- 연금 상품 상세 정보 조회 -->
+    <select id="findByProductId" resultType="org.scoula.products.dto.response.pension.PensionProductDTO">
+        SELECT
+        fp.product_id as productId,
+        fp.fin_co_no as finCoNo,
+        fp.fin_prdt_cd as finPrdtCd,
+        fp.product_name as finPrdtNm,
+        fp.kor_co_nm as korCoNm,
+        pp.pnsn_kind as pnsnKind,
+        pp.pnsn_kind_nm as pnsnKindNm,
+        pp.prdt_type as prdtType,
+        pp.prdt_type_nm as prdtTypeNm,
+        pp.category,
+        pp.guar_rate as guarRate,
+        pp.dcls_rate as dclsRate,
+        pp.btrm_prft_rate_1 as profitRate1,
+        pp.btrm_prft_rate_2 as profitRate2,
+        pp.btrm_prft_rate_3 as profitRate3,
+        pp.etc as etcNote,
+        pp.dcls_strt_day as dclsStrtDay,
+        pp.dcls_end_day as dclsEndDay,
+
+        <!-- 추가된 필드들 -->
+        NULL as joinWay,
+        NULL as pnsnRecpTrm,
+        NULL as mnthPymAtm,  <!-- 옵션 데이터에서 계산 -->
+        NULL as pnsnStrtAge, <!-- 옵션 데이터에서 계산 -->
+        NULL as pnsnRcvMthd  <!-- 필요한 경우 추가 -->
+        FROM
+        financial_product fp
+        JOIN
+        pension_product pp ON fp.product_id = pp.product_id
+        WHERE
+        fp.product_id = #{productId}
+    </select>
+
+    <!-- 연금 상품 옵션 정보 조회 -->
+    <select id="findOptionsByProductId" resultType="org.scoula.products.dto.response.pension.PensionOptionDTO">
+        SELECT option_id        as optionId,
+               product_id       as productId,
+               pnsn_recp_trm    as pnsnRecpTrm,
+               pnsn_recp_trm_nm as pnsnRecpTrmNm,
+               pnsn_entr_age    as pnsnEntrAge,
+               pnsn_entr_age_nm as pnsnEntrAgeNm,
+               mon_paym_atm     as monPaymAtm,
+               mon_paym_atm_nm  as monPaymAtmNm,
+               paym_prd         as paymPrd,
+               paym_prd_nm      as paymPrdNm,
+               pnsn_strt_age    as pnsnStrtAge,
+               pnsn_entr_age_nm as pnsnStrtAgeNm,
+               pnsn_recp_amt    as pnsnRecpAmt
+        FROM pension_option
+        WHERE product_id = #{productId}
+    </select>
+
+    <!-- 연금 상품 유형 목록 조회 -->
+    <select id="getDistinctPensionTypes" resultType="java.util.Map">
+        SELECT DISTINCT pnsn_kind    as code,
+                        pnsn_kind_nm as name
+        FROM pension_product pp
+                 JOIN
+             financial_product fp ON pp.product_id = fp.product_id
+        WHERE fp.category_id = #{categoryId}
+        ORDER BY pnsn_kind_nm
+    </select>
+
+    <!-- 보장 수익률 목록 조회 -->
+    <select id="getDistinctGuaranteeRates" resultType="java.lang.Double">
+        SELECT DISTINCT guar_rate
+        FROM pension_product pp
+                 JOIN
+             financial_product fp ON pp.product_id = fp.product_id
+        WHERE fp.category_id = #{categoryId}
+          AND guar_rate IS NOT NULL
+        ORDER BY guar_rate
+    </select>
+
+    <!-- 납입 기간 목록 조회 -->
+    <select id="getDistinctPaymentPeriods" resultType="java.lang.Integer">
+        SELECT DISTINCT paym_prd
+        FROM pension_option
+        WHERE paym_prd IS NOT NULL
+        ORDER BY paym_prd
+    </select>
+
+    <!-- 최소 월 납입금액 조회 -->
+    <select id="getMinMonthlyPayment" resultType="java.lang.Integer">
+        SELECT MIN(mon_paym_atm)
+        FROM pension_option
+        WHERE mon_paym_atm IS NOT NULL
+    </select>
+
+    <!-- 최대 월 납입금액 조회 -->
+    <select id="getMaxMonthlyPayment" resultType="java.lang.Integer">
+        SELECT MAX(mon_paym_atm)
+        FROM pension_option
+        WHERE mon_paym_atm IS NOT NULL
+    </select>
+
+    <!-- 옵션 ID로 연금 상품 옵션 정보 조회 -->
+    <select id="findOptionById" resultType="org.scoula.products.dto.response.pension.PensionOptionDTO">
+        SELECT option_id        as optionId,
+               product_id       as productId,
+               pnsn_recp_trm    as pnsnRecpTrm,
+               pnsn_recp_trm_nm as pnsnRecpTrmNm,
+               pnsn_entr_age    as pnsnEntrAge,
+               pnsn_entr_age_nm as pnsnEntrAgeNm,
+               mon_paym_atm     as monPaymAtm,
+               mon_paym_atm_nm  as monPaymAtmNm,
+               paym_prd         as paymPrd,
+               paym_prd_nm      as paymPrdNm,
+               pnsn_entr_age    as pnsnStrtAge,
+               pnsn_entr_age_nm as pnsnStrtAgeNm,
+               pnsn_recp_amt    as pnsnRecpAmt
+        FROM pension_option
+        WHERE option_id = #{optionId}
+    </select>
+
+    <select id="findByProductIds" resultType="org.scoula.products.dto.response.pension.PensionProductDTO">
+        SELECT
+            fp.product_id AS productId,
+            fp.fin_co_no AS finCoNo,
+            fp.fin_prdt_cd AS finPrdtCd,
+            fp.product_name AS finPrdtNm,
+            fp.kor_co_nm AS korCoNm,
+            fp.risk_level AS riskLevel,
+            fp.external_link AS externalLink,
+            fp.wishlist_count AS wishlistCount,
+            fp.created_at AS createdAt,
+            fp.dcls_month AS dclsMonth,
+            fp.subcategory_id AS subcategoryId,
+            fp.category_id AS categoryId,
+            pp.pnsn_kind AS pnsnKind,
+            pp.pnsn_kind_nm AS pnsnKindNm,
+            pp.sale_strt_day AS saleStrtDay,
+            pp.mntn_cnt AS mntnCnt,
+            pp.prdt_type AS prdtType,
+            pp.prdt_type_nm AS prdtTypeNm,
+            pp.dcls_rate AS dclsRate,
+            pp.guar_rate AS guarRate,
+            pp.btrm_prft_rate_1 AS profitRate1,
+            pp.btrm_prft_rate_2 AS profitRate2,
+            pp.btrm_prft_rate_3 AS profitRate3,
+            pp.etc,
+            pp.sale_co AS saleCo,
+            pp.dcls_strt_day AS dclsStrtDay,
+            pp.dcls_end_day AS dclsEndDay,
+            pp.fin_co_subm_day AS finCoSubmDay,
+            pp.category,
+            '정보 없음' AS joinWay,
+            '정보 없음' AS pnsnRcvMthd,
+            0 AS mnthPymAtm
+        FROM financial_product fp
+        JOIN pension_product pp ON fp.product_id = pp.product_id
+        WHERE fp.product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findOptionsByProductIds" resultType="org.scoula.products.dto.response.pension.PensionOptionDTO">
+        SELECT
+            option_id AS optionId,
+            product_id AS productId,
+            pnsn_recp_trm AS pnsnRecpTrm,
+            pnsn_recp_trm_nm AS pnsnRecpTrmNm,
+            pnsn_entr_age AS pnsnEntrAge,
+            pnsn_entr_age_nm AS pnsnEntrAgeNm,
+            mon_paym_atm AS monPaymAtm,
+            mon_paym_atm_nm AS monPaymAtmNm,
+            paym_prd AS paymPrd,
+            paym_prd_nm AS paymPrdNm,
+            pnsn_strt_age AS pnsnStrtAge,
+            pnsn_strt_age_nm AS pnsnStrtAgeNm,
+            pnsn_recp_amt AS pnsnRecpAmt
+        FROM pension_option
+        WHERE product_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

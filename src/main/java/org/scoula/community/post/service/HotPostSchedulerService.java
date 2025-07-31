@@ -91,7 +91,8 @@ public class HotPostSchedulerService {
                         }
                         post.setLiked(isLiked);
                         post.setScraped(isScraped);
-                        return PostListResponseDTO.of(post);
+                        String  nickname = memberMapper.getNicknameByMemberId(currentUserId);
+                        return PostListResponseDTO.of(post, nickname);
                     })
                     .limit(5)
                     .toList();
@@ -150,7 +151,8 @@ public class HotPostSchedulerService {
                     }
                     post.setLiked(isLiked);
                     post.setScraped(isScraped);
-                    return PostListResponseDTO.of(post);
+                    String  nickname = memberMapper.getNicknameByMemberId(currentUserId);
+                    return PostListResponseDTO.of(post, nickname);
                 })
                 .limit(5)
                 .toList();

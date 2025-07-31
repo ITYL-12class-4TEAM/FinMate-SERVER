@@ -44,6 +44,9 @@ public class PostListResponseDTO {
     @ApiModelProperty(value = "익명 여부", example = "true", position = 10)
     private boolean isAnonymous;
 
+    @ApiModelProperty(value = "작성자 닉네임", example = "홍길동", position = 9)
+    private String nickname;
+
     @ApiModelProperty(value = "좋아요 수", example = "15", position = 11)
     private int likeCount;
 
@@ -63,11 +66,16 @@ public class PostListResponseDTO {
 //    @ApiModelProperty(value = "첨부파일 개수", example = "3", position = 18)
 //    private int attachmentCount;
 
-    public static PostListResponseDTO of(PostVO vo) {
-        return vo == null ? null : PostListResponseDTO.builder()
+    public static PostListResponseDTO of(PostVO vo, String nickname) {
+        if (vo == null) return null;
+
+        String displayName = vo.isAnonymous() ? "익명" : nickname;
+
+        return PostListResponseDTO.builder()
                 .postId(vo.getPostId())
                 .boardId(vo.getBoardId())
                 .memberId(vo.getMemberId())
+                .nickname(displayName)
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .createdAt(vo.getCreatedAt())
@@ -77,12 +85,12 @@ public class PostListResponseDTO {
                 .commentCount(vo.getCommentCount())
                 .status(vo.getStatus() != null ? vo.getStatus().getCode() : PostStatus.NORMAL.getCode())
                 .productTag(vo.getProductTag().getCode())
-//                .attachmentCount(vo.getAttachments() != null ? vo.getAttachments().size() : 0)
                 .isLiked(vo.isLiked())
                 .isScraped(vo.isScraped())
                 .scrapCount(vo.getScrapCount())
                 .build();
     }
+
 
     public PostVO toVo() {
         PostStatus postStatusEnum = PostStatus.fromCode(status);
