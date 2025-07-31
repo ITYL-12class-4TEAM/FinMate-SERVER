@@ -3,6 +3,7 @@ package org.scoula.preinfo.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.scoula.preinfo.entity.PreInformation;
 import org.scoula.wmti.enums.RiskPreference;
 
 import java.time.LocalDateTime;
@@ -59,7 +60,7 @@ public class PreInfoViewDTO {
     @ApiModelProperty(value = "입력 시각", example = "2025-07-26T10:45:00")
     private LocalDateTime createdAt;
 
-    public static PreInfoViewDTO from(org.scoula.preinfo.entity.PreInformation e) {
+    public static PreInfoViewDTO from(PreInformation e) {
         return PreInfoViewDTO.builder()
                 .preInfoId(e.getPreInfoId())
                 .memberId(e.getMemberId())
@@ -71,9 +72,9 @@ public class PreInfoViewDTO {
                 .surplusAmount(e.getSurplusAmount())
                 .savingsRate(e.getSavingsRate())
                 .financialHealthScore(e.getFinancialHealthScore())
-                .investmentCapacity(e.getInvestmentCapacity())
+                .investmentCapacity(e.getInvestmentCapacity().getLabel())
                 .recommendedMonthlyInvestment(e.getRecommendedMonthlyInvestment())
-                .resultType(e.getResultType())
+                .resultType(e.getResultType().getLabel())
                 .riskPreference(e.getRiskPreference())
                 .createdAt(e.getCreatedAt())
                 .build();
