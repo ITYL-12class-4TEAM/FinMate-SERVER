@@ -169,6 +169,7 @@ public class SignupServiceImpl implements SignupService {
             return new AuthResultDTO(
                 accessToken,
                 refreshToken,
+                member.getMemberId(),
                 UserInfoDTO.of(member),
                 false
             );

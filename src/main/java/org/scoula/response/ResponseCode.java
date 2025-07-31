@@ -1,5 +1,6 @@
 package org.scoula.response;
 
+import org.scoula.auth.dto.request.PasswordCheckRequest;
 import org.springframework.http.HttpStatus;
 
 public enum ResponseCode {
@@ -35,9 +36,8 @@ public enum ResponseCode {
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
     PROFILE_IMAGE_UPLOAD_SUCCESS(HttpStatus.OK, "사진이 성공적으로 업로드되었습니다."),
-    SUCCESS(HttpStatus.OK, "요청이 성공적으로 처리되었습니다."),
     UNAUTHORIZED_USER(HttpStatus.FORBIDDEN, "로그인이 필요합니다."),
-    /**
+    PASSWORD_CHECK_SUCCESS(HttpStatus.OK,"본인인증에 성공했습니다.") ,   /**
      * SMS response
      */
     SMS_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "SMS 전송에 실패했습니다."),

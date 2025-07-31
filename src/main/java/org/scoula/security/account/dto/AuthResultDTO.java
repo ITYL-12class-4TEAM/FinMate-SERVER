@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class AuthResultDTO {
     private String accessToken;
     private String refreshToken;
+    private Long memberId;
     private UserInfoDTO userInfo;
     private boolean isNewMember;
 

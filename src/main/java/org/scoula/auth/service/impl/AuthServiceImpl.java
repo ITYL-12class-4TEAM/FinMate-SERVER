@@ -1,12 +1,9 @@
 package org.scoula.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.scoula.auth.dto.FindIdRequest;
+import org.scoula.auth.dto.request.*;
 import org.scoula.auth.dto.FindIdResponseDTO;
-import org.scoula.auth.dto.ResetPasswordRequest;
 import org.scoula.auth.dto.TokenResponseDTO;
-import org.scoula.auth.dto.UpdateProfileRequest;
-import org.scoula.auth.dto.WithdrawRequest; // 추가
 import org.scoula.auth.exception.AuthenticationException;
 import org.scoula.auth.exception.InvalidPasswordFormatException;
 import org.scoula.auth.exception.PasswordMismatchException;
@@ -19,6 +16,7 @@ import org.scoula.member.service.impl.SignupServiceImpl;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.account.domain.MemberVO;
 import org.scoula.security.util.JwtProcessor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -124,6 +122,15 @@ public class AuthServiceImpl implements AuthService {
         }
         if (memberMapper.deleteMember(member.getMemberId()) == 0) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_WITHDRAW_FAILED);
+        }
+    }
+    @Override
+    public void checkPassword(PasswordCheckRequest request, String email) {
+
+        MemberVO member = memberMapper.selectByEmail(email);
+
+        if (!encoder.matches(request.getPassword(), member.getPassword())) {
+            throw new AuthenticationException(ResponseCode.PASSWORD_MISMATCH);
         }
     }
 
