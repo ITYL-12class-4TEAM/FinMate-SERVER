@@ -20,6 +20,7 @@ public class JwtProcessor {
 
     private static final long ACCESS_TOKEN_VALID_MILLIS = 1000L * 60 * 30;
     private static final long REFRESH_TOKEN_VALID_MILLIS = 1000L * 60 * 60 * 24 * 7;
+    private static final long SURVEY_TOKEN_VALID_MILLIS = 1000L * 60 * 30; // 30분
 
     @Value("${jwt.secret_key}")
     private String secretKeyRaw;
@@ -62,6 +63,17 @@ public class JwtProcessor {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String generateSurveyToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("token_type", "survey")  //설문용 토큰
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + SURVEY_TOKEN_VALID_MILLIS))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 
 
 

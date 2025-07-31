@@ -1,0 +1,62 @@
+package org.scoula.preinfo.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.scoula.preinfo.dto.PreInfoRequestDTO;
+import org.scoula.preinfo.enums.InvestmentCapacity;
+import org.scoula.preinfo.enums.InvestmentPeriod;
+import org.scoula.preinfo.enums.InvestmentType;
+import org.scoula.preinfo.enums.PurposeCategory;
+import org.scoula.wmti.enums.RiskPreference;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class PreInformation {
+    private String preInfoId;  //PK: 사전정보 고유식별자, 생성규칙: PRE_{userId}_{yyyymmdd}
+    private Long memberId;     //FK: 사용자 고유식별자, Principal 기반으로 추출
+    private String username;   //사용자 실명 또는 표기이름
+
+    //사용자 입력정보
+    private Integer age;        //사용자의 나이
+    private Boolean married;    //기혼여부
+    private Long monthlyIncome; //사용자 월수입
+    private Long fixedCost;     //사용자의 월 고정지출 (고정생활비 + 정기 납입부채)
+    private InvestmentPeriod period;      // ENUM ('단기', '중기', '장기')
+    private PurposeCategory purposeCategory; // ENUM('여행', '결혼', '자녀교육', '은퇴준비', '기타')
+
+    //분석결과 (연산값)
+    private Long surplusAmount; //사용자의 월 잉여자산(운용가능자산) income - fixedCost
+    private Integer savingsRate;                // 소득대비저축률 (%)
+    private Integer financialHealthScore;       // 재무건정성 점수 : 0~100
+    private InvestmentCapacity investmentCapacity;          // 예: 부족 / 보통 / 양호
+    private Long recommendedMonthlyInvestment;  // 예: 500000
+    private InvestmentType resultType;  //사전정보입력 결과 도출된 투자자유형
+    private RiskPreference riskPreference; //사전정보입력 결과 도출된 위험 성향 ENUM(’안정형’, ‘안정추구형’, ‘위험중립형’, ‘적극투자형’, ‘공격투자형’)
+
+    // 디바이스 정보
+    private String platform;          // web / mobile
+    private String userAgent;
+    private String screenSize;
+
+    private LocalDateTime createdAt;  // 사전정보 입력일
+
+    public boolean equalsInput(PreInfoRequestDTO dto) {
+        if (dto == null) return false;
+
+        return
+                Objects.equals(this.username, dto.getUsername()) &&
+                        Objects.equals(this.age, dto.getAge()) &&
+                        Objects.equals(this.married, dto.getMarried()) &&
+                        Objects.equals(this.monthlyIncome, dto.getMonthlyIncome()) &&
+                        Objects.equals(this.fixedCost, dto.getFixedCost()) &&
+                        Objects.equals(this.period, dto.getPeriod()) &&
+                        Objects.equals(this.purposeCategory, dto.getPurposeCategory());
+    }
+}

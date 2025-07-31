@@ -5,12 +5,21 @@ import org.springframework.http.HttpStatus;
 
 public enum ResponseCode {
     /**
+     * Auth / Token 관련 응답
+     */
+    AUTH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "인증 토큰이 존재하지 않거나 올바르지 않습니다."),
+    AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다."),
+    AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
+    /**
      * Member response
      */
+
     MEMBER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 조회에 성공했습니다."),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다,"),
     MEMBER_WITHDRAW_SUCCESS(HttpStatus.OK, "회원탈퇴가 완료되었습니다."),
     MEMBER_WITHDRAW_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원탈퇴에 실패했습니다."),
+    AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     PROFILE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보 수정에 실패했습니다."),
     INVALID_BIRTHDATE_FORMAT(HttpStatus.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다."),
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
@@ -133,7 +142,6 @@ public enum ResponseCode {
     CHATGPT_JSON_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
     CHATGPT_RETRIEVAL_FAILED(HttpStatus.UNAUTHORIZED, "금융 상품 분석 요청에 실패했습니다."),
     CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다."),
-
     /**
      * Product response
      */
@@ -150,8 +158,41 @@ public enum ResponseCode {
     PRODUCT_COMPARISON_SUCCESS(HttpStatus.OK, "상품 비교를 성공했습니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 조회에 실패했습니다."),
     SUBCATEGORY_SUCCESS(HttpStatus.OK, "서브 카테고리 조회에 성공했습니다.");
-
-
+    /**
+     * PreInfo response
+     */
+    PREINFO_USER_PROFILE_SUBMIT_SUCCESS(HttpStatus.CREATED, "사용자 프로필이 성공적으로 제출되었습니다."),
+    PREINFO_NOT_FOUND(HttpStatus.NOT_FOUND, "사전 정보가 존재하지 않습니다."),
+    PREINFO_RETRIEVED(HttpStatus.OK, "사전 정보가 성공적으로 조회되었습니다."),
+    PREINFO_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 동일한 사전 정보가 존재합니다."),
+    PREINFO_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사전 정보 분석 중 오류가 발생했습니다."),
+    PREINFO_ILLEGAL_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
+    /**
+     * WMTI response
+     */
+    WMTI_SURVEY_SUBMITTED(HttpStatus.OK, "성향 테스트가 성공적으로 제출되었습니다."),
+    WMTI_CODE_GENERATED(HttpStatus.OK, "WMTI 코드가 성공적으로 생성되었습니다."),
+    WMTI_SURVEY_RESULT_RETRIEVED(HttpStatus.OK, "성향 테스트 결과가 성공적으로 조회되었습니다."),
+    WMTI_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "설문 결과가 존재하지 않습니다."),
+    WMTI_RESULT_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "설문 결과 조회 중 오류가 발생했습니다."),
+    WMTI_SURVEY_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "성향 테스트 처리 중 오류가 발생했습니다."),
+    WMTI_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "설문 결과 저장에 실패했습니다."),
+    WMTI_INVALID_ANSWER_FORMAT(HttpStatus.BAD_REQUEST, "응답 형식이 올바르지 않습니다."),
+    WMTI_INCOMPLETE_ANSWERS(HttpStatus.BAD_REQUEST,"20개 문항이 모두 응답되어야 합니다."),
+    // WMTI설문 이력 관련
+    WMTI_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "설문 이력이 존재하지 않습니다."),
+    WMTI_HISTORY_RETRIEVED(HttpStatus.OK, "설문 이력이 조회되었습니다."),
+    WMTI_HISTORY_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "설문 이력 조회 중 오류가 발생했습니다."),
+    // 분석 결과 관련
+    WMTI_ANALYSIS_SUCCESS(HttpStatus.OK, "분석 결과가 조회되었습니다."),
+    WMTI_ANALYSIS_NOT_FOUND(HttpStatus.NOT_FOUND, "분석 결과를 찾을 수 없습니다."),
+    WMTI_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "분석 결과 처리 중 오류가 발생했습니다."),
+    //공개/비공개 관련
+    WMTI_RESULT_PRIVATE(HttpStatus.FORBIDDEN, "비공개 상태의 결과입니다."),
+        //설문 질문문항 관련
+        WMTI_QUESTION_RETRIEVED(HttpStatus.OK, "WMTI 설문 문항 조회 성공"),
+        WMTI_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "WMTI 설문 문항 파일을 찾을 수 없음"),
+        WMTI_QUESTION_LOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "WMTI 설문 문항 파싱 실패");
     private final HttpStatus httpStatus;
     private final String message;
 

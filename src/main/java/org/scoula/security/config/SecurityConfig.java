@@ -91,9 +91,8 @@ public class SecurityConfig {
                 .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
                         "/v2/api-docs", "/swagger-resources/**", "/webjars/**",
-                        "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
+                        "/oauth2/**", "/login/oauth2/code/**","/api/wmti/questions", "/auth/oauth2/redirect")  // 경로 수정
                 .permitAll()
-
 
                 // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
                 .antMatchers("/api/chatbot/**").permitAll()                          // 챗봇 (비회원도 금융 질문 가능)

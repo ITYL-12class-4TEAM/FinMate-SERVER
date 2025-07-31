@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "question": "나는 안정적인 수익이 있고 앞으로도 꾸준히 늘어날 것 같다.",
+    "dimension": "A/I",
+    "reverse": false,
+    "left_ans": "그렇다",
+    "right_ans": "그렇지 않다"
+  },
+  {
+    "id": 2,
+    "question": "나의 금융자산중 투자자산은 100%에 가깝다.",
+    "dimension": "P/B",
+    "reverse": true,
+    "left_ans": "거의 안전자산",
+    "right_ans": "거의 투자자산"
+  },
+  {
+    "id": 3,
+    "question": "가상화폐도 투자할 수 있다고 생각한다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "당연하다.",
+    "right_ans": "전혀 아니다"
+  },
+  {
+    "id": 4,
+    "question": "나는 펀드, ETF, 주식 등 다양한 금융상품을 보유하고 있다.",
+    "dimension": "P/B",
+    "reverse": false,
+    "left_ans": "매우 다양하다",
+    "right_ans": "예금만 있다."
+  },
+  {
+    "id": 5,
+    "question": "하나의 상품에 집중투자 하지않고 안전하게 분산투자하고 있다",
+    "dimension": "M/W",
+    "reverse": true,
+    "left_ans": "다양하게 투자.",
+    "right_ans": "집중투자."
+  },
+  {
+    "id": 6,
+    "question": "금융상품을 다양한 앱으로 투자하고 있고, 자주 이용하고 있다.",
+    "dimension": "L/C",
+    "reverse": false,
+    "left_ans": "금융앱이 편하다.",
+    "right_ans": "금융앱이 어렵다."
+  },
+  {
+    "id": 7,
+    "question": "나의 관심사는 수익률과 판매량이 가장 높은 상품이다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "매우 중요하다.",
+    "right_ans": "최우선으로 보는요소는 아님."
+  },
+  {
+    "id": 8,
+    "question": "혼자 투자하는건 역시 걱정돼. 친구의 조언에 따르겠다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "친구따라 투자.",
+    "right_ans": "투자는 스스로."
+  },
+  {
+    "id": 9,
+    "question": "나는 리밸런싱이 뭔지 알고있고 계획적이고 주기적으로 하고있다.",
+    "dimension": "L/C",
+    "reverse": false,
+    "left_ans": "그렇다",
+    "right_ans": "리밸런싱이 뭔지도 모름."
+  },
+  {
+    "id": 10,
+    "question": "금융기관의 정보를 매우 신뢰해서 투자상품 가입 후 자주 확인한다.",
+    "dimension": "P/B",
+    "reverse": true,
+    "left_ans": "매일 확인한다.",
+    "right_ans": "정보는 직접 찾는편이다."
+  },
+  {
+    "id": 11,
+    "question": "나는 내가 투자중인 자산의 규모와 위험성에 대해 잘 이해하고 있다.",
+    "dimension": "P/B",
+    "reverse": false,
+    "left_ans": "매우 잘 알고있다.",
+    "right_ans": "전혀 모르겠다."
+  },
+  {
+    "id": 12,
+    "question": "나는 투자한 상품에 대해서는 수익률에 연관된 정보를 자주 확인한다.",
+    "dimension": "L/C",
+    "reverse": false,
+    "left_ans": "매우 자주본다.",
+    "right_ans": "전혀 안본다."
+  },
+  {
+    "id": 13,
+    "question": "나는 평소 뉴스와 신문에서 자주 볼 수 있는 상품이나 테마를 고려해서 투자한다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "유명한게 좋다.",
+    "right_ans": "전혀 아니다."
+  },
+  {
+    "id": 14,
+    "question": "시장수익률 보다는 내 투자수익률이 더 높은것 같다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "그렇다",
+    "right_ans": "그렇지 않다"
+  },
+  {
+    "id": 15,
+    "question": "손실이 났을때 좌절없이 미래의 수익성을 생각하면, 감당할 수 있다.",
+    "dimension": "P/B",
+    "reverse": false,
+    "left_ans": "그렇다",
+    "right_ans": "아니다, 견디기 어렵다."
+  },
+  {
+    "id": 16,
+    "question": "좋은 투자정보를 알게되면 누구보다 빠르게 투자하고 싶다.",
+    "dimension": "M/W",
+    "reverse": false,
+    "left_ans": "바로 투자한다",
+    "right_ans": "우선 관망하겠다."
+  },
+  {
+    "id": 17,
+    "question": "내가 아는 투자정보는 이미 대부분이 알고있는것 같다.",
+    "dimension": "P/B",
+    "reverse": false,
+    "left_ans": "그렇다",
+    "right_ans": "그렇지 않다"
+  },
+  {
+    "id": 18,
+    "question": "현재 성과가 좋은 종목보다 저평가된 종목에 투자한다.",
+    "dimension": "M/W",
+    "reverse": true,
+    "left_ans": "그렇다, 기업가치에 집중하는 편.",
+    "right_ans": "그렇지 않다, 현재성과가 중요."
+  },
+  {
+    "id": 19,
+    "question": "나는 모바일 투자전문가! 앱을 통해 투자상품 거래가 익숙하다.",
+    "dimension": "L/C",
+    "reverse": false,
+    "left_ans": "앱이 편하다.",
+    "right_ans": "직접 은행에 가는게 편하다."
+  },
+  {
+    "id": 20,
+    "question": "나는 주식이나 펀드보다 예금/적금/안정적인 투자를 선호한다.",
+    "dimension": "P/B",
+    "reverse": true,
+    "left_ans": "매우 그렇다",
+    "right_ans": "전혀 아니다."
+  }
+]
