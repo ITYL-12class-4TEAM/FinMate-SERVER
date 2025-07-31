@@ -9,6 +9,11 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/workspace.xml
+.idea/dataSources/
+.idea/artifacts/
+.idea/dataSources.local.xml
+.idea/dataSources.xml
 *.iws
 *.iml
 *.ipr
@@ -41,3 +46,10 @@ bin/
 ### Mac OS ###
 .DS_Store
 .idea
+/.idea/dbnavigator.xml
+/.idea/encodings.xml
+/.idea/uiDesigner.xml
+/.idea/gradle.xml
+/.idea/vcs.xml
+!/.idea/dataSources/
+!/server-submodule/.idea/

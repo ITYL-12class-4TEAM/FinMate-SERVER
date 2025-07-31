@@ -46,9 +46,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+          
                 // 완전 공개 API (비회원 접근 가능)
                 .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup",
-                        "/resources/**", "/swagger-ui.html", "/swagger-ui/**",
+                        "/api/wmti/questions", "/resources/**", "/swagger-ui.html", "/swagger-ui/**",
                         "/v2/api-docs", "/swagger-resources/**", "/webjars/**").permitAll()
 
                 // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
