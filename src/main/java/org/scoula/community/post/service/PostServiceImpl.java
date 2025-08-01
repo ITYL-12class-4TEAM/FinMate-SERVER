@@ -428,15 +428,15 @@ public class PostServiceImpl implements PostService {
 //    }
 
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("email: {}", email);
-        return memberMapper.getMemberIdByEmail(email);
-    }
-    private void validateTags(String categoryTag, String productTag) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (productTag != null && !ProductTag.isValidCode(productTag)) {
-            throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
         }
+
+        String email = authentication.getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
     private void validatePostExists(Long postId) {
         if (!postMapper.existsById(postId)) {
