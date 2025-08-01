@@ -53,7 +53,6 @@ import javax.sql.DataSource;
         "org.scoula.mypage.portfolio.mapper",
         "org.scoula.mypage.recentView.mapper",
         "org.scoula.mypage.favorite.mapper",
-        "org.scoula.community.scrap.mapper"
         "org.scoula.community.scrap.mapper",
         "org.scoula.community.post.mapper",
         "org.scoula.member.mapper",
