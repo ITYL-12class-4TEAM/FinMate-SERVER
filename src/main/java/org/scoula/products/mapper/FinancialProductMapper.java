@@ -66,7 +66,7 @@ public interface FinancialProductMapper {
     /**
      * 고유 은행명 목록 조회
      */
-    List<String> getDistinctBanks();
+    List<String> getDistinctBanks(@Param("categoryId") Long categoryId);
 
     /**
      * 카테고리 ID로 서브카테고리 목록 조회

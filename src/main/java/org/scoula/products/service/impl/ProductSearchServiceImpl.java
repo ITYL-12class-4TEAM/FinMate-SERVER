@@ -778,7 +778,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                         responseBuilder.interestRateTypes(interestRateTypes);
 
                         // 은행 목록
-                        List<String> banks = financialProductMapper.getDistinctBanks();
+                        List<String> banks = financialProductMapper.getDistinctBanks(categoryType.getId());
                         if (banks == null || banks.isEmpty()) {
                             banks = Arrays.asList(
                                     "국민은행", "신한은행", "우리은행", "하나은행", "농협은행",
@@ -800,6 +800,16 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                             pensionTypes.add(createOption("retirement", "퇴직연금"));
                         }
                         responseBuilder.pensionTypes(pensionTypes);
+
+                        // 금융사 목록 (연금 카테고리에 맞는 금융사) - 여기를 추가!
+                            List<String> pensionCompanies = financialProductMapper.getDistinctBanks(categoryType.getId());
+                            if (pensionCompanies == null || pensionCompanies.isEmpty()) {
+                                pensionCompanies = Arrays.asList(
+                                    "미래에셋생명", "삼성생명", "한화생명", "교보생명", "KB생명",
+                                    "신한라이프", "농협생명", "푸르덴셜생명"
+                                );
+                            }
+                            responseBuilder.banks(pensionCompanies);
 
                         // 보장 수익률 (DB에서 조회 또는 기본값 사용)
                         List<Double> guaranteeRates = pensionProductMapper.getDistinctGuaranteeRates(categoryType.getId());
