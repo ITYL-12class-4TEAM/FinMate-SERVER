@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.wmti.mapper.SurveyResultMapper">
+    <!-- 결과 매핑 -->
+    <resultMap id="SurveyResultMap" type="org.scoula.wmti.entity.SurveyResult">
+        <id property="wmtiId" column="wmti_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="resultType" column="result_type"/>
+        <result property="riskPreference" column="risk_preference"/>
+        <result property="userName" column="username"/>
+        <result property="answersJson" column="answers_json"/>
+        <result property="aScore" column="a_score"/>
+        <result property="iScore" column="i_score"/>
+        <result property="pScore" column="p_score"/>
+        <result property="bScore" column="b_score"/>
+        <result property="mScore" column="m_score"/>
+        <result property="wScore" column="w_score"/>
+        <result property="lScore" column="l_score"/>
+        <result property="cScore" column="c_score"/>
+        <result property="wmtiCode" column="wmti_code"/>
+        <result property="a" column="AvsI"/>
+        <result property="p" column="PvsB"/>
+        <result property="m" column="MvsW"/>
+        <result property="l" column="LvsC"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 설문 결과 저장 -->
+    <insert id="saveSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult">
+        INSERT INTO wmti_profile (
+            member_id,
+            result_type,
+            risk_preference,
+            username,
+            answers_json,
+            a_score,
+            i_score,
+            p_score,
+            b_score,
+            m_score,
+            w_score,
+            l_score,
+            c_score,
+            wmti_code,
+            AvsI, PvsB, MvsW, LvsC,
+            created_at
+        ) VALUES (
+                     #{memberId},
+                     #{resultType},
+                     #{riskPreference},
+                     #{userName},
+                     #{answersJson},
+                     #{aScore},
+                     #{iScore},
+                     #{pScore},
+                     #{bScore},
+                     #{mScore},
+                     #{wScore},
+                     #{lScore},
+                     #{cScore},
+                     #{wmtiCode},
+                     #{a}, #{p}, #{m}, #{l},
+                     #{createdAt}
+                 )
+    </insert>
+    <update id="updateSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult">
+        UPDATE wmti_profile
+        SET
+            wmti_code = #{wmtiCode},
+            answers_json = #{answersJson},
+            a_score = #{aScore},
+            i_score = #{iScore},
+            p_score = #{pScore},
+            b_score = #{bScore},
+            m_score = #{mScore},
+            w_score = #{wScore},
+            l_score = #{lScore},
+            c_score = #{cScore},
+            AvsI = #{a},
+            PvsB = #{p},
+            MvsW = #{m},
+            LvsC = #{l},
+            created_at = #{createdAt}
+        WHERE member_id = #{memberId}
+    </update>
+
+
+    <!-- 사용자 ID로 설문 결과 조회 (단건조회)-->
+    <select id="findByMemberId" resultMap="SurveyResultMap">
+        SELECT *
+        FROM wmti_profile
+        WHERE member_id = #{memberId}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+</mapper>

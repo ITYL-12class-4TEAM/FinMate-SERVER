@@ -86,7 +86,8 @@ public class ScrapServiceImpl implements ScrapService {
                     }
                     post.setLiked(isLiked);
                     post.setScraped(isScraped);
-                    return PostListResponseDTO.of(post);
+                    String  nickname = memberMapper.getNicknameByMemberId(currentUserId);
+                    return PostListResponseDTO.of(post, nickname);
                 })
                 .toList();
     }

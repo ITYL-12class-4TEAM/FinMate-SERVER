@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.scoula.products.mapper.FinancialProductMapper">
+
+    <!-- 상품 목록 조회 -->
+    <select id="findProducts" resultType="org.scoula.products.dto.response.ProductDTO">
+        SELECT
+        fp.product_id as "product_id",
+        fp.fin_co_no as "finCoNo",
+        fp.fin_prdt_cd as "fin_prdt_cd",
+        fp.kor_co_nm as "kor_co_nm",
+        fp.product_name as "product_name",
+        c.name as "category_name",
+        CAST(do.intr_rate AS CHAR) as "intr_rate",
+        CAST(do.intr_rate2 AS CHAR) as "intr_rate2",
+        CAST(do.save_trm AS CHAR) as "save_trm",
+        do.intr_rate_type as "intr_rate_type",
+        do.intr_rate_type_nm as "intr_rate_type_nm",
+        dp.min_deposit as "min_deposit_amount",
+        fp.external_link as "join_way"
+        FROM financial_product fp
+        JOIN product_category c ON fp.category_id = c.category_id
+        JOIN deposit_product dp ON fp.product_id = dp.product_id
+        JOIN deposit_option do ON dp.product_id = do.product_id
+        <where>
+            <if test="categoryName != null">
+                c.name = #{categoryName}
+            </if>
+            <!-- 서브카테고리 필터링 추가 -->
+            <if test="subcategoryId != null">
+                AND fp.subcategory_id = #{subcategoryId}
+            </if>
+            <!-- 검색어 필터링 -->
+            <if test="searchText != null and searchText != ''">
+                AND (fp.product_name LIKE CONCAT('%', #{searchText}, '%')
+                OR fp.kor_co_nm LIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+            <!-- 최소 이자율 필터링 -->
+            <if test="minIntrRate != null">
+                AND do.intr_rate >= #{minIntrRate}
+            </if>
+            <!-- 가입 기간 필터링 -->
+            <if test="saveTrm != null">
+                AND do.save_trm = #{saveTrm}
+            </if>
+            <!-- 이자율 유형 필터링 -->
+            <if test="intrRateType != null and intrRateType != ''">
+                AND do.intr_rate_type = #{intrRateType}
+            </if>
+            <!-- 가입 방식 필터링 -->
+            <if test="joinWay != null and joinWay != ''">
+                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            </if>
+            <!-- 예치 금액 필터링 -->
+            <if test="minAmount != null">
+                AND dp.min_deposit &lt;= #{minAmount}
+                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            </if>
+            <!-- 은행명 필터링 - 단일 문자열 버전 -->
+            <if test="banksStr != null and banksStr != ''">
+                AND fp.kor_co_nm IN
+                <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
+                    #{bank}
+                </foreach>
+                OR fp.fin_co_no IN
+                <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
+                    #{bank}
+                </foreach>
+            </if>
+
+        </where>
+        <!-- 정렬 조건 -->
+        <choose>
+            <when test="sortBy != null and sortBy == 'intrRate' and sortDirection != null and sortDirection == 'desc'">
+                ORDER BY do.intr_rate DESC
+            </when>
+            <when test="sortBy != null and sortBy == 'intrRate'">
+                ORDER BY do.intr_rate ASC
+            </when>
+            <when test="sortBy != null and sortBy == 'saveTrm' and sortDirection != null and sortDirection == 'desc'">
+                ORDER BY do.save_trm DESC
+            </when>
+            <when test="sortBy != null and sortBy == 'saveTrm'">
+                ORDER BY do.save_trm ASC
+            </when>
+            <!-- 최고 우대 금리 정렬 -->
+            <when test="sortBy != null and sortBy == 'intrRate2' and sortDirection != null and sortDirection == 'desc'">
+                ORDER BY do.intr_rate2 DESC
+            </when>
+            <when test="sortBy != null and sortBy == 'intrRate2'">
+                ORDER BY do.intr_rate2 ASC
+            </when>
+
+            <!-- 세전 이자율 정렬 (계산 필요) -->
+            <when test="sortBy != null and sortBy == 'taxFreeInterest' and sortDirection != null and sortDirection == 'desc'">
+                ORDER BY (do.intr_rate * 0.846) DESC  <!-- 세금 15.4% 공제 예시 -->
+            </when>
+            <when test="sortBy != null and sortBy == 'taxFreeInterest'">
+                ORDER BY (do.intr_rate * 0.846) ASC
+            </when>
+            <when test="sortBy != null and sortBy == 'korCoNm' and sortDirection != null and sortDirection == 'desc'">
+                ORDER BY fp.kor_co_nm DESC
+            </when>
+            <when test="sortBy != null and sortBy == 'korCoNm'">
+                ORDER BY fp.kor_co_nm ASC
+            </when>
+            <otherwise>
+                ORDER BY fp.created_at DESC
+            </otherwise>
+        </choose>
+        <!-- 페이징 처리 -->
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <!-- 총 상품 수 조회 (페이징용) -->
+    <select id="countProducts" resultType="int">
+        SELECT COUNT(*)
+        FROM financial_product fp
+        JOIN product_category c ON fp.category_id = c.category_id
+        JOIN deposit_product dp ON fp.product_id = dp.product_id
+        JOIN deposit_option do ON dp.product_id = do.product_id
+        <where>
+            <if test="categoryName != null">
+                c.name = #{categoryName}
+            </if>
+            <!-- 서브카테고리 필터링 추가 -->
+            <if test="subCategoryId != null">
+                AND fp.subcategory_id = #{subCategoryId}
+            </if>
+            <!-- 검색어 필터링 -->
+            <if test="searchText != null and searchText != ''">
+                AND (fp.product_name LIKE CONCAT('%', #{searchText}, '%')
+                OR fp.kor_co_nm LIKE CONCAT('%', #{searchText}, '%'))
+            </if>
+            <!-- 최소 이자율 필터링 -->
+            <if test="minIntrRate != null">
+                AND do.intr_rate >= #{minIntrRate}
+            </if>
+            <!-- 가입 기간 필터링 -->
+            <if test="saveTrm != null">
+                AND do.save_trm = #{saveTrm}
+            </if>
+            <!-- 이자율 유형 필터링 -->
+            <if test="intrRateType != null and intrRateType != ''">
+                AND do.intr_rate_type = #{intrRateType}
+            </if>
+            <!-- 가입 방식 필터링 -->
+            <if test="joinWay != null and joinWay != '' and joinWay != '전체'">
+                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            </if>
+            <!-- 예치 금액 필터링 -->
+            <if test="minAmount != null">
+                AND dp.min_deposit &lt;= #{minAmount}
+                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            </if>
+            <!-- 은행명 필터링 -->
+            <if test="banksStr != null and banksStr != ''">
+                AND fp.kor_co_nm IN
+                <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
+                    #{bank}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 상품명 자동완성 검색 -->
+    <select id="findProductNamesByKeyword" resultType="string">
+        SELECT DISTINCT product_name
+        FROM financial_product
+        WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
+        LIMIT 10
+    </select>
+
+    <!-- 상품 상세 정보 조회 -->
+    <select id="findProductDetail" resultType="java.util.HashMap">
+        SELECT
+            fp.*,
+            dp.*,
+            c.name as category_name
+        FROM financial_product fp
+        JOIN deposit_product dp ON fp.product_id = dp.product_id
+        JOIN product_category c ON fp.category_id = c.category_id
+        WHERE fp.fin_prdt_cd = #{productId}
+    </select>
+
+    <!-- 고유 은행명 목록 조회 -->
+    <select id="getDistinctBanks" resultType="string">
+        SELECT DISTINCT kor_co_nm
+        FROM financial_product
+        ORDER BY kor_co_nm
+    </select>
+
+    <select id="getSubcategoriesByCategoryId" resultType="java.util.Map">
+        SELECT subcategory_id, name, description
+        FROM product_subcategory
+        WHERE category_id = #{categoryId}
+        ORDER BY name
+    </select>
+</mapper>

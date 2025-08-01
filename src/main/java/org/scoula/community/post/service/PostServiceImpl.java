@@ -67,7 +67,10 @@ public class PostServiceImpl implements PostService {
 
                     post.setLiked(isLiked);
                     post.setScraped(isScraped);
-                    return PostListResponseDTO.of(post);
+
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+
+                    return PostListResponseDTO.of(post, nickname);
                 })
                 .toList();
     }
@@ -100,7 +103,9 @@ public class PostServiceImpl implements PostService {
         }
         post.setLiked(isLiked);
         post.setScraped(isScraped);
-        return PostDetailsResponseDTO.of(post, comments);
+        String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+
+        return PostDetailsResponseDTO.of(post, comments, nickname);
     }
 
     @Override
@@ -211,7 +216,6 @@ public class PostServiceImpl implements PostService {
         boolean isLiked = false;
         boolean isScraped = false;
 
-        Long memberId = getCurrentUserIdAsLong();
         List<PostVO> posts = postMapper.getListByBoard(boardId);
         for (PostVO post : posts) {
             Long postId = post.getPostId();
@@ -234,7 +238,10 @@ public class PostServiceImpl implements PostService {
         }
 
         return posts.stream()
-                .map(post -> PostListResponseDTO.of(post))
+                .map(post -> {
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
                 .toList();
     }
 
@@ -266,9 +273,11 @@ public class PostServiceImpl implements PostService {
         }
 
         return posts.stream()
-                .map(post -> PostListResponseDTO.of(post))
+                .map(post -> {
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
                 .toList();
-
     }
 
     @Override
@@ -316,7 +325,10 @@ public class PostServiceImpl implements PostService {
         }
 
         List<PostListResponseDTO> result = posts.stream()
-                .map(post -> PostListResponseDTO.of(post))
+                .map(post -> {
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
                 .toList();
 
         // Redis에 저장 (예외 처리 포함)
@@ -373,7 +385,10 @@ public class PostServiceImpl implements PostService {
         }
 
         List<PostListResponseDTO> result = posts.stream()
-                .map(post -> PostListResponseDTO.of(post))
+                .map(post -> {
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
                 .toList();
 
         try {
