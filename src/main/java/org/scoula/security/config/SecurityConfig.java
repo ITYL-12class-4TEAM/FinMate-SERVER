@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-          
+
                 // 완전 공개 API (비회원 접근 가능)
                 .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup",
                         "/api/wmti/questions", "/resources/**", "/swagger-ui.html", "/swagger-ui/**",
@@ -79,7 +79,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()        // 게시물 수정
                 .antMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()     // 게시물 삭제
                 .antMatchers(HttpMethod.POST, "/api/comments/**").authenticated()    // 댓글 작성
-                .antMatchers(HttpMethod.PUT, "/api/comments/**").authenticated()     // 댓글 수정
                 .antMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()  // 댓글 삭제
 
                 .anyRequest().authenticated()

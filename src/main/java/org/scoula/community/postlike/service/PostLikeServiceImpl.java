@@ -90,7 +90,14 @@ public class PostLikeServiceImpl implements PostLikeService {
         return postLikeMapper.countByPostId(postId);
     }
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
+        String email = authentication.getName();
         return memberMapper.getMemberIdByEmail(email);
     }
 

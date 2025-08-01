@@ -51,30 +51,21 @@ public class CommentApiController {
     @ApiOperation(value = "댓글 생성", notes = "새 댓글을 등록합니다.")
     @PostMapping("")
     public ApiResponse<CommentResponseDTO> create(
-            @RequestBody CommentCreateRequestDTO commentCreateRequestDTO, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+            @RequestBody CommentCreateRequestDTO commentCreateRequestDTO) {
         CommentResponseDTO created = commentService.create(commentCreateRequestDTO);
         return ApiResponse.success(ResponseCode.COMMENT_CREATE_SUCCESS, created);
     }
 
     @ApiOperation(value = "댓글 삭제", notes = "commentId에 해당하는 댓글을 삭제합니다.")
     @DeleteMapping("/{commentId}")
-    public ApiResponse<Void> delete(@PathVariable Long commentId, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<Void> delete(@PathVariable Long commentId) {
         commentService.delete(commentId);
         return ApiResponse.success(ResponseCode.COMMENT_DELETE_SUCCESS);
     }
 
     @ApiOperation(value = "내가 쓴 댓글 조회", notes = "현재 로그인한 사용자가 작성한 댓글 목록을 조회합니다.")
     @GetMapping("/my")
-    public ApiResponse<List<CommentResponseDTO>> getMyComments(@AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<List<CommentResponseDTO>> getMyComments() {
         return ApiResponse.success(ResponseCode.COMMENT_LIST_SUCCESS,  commentService.getMyComments());
     }
 }
