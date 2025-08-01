@@ -3,6 +3,7 @@ package org.scoula.community.scrap.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
@@ -105,12 +106,20 @@ public class ScrapServiceImpl implements ScrapService {
     public void deleteScrapsByPostId(Long postId) {
         scrapMapper.deleteScrapsByPostId(postId);
         log.info("게시글 스크랩 모두 삭제: postId={}", postId);
-    }
+    }  private Long getCurrentUserIdAsLong() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
+        String email = authentication.getName();
         return memberMapper.getMemberIdByEmail(email);
     }
+
+
+
     private void validatePostExists(Long postId) {
         if (!postMapper.existsById(postId)) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);

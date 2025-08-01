@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @Log4j2
@@ -69,6 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 인증 객체 생성 및 등록
                 Authentication authentication = getAuthentication(token);
+//                Authentication authentication = new UsernamePasswordAuthenticationToken(memberId, null, List.of());
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {

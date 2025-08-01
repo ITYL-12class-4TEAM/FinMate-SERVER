@@ -156,8 +156,8 @@ public class PensionProductFetcher {
     // pension_product 테이블에 삽입
     private static void insertPensionProduct(Connection conn, JsonNode base, Long productId) throws SQLException {
         // SQL에 category 컬럼 추가
-        String insPension = "INSERT INTO pension_product (product_id, pnsn_kind, pnsn_kind_nm, sale_strt_day, mntn_cnt, prdt_type, prdt_type_nm, dcls_rate, guar_rate, btrm_prft_rate_1, btrm_prft_rate_2, btrm_prft_rate_3, etc, sale_co, dcls_strt_day, dcls_end_day, fin_co_subm_day, category) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+        String insPension = "INSERT INTO pension_product (product_id, pnsn_kind, pnsn_kind_nm, sale_strt_day, mntn_cnt, prdt_type, prdt_type_nm, dcls_rate, guar_rate, btrm_prft_rate_1, btrm_prft_rate_2, btrm_prft_rate_3, etc, sale_co, dcls_strt_day, dcls_end_day, fin_co_subm_day, category, avg_prft_rate) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE pnsn_kind=VALUES(pnsn_kind), pnsn_kind_nm=VALUES(pnsn_kind_nm), etc=VALUES(etc), category=VALUES(category)";
 
         try (PreparedStatement psPension = conn.prepareStatement(insPension)) {
@@ -222,7 +222,12 @@ public class PensionProductFetcher {
             String prdtTypeNm = base.path("prdt_type_nm").asText(null);
             String category = getProductCategory(prdtTypeNm);
             psPension.setString(18, category);
-
+            JsonNode avgRateNode = base.path("avg_prft_rate");
+            if (avgRateNode.isInt() || avgRateNode.isDouble()) {
+                psPension.setInt(19, avgRateNode.asInt());
+            } else {
+                psPension.setNull(19, Types.INTEGER);
+            }
             psPension.executeUpdate();
         }
     }

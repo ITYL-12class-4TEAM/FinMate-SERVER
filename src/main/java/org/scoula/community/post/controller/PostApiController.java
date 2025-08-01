@@ -47,10 +47,7 @@ public class PostApiController {
 
     @ApiOperation(value = "게시글 생성", notes = "새 게시글을 등록합니다. 파일 첨부 가능합니다.")
     @PostMapping(value = "")
-    public ApiResponse<PostDetailsResponseDTO> create(@RequestBody PostCreateRequestDTO postCreateRequestDTO, @AuthenticationPrincipal UserDetails user){
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<PostDetailsResponseDTO> create(@RequestBody PostCreateRequestDTO postCreateRequestDTO){
         PostDetailsResponseDTO created = postService.create(postCreateRequestDTO);
         return ApiResponse.success(ResponseCode.POST_CREATE_SUCCESS, created);
     }
@@ -66,20 +63,14 @@ public class PostApiController {
     @ApiOperation(value = "게시글 수정", notes = "기존 게시글을 수정합니다. 추가 파일 첨부 가능합니다.")
     @PutMapping(value = "/{postId}")
     public ApiResponse<PostDetailsResponseDTO> update(
-            @PathVariable Long postId, @RequestBody PostUpdateRequestDTO postUpdateRequestDTO, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+            @PathVariable Long postId, @RequestBody PostUpdateRequestDTO postUpdateRequestDTO) {
         PostDetailsResponseDTO updated = postService.update(postId, postUpdateRequestDTO);
         return ApiResponse.success(ResponseCode.POST_UPDATE_SUCCESS, updated);
     }
 
     @ApiOperation(value = "게시글 삭제", notes = "postId에 해당하는 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
-    public ApiResponse<Void> delete(@PathVariable Long postId, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<Void> delete(@PathVariable Long postId) {
         postService.delete(postId);
         return ApiResponse.success(ResponseCode.POST_DELETE_SUCCESS);
     }
@@ -102,10 +93,7 @@ public class PostApiController {
 
     @ApiOperation(value = "내가 쓴 글 조회", notes = "현재 로그인한 사용자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/my")
-    public ApiResponse<List<PostListResponseDTO>> getMyPosts(@AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<List<PostListResponseDTO>> getMyPosts() {
         return ApiResponse.success(ResponseCode.POST_LIST_SUCCESS, postService.getMyPosts());
     }
     @ApiOperation(value = "게시판별 핫게시물 조회 (전날 기준)", notes = "전날 작성된 게시물 중 좋아요 순으로 정렬된 핫게시물을 조회합니다.")

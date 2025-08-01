@@ -84,4 +84,10 @@
         SELECT member.nickname FROM member WHERE member_id = #{memberId}
     </select>
 
+    <select id="getMemberInfo" resultType="int">
+        SELECT
+            TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) AS age FROM member m
+        WHERE m.member_id = #{memberId}
+    </select>
+
 </mapper>

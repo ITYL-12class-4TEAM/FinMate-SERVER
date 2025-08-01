@@ -17,7 +17,9 @@ public interface WMTIService {
      */
     String calculateWMTICode(List<Integer> answers);
     // WMTIAnalysis에서 처리된 분석 및 추천 상품 반환
-    WMTIProfileDTO getAnalysisByWMTICode(String wmtiCode);    /**
+    WMTIProfileDTO getAnalysisByWMTICode(String wmtiCode);
+    List<WMTIProfileDTO> getAllAnalysisProfiles();
+    /**
      * 설문 결과를 DB에 저장하는 메서드
      *
      * @param memberId 사용자 고유 ID
