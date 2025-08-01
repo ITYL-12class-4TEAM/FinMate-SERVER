@@ -166,6 +166,9 @@ public enum ResponseCode {
     WMTI_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "WMTI별 비교 데이터 조회에 실패했습니다"),
     AGE_GROUP_STATS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "나이대별 통계 조회에 실패했습니다"),
     INVALID_STAT_FORMAT(HttpStatus.BAD_REQUEST,"통계 데이터 형식이 올바르지 않습니다."),
+    PENSION_RATE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "연금률 처리에 실패했습니다"),
+    DATA_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터 변환에 실패했습니다"),
+    DTO_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DTO 변환에 실패했습니다"),
 
     /**
      * favorite response
@@ -179,6 +182,10 @@ public enum ResponseCode {
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "관심상품을 찾을 수 없습니다"),
     FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심상품으로 등록된 상품입니다"),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다"),
+
+    FAVORITE_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "관심상품 목록 조회에 실패했습니다"),
+    FAVORITE_CHECK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "관심상품 여부 확인에 실패했습니다"),
+    POPULAR_FAVORITE_READ_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인기 관심상품 조회에 실패했습니다"),
 
     /**
      * RecentView response
