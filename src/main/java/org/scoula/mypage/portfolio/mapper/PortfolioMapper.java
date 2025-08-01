@@ -1,8 +1,8 @@
 package org.scoula.mypage.portfolio.mapper;
 
-import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.MapKey;
 import org.scoula.mypage.portfolio.dto.PortfolioCreateRequest;
 import org.scoula.mypage.portfolio.dto.PortfolioItemResponse;
 import org.scoula.mypage.portfolio.dto.PortfolioUpdateRequest;
@@ -10,20 +10,15 @@ import org.scoula.mypage.portfolio.dto.PortfolioUpdateRequest;
 import java.util.List;
 import java.util.Map;
 
-
 @Mapper
 public interface PortfolioMapper {
+
     // 포트폴리오 아이템 목록 조회
     List<PortfolioItemResponse> getPortfolioItems(@Param("memberId") Long memberId);
-
-    // 카테고리 및 서브카테고리 ID를 찾기
-    Long findCategoryIdByProductId(@Param("productId") Long productId);
-    Long findSubcategoryIdByProductId(@Param("productId") Long productId);
 
     // 포트폴리오 아이템 추가
     void insertPortfolioItem(@Param("memberId") Long memberId,
                              @Param("dto") PortfolioCreateRequest dto);
-
 
     // 포트폴리오 아이템 업데이트
     void updatePortfolioItem(@Param("portfolioId") Long portfolioId,
@@ -35,7 +30,6 @@ public interface PortfolioMapper {
     // 포트폴리오 요약 정보 조회
     @MapKey("categoryName")
     List<Map<String, Object>> getPortfolioSummary(@Param("memberId") Long memberId);
-
 
     // 같은 나이대 사용자들의 카테고리별 평균 비율
     List<Map<String, Object>> getAgeGroupComparison(@Param("memberId") Long memberId,
@@ -60,24 +54,12 @@ public interface PortfolioMapper {
     // 사용자의 나이 조회 (나이대 분류용)
     Integer getAgeByMemberId(@Param("memberId") Long memberId);
 
-
-    // 상품 ID와 기간에 따른 옵션 ID 조회
-    Long findOptionIdByProductIdAndTerm(@Param("productId") Long productId, @Param("saveTerm") Integer saveTerm);
-
     // 포트폴리오 멤버 수를 나이대별로 조회
     List<Map<String, Object>> getPortfolioMemberCountByAgeGroup();
-
 
     // 포트폴리오 존재 여부
     boolean existsById(Long portfolioId);
 
-    /**
-     * 포트폴리오 소유권 확인
-     * @param portfolioId 포트폴리오 ID
-     * @param memberId 회원 ID
-     * @return 소유자면 true, 아니면 false
-     */
-    boolean isOwner(Long portfolioId, Long memberId);
-
+    // 포트폴리오 소유권 확인
+    boolean isOwner(@Param("portfolioId") Long portfolioId, @Param("memberId") Long memberId);
 }
-

@@ -54,20 +54,14 @@ public class ComparisonServiceImpl implements ComparisonService {
     private List<CategoryRatioResponse> getAgeGroupComparison(Long memberId) {
         try {
             Integer age = portfolioMapper.getAgeByMemberId(memberId);
-
-            // 나이 정보가 없는 경우 빈 리스트 반환 (정상적인 케이스)
             if (age == null) {
                 return Collections.emptyList();
             }
-
-            // 나이 유효성 검증
             validateAge(age);
-
             AgeRange ageRange = calculateAgeRange(age);
             List<Map<String, Object>> rawData = portfolioMapper.getAgeGroupComparison(memberId, ageRange.getMin(), ageRange.getMax());
-
             return convertToRatioDTO(rawData, "연령대별 비교 데이터");
-        } catch (IllegalArgumentException e) {
+        } catch (ValidationException e) {
             throw e;
         } catch (Exception e) {
             throw new ComparisonServiceException(ResponseCode.AGE_GROUP_COMPARISON_FAILED);
@@ -82,20 +76,14 @@ public class ComparisonServiceImpl implements ComparisonService {
     private List<CategoryRatioResponse> getAmountGroupComparison(Long memberId) {
         try {
             Long totalAssets = portfolioMapper.getTotalAssetsByMemberId(memberId);
-
-            // 자산 정보가 없거나 0 이하인 경우 빈 리스트 반환 (정상적인 케이스)
             if (totalAssets == null || totalAssets <= 0) {
                 return Collections.emptyList();
             }
-
-            // 자산 규모 유효성 검증
             validateAssetAmount(totalAssets);
-
             AssetRange assetRange = calculateAssetRange(totalAssets);
             List<Map<String, Object>> rawData = portfolioMapper.getAmountGroupComparison(memberId, assetRange.getMin(), assetRange.getMax());
-
             return convertToRatioDTO(rawData, "자산 규모별 비교 데이터");
-        } catch (IllegalArgumentException e) {
+        } catch (ValidationException e) {
             throw e;
         } catch (Exception e) {
             throw new ComparisonServiceException(ResponseCode.AMOUNT_GROUP_COMPARISON_FAILED);
@@ -110,18 +98,13 @@ public class ComparisonServiceImpl implements ComparisonService {
     private List<CategoryRatioResponse> getWMTIComparison(Long memberId) {
         try {
             String wmtiCode = portfolioMapper.getWmtiCodeByMemberId(memberId);
-
-            // WMTI 정보가 없는 경우 빈 리스트 반환 (정상적인 케이스)
             if (wmtiCode == null || wmtiCode.trim().isEmpty()) {
                 return Collections.emptyList();
             }
-
-            // WMTI 코드 유효성 검증
             validateWmtiCode(wmtiCode);
-
             List<Map<String, Object>> rawData = portfolioMapper.getWMTIComparison(memberId, wmtiCode);
             return convertToRatioDTO(rawData, "WMTI별 비교 데이터");
-        } catch (IllegalArgumentException e) {
+        } catch (ValidationException e) {
             throw e;
         } catch (Exception e) {
             throw new ComparisonServiceException(ResponseCode.WMTI_COMPARISON_FAILED);
@@ -154,13 +137,11 @@ public class ComparisonServiceImpl implements ComparisonService {
     private CategoryRatioResponse convertSingleRowToRatioDTO(Map<String, Object> row) {
         try {
             CategoryRatioResponse dto = new CategoryRatioResponse();
-
-            // null 체크 및 타입 안전성 확보
             String categoryName = (String) row.get("categoryName");
             Object averageRatioObj = row.get("averageRatio");
 
             if (categoryName == null) {
-                throw new IllegalArgumentException("카테고리명이 null입니다.");
+                throw new ValidationException(ResponseCode.INVALID_CATEGORY_TAG);
             }
 
             double averageRatio = extractDoubleValue(averageRatioObj);
@@ -168,6 +149,8 @@ public class ComparisonServiceImpl implements ComparisonService {
             dto.setCategoryName(categoryName);
             dto.setAverageRatio(averageRatio);
             return dto;
+        } catch (ValidationException e) {
+            throw e;
         } catch (Exception e) {
             throw new DataConversionException(ResponseCode.DTO_CONVERSION_FAILED);
         }
@@ -200,7 +183,6 @@ public class ComparisonServiceImpl implements ComparisonService {
         try {
             AgeGroupStatResponse dto = new AgeGroupStatResponse();
 
-            // null 체크 및 타입 안전성 확보
             Object ageGroupObj = row.get("age_group");
             Object userCountObj = row.get("user_count");
 
@@ -208,10 +190,12 @@ public class ComparisonServiceImpl implements ComparisonService {
                 dto.setAgeGroup(String.valueOf(((Number) ageGroupObj).intValue()));
                 dto.setUserCount(((Number) userCountObj).longValue());
             } else {
-                throw new IllegalArgumentException("통계 데이터 형식이 올바르지 않습니다.");
+                throw new ValidationException(ResponseCode.INVALID_STAT_FORMAT);
             }
 
             return dto;
+        } catch (ValidationException e) {
+            throw e;
         } catch (Exception e) {
             throw new DataConversionException(ResponseCode.DTO_CONVERSION_FAILED);
         }

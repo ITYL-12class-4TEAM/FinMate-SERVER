@@ -35,6 +35,7 @@ public enum ResponseCode {
     INVALID_AGE_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 나이 범위입니다"),
     INVALID_ASSET_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 자산 범위입니다"),
     INVALID_WMTI_CODE_FORMAT(HttpStatus.BAD_REQUEST, "WMTI 코드 형식이 올바르지 않습니다"),
+    INVALID_CATEGORY_OR_SUBCATEGORY(HttpStatus.BAD_REQUEST, "카테고리 및 소분류는 필수입니다."),
 
     /**
      * SMS response
@@ -158,6 +159,7 @@ public enum ResponseCode {
     AMOUNT_GROUP_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "자산 규모별 비교 데이터 조회에 실패했습니다"),
     WMTI_COMPARISON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "WMTI별 비교 데이터 조회에 실패했습니다"),
     AGE_GROUP_STATS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "나이대별 통계 조회에 실패했습니다"),
+    INVALID_STAT_FORMAT(HttpStatus.BAD_REQUEST,"통계 데이터 형식이 올바르지 않습니다."),
 
     /**
      * favorite response
