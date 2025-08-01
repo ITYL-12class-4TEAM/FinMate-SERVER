@@ -30,8 +30,8 @@ public interface MemberMapper {
 
     void clearRefreshToken(@Param("username") String username);
 
-    int updatePassword(@Param("memberId") Long memberId,
-                       @Param("Password") String encodedPassword);
+    int updatePassword(@Param("memberId") Long memberId, @Param("Password") String encodedPassword);
+//    int getMemberAgeById(@Param("memberId") Long memberId);
     Long getMemberIdByEmail(@Param("email") String email);
 
     String getNicknameByMemberId(@Param("memberId") Long memberId);

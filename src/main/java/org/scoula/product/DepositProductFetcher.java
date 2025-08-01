@@ -112,9 +112,10 @@ public class DepositProductFetcher {
     // 기본 상품 정보 처리
     private static void processBaseProduct(Connection conn, JsonNode base) throws SQLException {
         // 1. financial_product 저장
-        String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month, risk_level, external_link, category_id, subcategory_id) " +
-                "VALUES (?, ?, ?, ?, ?, 'LOW', '', 1, 101) " +  // 예금(1), 정기예금(101)
-                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)";
+        String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month,join_way,join_deny, join_member, risk_level, external_link, category_id, subcategory_id) " +
+                "VALUES (?, ?, ?, ?, ?,  ?, ?, ?,'LOW', '', 1, 101) " +  // 예금(1), 정기예금(101)
+                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)" +
+                "";
 
         try (PreparedStatement ps = conn.prepareStatement(insertFin, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, base.path("fin_co_no").asText());
@@ -122,6 +123,9 @@ public class DepositProductFetcher {
             ps.setString(3, base.path("fin_prdt_nm").asText());
             ps.setString(4, base.path("kor_co_nm").asText());
             ps.setString(5, base.path("dcls_month").asText());
+            ps.setString(6, base.path("join_way").asText()); // 가입방법
+            ps.setString(7, base.path("join_deny").asText()); // 가입제한
+            ps.setString(8, base.path("join_member").asText()); // 가입대상
             ps.executeUpdate();
 
             Long productId = getProductId(conn, ps, base);
@@ -153,8 +157,8 @@ public class DepositProductFetcher {
 
     // deposit_product 테이블에 삽입
     private static void insertDepositProduct(Connection conn, JsonNode base, Long productId) throws SQLException {
-        String insDp = "INSERT INTO deposit_product (product_id, min_deposit, preferential_conditions, inquiry_url, etc_note, max_limit, dcls_strt_day, dcls_end_day, fin_co_subm_day, contract_period, interest_payment_type, is_digital_only, one_account_per_person, account_limit_note, rotation_cycle, preferential_tags) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+        String insDp = "INSERT INTO deposit_product (product_id, min_deposit, preferential_conditions, inquiry_url, etc_note, max_limit, dcls_strt_day, dcls_end_day, fin_co_subm_day, contract_period, interest_payment_type, is_digital_only, one_account_per_person, account_limit_note, rotation_cycle, preferential_tags, mtrt_int) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE " +
                 "preferential_conditions=VALUES(preferential_conditions), etc_note=VALUES(etc_note), " +
                 "contract_period=VALUES(contract_period), interest_payment_type=VALUES(interest_payment_type), " +
@@ -210,6 +214,8 @@ public class DepositProductFetcher {
             String spclCnd = base.path("spcl_cnd").asText(null);
             String preferentialTags = extractPreferentialTags(spclCnd);
             psDp.setString(16, preferentialTags);
+            psDp.setString(17, base.path("mtrt_int").asText(null));
+
 
             psDp.executeUpdate();
         }

@@ -303,7 +303,7 @@ public class PostServiceImpl implements PostService {
         Long memberId = getCurrentUserIdAsLong();
         boolean isLiked = false;
         boolean isScraped = false;
-        
+
         List<PostVO> posts = postMapper.getHotPostsByBoard(boardId);
         for (PostVO post : posts) {
             Long postId = post.getPostId();
