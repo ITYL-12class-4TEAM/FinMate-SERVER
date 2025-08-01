@@ -189,7 +189,14 @@ public class CommentServiceImpl implements CommentService {
 
 
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
+        String email = authentication.getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
 }
