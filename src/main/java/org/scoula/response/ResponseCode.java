@@ -169,6 +169,8 @@ public enum ResponseCode {
     PENSION_RATE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "연금률 처리에 실패했습니다"),
     DATA_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터 변환에 실패했습니다"),
     DTO_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DTO 변환에 실패했습니다"),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다"),
+
 
     /**
      * favorite response
