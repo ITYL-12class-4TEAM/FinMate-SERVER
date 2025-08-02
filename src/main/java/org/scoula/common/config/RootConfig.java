@@ -39,7 +39,7 @@ import javax.sql.DataSource;
         "org.scoula.products.config",
         "org.scoula.products.mapper",
         "org.scoula.common.config",
-        "org.scoula"
+        "org.scoula",
 })
 //@PropertySource("file:${config.location}/application.properties")
 @MapperScan(basePackages = {
@@ -53,10 +53,9 @@ import javax.sql.DataSource;
         "org.scoula.mypage.portfolio.mapper",
         "org.scoula.mypage.recentView.mapper",
         "org.scoula.mypage.favorite.mapper",
-        "org.scoula.community.scrap.mapper"
         "org.scoula.community.scrap.mapper",
         "org.scoula.community.post.mapper",
-        "org.scoula.member.mapper"
+        "org.scoula.member.mapper",
         "org.scoula.wmti.mapper",
         "org.scoula.preinfo.mapper",
         "org.scoula.member.mapper",
