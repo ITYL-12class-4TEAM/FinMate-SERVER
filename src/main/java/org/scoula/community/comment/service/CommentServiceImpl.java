@@ -34,6 +34,11 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponseDTO create(CommentCreateRequestDTO commentCreateRequestDTO) {
         log.info("create........." + commentCreateRequestDTO);
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
         if (!postMapper.existsById(commentCreateRequestDTO.getPostId())) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
@@ -48,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         CommentVO vo = commentCreateRequestDTO.toVo();
-        vo.setMemberId(getCurrentUserIdAsLong());
+        vo.setMemberId(memberId);
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
 
@@ -80,6 +85,10 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
         if (comment.getMemberId()!= memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
@@ -166,9 +175,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDTO> getMyComments() {
         log.info("getMyComments..........");
-        Long currentUserId = getCurrentUserIdAsLong();
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
 
-        List<CommentVO> comments = commentMapper.getCommentsByMemberId(currentUserId);
+        List<CommentVO> comments = commentMapper.getCommentsByMemberId(memberId);
         if (comments == null || comments.isEmpty()) {
             return List.of();
         }
@@ -177,12 +189,12 @@ public class CommentServiceImpl implements CommentService {
                 .map(CommentVO::getCommentId)
                 .toList();
 
-        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(currentUserId, commentIds);
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(memberId, commentIds);
 
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(currentUserId));
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(memberId));
                 })
                 .toList();
     }
@@ -193,7 +205,7 @@ public class CommentServiceImpl implements CommentService {
 
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+            return null;
         }
 
         String email = authentication.getName();
