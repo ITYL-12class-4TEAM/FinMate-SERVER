@@ -72,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 금융 상품 비교/요약 (비회원 접근 가능)
                 .antMatchers("/api/chat/compare").permitAll()                        // 금융 상품 비교
                 .antMatchers("/api/chat/summary").permitAll()                        // 금융 상품 요약
+                .antMatchers("/api/wmti/analysis/all").permitAll()
 
                 // 회원만 접근 가능한 개인화 기능
                 .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능
