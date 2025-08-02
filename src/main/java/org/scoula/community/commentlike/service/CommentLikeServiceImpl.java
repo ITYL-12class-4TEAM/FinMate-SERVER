@@ -26,6 +26,9 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     @Transactional
     public boolean toggleLike(Long commentId) {
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         if (!commentMapper.existsById(commentId)) {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
@@ -67,7 +70,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+            return null;
         }
 
         String email = authentication.getName();
