@@ -115,7 +115,11 @@ public class PostServiceImpl implements PostService {
 
 
         PostVO vo = postCreateRequestDTO.toVo();
-        vo.setMemberId(getCurrentUserIdAsLong());
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+        vo.setMemberId(memberId);
         postMapper.create(vo);
 //        List<MultipartFile> files = postCreateRequestDTO.getFiles();
 //        if (files != null && !files.isEmpty()) {
@@ -131,6 +135,9 @@ public class PostServiceImpl implements PostService {
         PostVO post = postMapper.get(postId);
 
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
@@ -153,6 +160,9 @@ public class PostServiceImpl implements PostService {
         PostVO post = postMapper.get(postId);
 
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
@@ -250,12 +260,16 @@ public class PostServiceImpl implements PostService {
     public List<PostListResponseDTO> getMyPosts() {
         log.info("getMyPosts..........");
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         boolean isLiked = false;
         boolean isScraped = false;
         List<PostVO> posts = postMapper.getPostsByMemberId(memberId);
+
         for (PostVO post : posts) {
             Long postId = post.getPostId();
-            Long currentUserId = getCurrentUserIdAsLong();
+
             int likeCount = postLikeMapper.countByPostId(post.getPostId());
             int commentCount = postMapper.countCommentsByPostId(post.getPostId());
             int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
@@ -264,10 +278,8 @@ public class PostServiceImpl implements PostService {
             post.setCommentCount(commentCount);
             post.setScrapCount(scrapCount);
 
-            if (currentUserId != null) {
-                isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
-                isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
-            }
+            isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), memberId);
+            isScraped = scrapMapper.existsScrap(post.getPostId(), memberId);
             post.setLiked(isLiked);
             post.setScraped(isScraped);
         }
@@ -428,15 +440,15 @@ public class PostServiceImpl implements PostService {
 //    }
 
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("email: {}", email);
-        return memberMapper.getMemberIdByEmail(email);
-    }
-    private void validateTags(String categoryTag, String productTag) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (productTag != null && !ProductTag.isValidCode(productTag)) {
-            throw new InvalidTagException(ResponseCode.INVALID_PRODUCT_TAG);
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
         }
+
+        String email = authentication.getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
     private void validatePostExists(Long postId) {
         if (!postMapper.existsById(postId)) {

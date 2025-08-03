@@ -30,6 +30,9 @@ public class PostLikeServiceImpl implements PostLikeService {
     public boolean toggleLike(Long postId) {
         validatePostExists(postId);
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
 
         PostLikeVO like = postLikeMapper.findByPostIdAndMemberId(postId, memberId);
 
@@ -90,7 +93,14 @@ public class PostLikeServiceImpl implements PostLikeService {
         return postLikeMapper.countByPostId(postId);
     }
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        String email = authentication.getName();
         return memberMapper.getMemberIdByEmail(email);
     }
 
