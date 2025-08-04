@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.scoula.product.scheduler.DepositProductScheduler;
 import org.scoula.product.scheduler.PensionProductScheduler;
+import org.scoula.product.scheduler.ProductCompanyScheduler;
 import org.scoula.product.scheduler.SavingProductScheduler;
 import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
@@ -23,6 +24,15 @@ public class ProductAdminController {
     private PensionProductScheduler pensionProductScheduler;
     @Autowired
     private SavingProductScheduler savingProductScheduler;
+    @Autowired
+    private ProductCompanyScheduler productCompanyScheduler;
+
+    @ApiOperation(value = "상품사 수동 수집 트리거", notes = "상품사 정보를 수동으로 수집하는 API입니다.")
+    @GetMapping("/product-company/fetch")
+    public ApiResponse<?> productCompanyTriggerFetch() {
+        productCompanyScheduler.fetchProductCompanyManually();
+        return ApiResponse.success(ResponseCode.PRODUCT_COMPANY_FETCH_SUCCESS);
+    }
 
     @ApiOperation(value = "예금 상품 수동 수집 트리거", notes = "예금 상품을 수동으로 수집하는 API입니다.")
     @GetMapping("/deposit-product/fetch")

@@ -89,6 +89,7 @@ public enum ResponseCode {
     HOT_POSTS_CACHE_CLEAR_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "핫게시물 캐시 삭제 실패"),
 
     // 상품 수집 관련
+    PRODUCT_COMPANY_FETCH_SUCCESS(HttpStatus.OK,"상품사 수집 성공"),
     DEPOSIT_PRODUCT_FETCH_SUCCESS(HttpStatus.OK,"예금상품 수집 성공"),
     PENSION_PRODUCT_FETCH_SUCCESS(HttpStatus.OK,"연금상품 수집 성공"),
     SAVING_PRODUCT_FETCH_SUCCESS(HttpStatus.OK,"적금상품 수집 성공"),
