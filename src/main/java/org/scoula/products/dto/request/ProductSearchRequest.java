@@ -133,11 +133,11 @@ public class ProductSearchRequest {
 
         // 예치 금액 또는 월 납입 금액 (서브카테고리에 따라 다름)
         if (this.depositAmount != null) {
-            filters.put("depositAmount", this.depositAmount.toString());
+            filters.put("amount", this.depositAmount.toString());
         }
 
         if (this.monthlyPayment != null) {
-            filters.put("monthlyPayment", this.monthlyPayment.toString());
+            filters.put("amount", this.monthlyPayment.toString());
         }
     }
 

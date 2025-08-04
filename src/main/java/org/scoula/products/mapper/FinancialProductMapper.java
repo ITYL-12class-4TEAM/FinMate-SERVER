@@ -30,7 +30,7 @@ public interface FinancialProductMapper {
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
             @Param("joinWay") String joinWay,
-            @Param("minAmount") Integer minAmount,
+            @Param("amount") Integer amount,
             @Param("sortBy") String sortBy,
             @Param("sortDirection") String sortDirection,
             @Param("pageSize") Integer pageSize,
@@ -49,7 +49,7 @@ public interface FinancialProductMapper {
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
             @Param("joinWay") String joinWay,
-            @Param("minAmount") Integer minAmount,
+            @Param("amount") Integer amount,
             @Param("banksStr") String banksStr);
 
     /**

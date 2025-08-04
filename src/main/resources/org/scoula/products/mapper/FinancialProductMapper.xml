@@ -16,7 +16,8 @@
         CAST(do.save_trm AS CHAR) as "save_trm",
         do.intr_rate_type as "intr_rate_type",
         do.intr_rate_type_nm as "intr_rate_type_nm",
-        dp.min_deposit as "min_deposit_amount",
+        dp.min_deposit as "minDeposit",         <!-- 별칭 변경: min_deposit_amount -> minDeposit -->
+        dp.max_limit as "maxLimit",             <!-- 최대 예치 금액 추가 -->
         fp.external_link as "join_way"
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
@@ -52,9 +53,9 @@
                 AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
             </if>
             <!-- 예치 금액 필터링 -->
-            <if test="minAmount != null">
-                AND dp.min_deposit &lt;= #{minAmount}
-                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            <if test="amount != null">
+                AND dp.min_deposit &lt;= #{amount}
+                AND (dp.max_limit IS NULL OR dp.max_limit >= #{amount})
             </if>
             <!-- 은행명 필터링 - 단일 문자열 버전 -->
             <if test="banksStr != null and banksStr != ''">
@@ -151,9 +152,9 @@
                 AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
             </if>
             <!-- 예치 금액 필터링 -->
-            <if test="minAmount != null">
-                AND dp.min_deposit &lt;= #{minAmount}
-                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            <if test="amount != null">
+                AND dp.min_deposit &lt;= #{amount}
+                AND (dp.max_limit IS NULL OR dp.max_limit >= #{amount})
             </if>
             <!-- 은행명 필터링 -->
             <if test="banksStr != null and banksStr != ''">

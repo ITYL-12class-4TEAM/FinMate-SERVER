@@ -25,5 +25,7 @@ public class ProductDTO {
     private String intrRateType;
     private String intrRateTypeNm;
     private Integer minDepositAmount;
+    private Long minDeposit;  // 최소 예치 금액
+    private Long maxLimit;    // 최대 예치 금액
 //    private String joinWay;
 }
