@@ -73,9 +73,9 @@ public class PreInfoViewDTO {
                 .surplusAmount(e.getSurplusAmount())
                 .savingsRate(e.getSavingsRate())
                 .financialHealthScore(e.getFinancialHealthScore())
-                .investmentCapacity(String.valueOf(e.getInvestmentCapacity()))
+                .investmentCapacity(e.getInvestmentCapacity())
                 .recommendedMonthlyInvestment(e.getRecommendedMonthlyInvestment())
-                .resultType(String.valueOf(e.getResultType()))
+                .resultType(e.getResultType())
                 .riskPreference(e.getRiskPreference())
                 .createdAt(e.getCreatedAt())
                 .build();

@@ -28,7 +28,7 @@ public class RecentViewedServiceImpl implements RecentViewedService {
      * @param saveTrm 저축 기간
      * @param rsrvType 예약 타입
      */
-    public void saveRecentView(Long productId, Integer saveTrm, String rsrvType) {
+    public void saveRecentView(Long productId, Integer saveTrm,String intrRateType ,String rsrvType) {
         Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         // 입력값 검증
@@ -41,8 +41,8 @@ public class RecentViewedServiceImpl implements RecentViewedService {
 
         try {
             // 기존 기록이 있다면 삭제 후 새로 추가 (중복 방지 및 최신 순서 유지)
-            viewedProductMapper.deleteExistingViewedProduct(memberId, productId, saveTrm, rsrvType);
-            viewedProductMapper.insertViewedProduct(memberId, productId, saveTrm, rsrvType);
+            viewedProductMapper.deleteExistingViewedProduct(memberId, productId, saveTrm, intrRateType, rsrvType);
+            viewedProductMapper.insertViewedProduct(memberId, productId, saveTrm,intrRateType, rsrvType);
         } catch (Exception e) {
             throw new DatabaseOperationException(ResponseCode.DATABASE_ERROR);
         }

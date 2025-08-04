@@ -19,6 +19,10 @@ public class FavoriteProductRequest {
     @ApiModelProperty(value = "희망 예치 기간 (개월)", example = "12")
     private int saveTrm;
 
+    @Pattern(regexp = "S|M", message = "intr_rate_type은 'S' 또는 'M'만 허용됩니다.")
+    @ApiModelProperty(value = "적립 유형 코드 ('S': 단리, 'M': 복리)", example = "S")
+    private String intrRateType;
+
     @Pattern(regexp = "S|F", message = "rsrvType은 'S' 또는 'F'만 허용됩니다.")
     @ApiModelProperty(value = "적립 유형 코드 ('S': 정액적립, 'F': 자유적립)", example = "S")
     private String rsrvType;

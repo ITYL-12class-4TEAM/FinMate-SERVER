@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface FavoriteProductMapper {
     // 즐겨찾기 추가
-    void insertFavorite(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm, @Param("rsrvType") String rsrvType);
+    void insertFavorite(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm,@Param("intrRateType") String intrRateType, @Param("rsrvType") String rsrvType);
     // 즐겨찾기 추가 시 위시리스트 카운트 증가
     void increaseWishlistCount(@Param("productId") Long productId);
 

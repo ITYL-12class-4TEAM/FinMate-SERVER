@@ -14,8 +14,8 @@
     </delete>
 
     <insert id="insertViewedProduct">
-        INSERT INTO viewed_product (member_id, product_id, save_trm, rsrv_type, viewed_at)
-        VALUES (#{memberId}, #{productId}, #{saveTrm}, #{rsrvType}, NOW())
+        INSERT INTO viewed_product (member_id, product_id, save_trm, rsrv_type,viewed_at, intr_rate_type)
+        VALUES (#{memberId}, #{productId}, #{saveTrm}, #{rsrvType}, NOW(), #{intrRateType})
     </insert>
     <select id="selectRecentViewedProducts" resultType="org.scoula.mypage.recentView.dto.RecentProductResponse">
         SELECT
@@ -26,8 +26,12 @@
             psc.name AS subcategoryName,
             fp.external_link AS externalLink,
             fp.wishlist_count AS wishlistCount,
+            dopt.rsrv_type_nm AS rstvTypeName,
+            dopt.rsrv_type      AS rstvValue,
             dopt.intr_rate2 AS maxRate,
-            DATE_FORMAT(vp.viewed_at, '%Y-%m-%d %H:%i:%s') AS viewedAt
+            DATE_FORMAT(vp.viewed_at, '%Y-%m-%d %H:%i:%s') AS viewedAt,
+            dopt.intr_rate_type AS intrRateType,
+            dopt.save_trm AS saveTrm
         FROM viewed_product vp
                  JOIN financial_product fp ON vp.product_id = fp.product_id
                  LEFT JOIN product_category pc ON fp.category_id = pc.category_id
@@ -35,12 +39,12 @@
                  LEFT JOIN deposit_option dopt
                            ON dopt.product_id = fp.product_id
                                AND dopt.save_trm = vp.save_trm
+                               AND dopt.intr_rate_type = vp.intr_rate_type
                                AND (
                                   vp.rsrv_type IS NULL AND dopt.rsrv_type IS NULL
                                       OR vp.rsrv_type IS NOT NULL AND dopt.rsrv_type = vp.rsrv_type
                                   )
                  LEFT JOIN pension_product pp ON pp.product_id = fp.product_id
-
         WHERE vp.member_id = #{memberId}
         ORDER BY vp.viewed_at DESC
         LIMIT 20

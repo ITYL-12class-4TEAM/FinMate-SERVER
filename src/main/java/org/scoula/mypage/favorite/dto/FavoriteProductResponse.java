@@ -52,4 +52,6 @@ public class FavoriteProductResponse {
     @ApiModelProperty(value = "상품 유형 (예: 금리연동형, 주식형)", example = "금리연동형")
     private String prdtTypeName;
 
+    @ApiModelProperty(value = "상품 유형  (S: 단리 M:복리)", example = "S")
+    private String intrRateType;
 }
