@@ -102,6 +102,7 @@ public class WMTIController {
         WMTIProfileDTO result = wmtiService.getAnalysisByWMTICode(wmtiCode);
         return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, result);
     }
+    
     // 모든 성향코드(16종)에 대한 분석 결과 조회 (GET)
     @ApiOperation(value = "전체 WMTI 성향 분석 목록 조회", notes = "16개의 WMTI 성향 코드에 대한 분석 정보를 모두 제공합니다.")
     @GetMapping("/analysis/all")
