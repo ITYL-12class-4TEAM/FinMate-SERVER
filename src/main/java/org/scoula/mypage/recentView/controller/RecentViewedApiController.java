@@ -25,7 +25,7 @@ public class RecentViewedApiController {
     public ApiResponse<?> saveRecentView(
             @ApiParam(value = "최근 본 상품 등록 요청 DTO", required = true)
             @Valid @RequestBody RecentProductRequest request) {
-        viewedProductService.saveRecentView(request.getProductId(), request.getSaveTrm(), request.getRsrvType());
+        viewedProductService.saveRecentView(request.getProductId(), request.getSaveTrm(), request.getIntrRateType(), request.getRsrvType());
         return ApiResponse.success(ResponseCode.RECENT_VIEW_CREATE_SUCCESS);
     }
 

@@ -1,8 +1,12 @@
-package org.scoula.product;
+package org.scoula.product.scheduler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.scoula.product.EtcNoteParsedResult;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -16,40 +20,52 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DepositProductFetcher {
-    private static final String[] GROUP_CODES = {"020000", "030300"}; // 은행, 저축은행
+@Component
+public class DepositProductScheduler {
+    private static final String[] GROUP_CODES = {"020000", "030300"};
 
-    private static final String API_URL;
-    private static final String AUTH_KEY;
+    private String API_URL;
+    private String AUTH_KEY;
+    private String DB_URL;
+    private String DB_USER;
+    private String DB_PASS;
 
-    private static final String DB_URL;
-    private static final String DB_USER;
-    private static final String DB_PASS;
-    static {
-        Properties props = new Properties();
-
-        try (FileInputStream oauthInput = new FileInputStream("server-submodule/application-oauth.properties")) {
-            props.load(oauthInput);
+    @PostConstruct
+    public void init() {
+        try {
+            Properties props = new Properties();
+            String baseDir = System.getProperty("config.location", "");
+            if (!baseDir.isEmpty() && !baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+                baseDir = baseDir + "/";
+            }
+            String oauthPath = baseDir + "application-oauth.properties";
+            String dbPath = baseDir + "application-local.properties";
+            try (FileInputStream oauthInput = new FileInputStream(oauthPath)) {
+                props.load(oauthInput);
+            }
+            try (FileInputStream dbInput = new FileInputStream(dbPath)) {
+                props.load(dbInput);
+            }
+            API_URL = props.getProperty("finlife.api.url.deposit");
+            AUTH_KEY = props.getProperty("finlife.api.key");
+            DB_URL = props.getProperty("jdbc.url");
+            DB_USER = props.getProperty("jdbc.username");
+            DB_PASS = props.getProperty("jdbc.password");
         } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load API properties", e);
+            throw new RuntimeException("프로퍼티 로딩 실패", e);
         }
-
-        try (FileInputStream dbInput = new FileInputStream("server-submodule/application-local.properties")) {
-            props.load(dbInput);
-        } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load DB properties", e);
-        }
-
-        // 프로퍼티 값 설정
-        API_URL = props.getProperty("finlife.api.url.deposit");
-        AUTH_KEY = props.getProperty("finlife.api.key");
-
-        DB_URL = props.getProperty("jdbc.url");
-        DB_USER = props.getProperty("jdbc.username");
-        DB_PASS = props.getProperty("jdbc.password");
+    }
+    @Scheduled(cron = "0 0 4 * * 1")
+    public void fetchDepositProductsScheduled() {
+        executeDataFetch();
     }
 
-    public static void main(String[] args) throws Exception {
+    public void fetchDepositProductsManually() {
+        System.out.println("🔧 [Spring Legacy] 수동 예금상품 데이터 수집 시작...");
+        executeDataFetch();
+    }
+
+    public void executeDataFetch() {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -100,7 +116,7 @@ public class DepositProductFetcher {
     }
 
     // 전체 페이지 수 조회
-    private static int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
+    private int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
         String url = API_URL + "?auth=" + AUTH_KEY + "&topFinGrpNo=" + groupCode + "&pageNo=1";
         String body = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
                 HttpResponse.BodyHandlers.ofString()).body();

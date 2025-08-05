@@ -7,8 +7,8 @@
 
     <!-- 이미 즐겨찾기 등록된 경우 무시하고 무시된 행은 영향 없음 -->
     <insert id="insertFavorite">
-        INSERT IGNORE INTO favorite_product (member_id, product_id, save_trm, rsrv_type)
-        VALUES (#{memberId}, #{productId}, #{saveTrm}, #{rsrvType})
+        INSERT IGNORE INTO favorite_product (member_id, product_id, save_trm, intr_rate_type ,rsrv_type)
+        VALUES (#{memberId}, #{productId}, #{saveTrm},#{intrRateType}, #{rsrvType})
     </insert>
 
     <update id="increaseWishlistCount">
@@ -44,8 +44,9 @@
             dopt.intr_rate2 AS maxRate,
             dopt.save_trm AS saveTrm,
             dopt.rsrv_type_nm AS rstvTypeName,
-            dopt.rsrv_type AS rstvValue,
-            pp.prdt_type_nm AS prdtTypeName
+            dopt.rsrv_type      AS rstvValue,
+            pp.prdt_type_nm     AS prdtTypeName,
+            dopt.intr_rate_type AS intrRateType
         FROM favorite_product fp
                  JOIN financial_product p ON fp.product_id = p.product_id
                  LEFT JOIN product_category pc ON p.category_id = pc.category_id
@@ -53,6 +54,7 @@
                  LEFT JOIN deposit_option dopt
                            ON dopt.product_id = p.product_id
                                AND dopt.save_trm = fp.save_trm
+                               AND dopt.intr_rate_type = fp.intr_rate_type
                                AND (
                                   fp.rsrv_type IS NULL AND dopt.rsrv_type IS NULL
                                       OR fp.rsrv_type IS NOT NULL AND dopt.rsrv_type = fp.rsrv_type
