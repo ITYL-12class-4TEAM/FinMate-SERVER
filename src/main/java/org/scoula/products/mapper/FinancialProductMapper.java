@@ -3,13 +3,7 @@ package org.scoula.products.mapper;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.scoula.products.dto.response.ProductDTO;
-import org.scoula.products.dto.response.SubcategoryDTO;
-import org.scoula.products.dto.response.deposit.DepositOptionDTO;
-import org.scoula.products.dto.response.deposit.DepositProductDTO;
-import org.scoula.products.dto.response.pension.PensionOptionDTO;
-import org.scoula.products.dto.response.pension.PensionProductDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +24,7 @@ public interface FinancialProductMapper {
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
             @Param("joinWay") String joinWay,
-            @Param("amount") Integer amount,
+            @Param("depositAmount") Long depositAmount,
             @Param("sortBy") String sortBy,
             @Param("sortDirection") String sortDirection,
             @Param("pageSize") Integer pageSize,

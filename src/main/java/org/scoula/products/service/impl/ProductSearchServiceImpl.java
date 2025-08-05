@@ -1,6 +1,7 @@
 package org.scoula.products.service.impl;
 
 import org.scoula.products.dto.response.ProductDTO;
+import org.scoula.products.dto.response.deposit.DepositProductDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.scoula.products.dto.request.ProductSearchRequest;
@@ -215,7 +216,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         request.setPage(pageNo);
         request.setPageSize(DEFAULT_PAGE_SIZE);
 
-        // 금액 필터 설정
+        // 예치 금액 필터 설정
         setAmountFilter(request, filters, subCategoryId);
 
         // 저축 기간 필터 설정
@@ -309,32 +310,39 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     /**
      * 금액 필터 설정
      */
+    /**
+     * 금액 필터 설정
+     * @param request ProductSearchRequest 객체
+     * @param filters 필터 맵
+     * @param subCategoryId 서브카테고리 ID
+     */
     private void setAmountFilter(ProductSearchRequest request, Map<String, String> filters, Long subCategoryId) {
-        if (!filters.containsKey("amount")) {
-            return;
-        }
+        // "amount" 필터가 있는 경우 처리
+        if (filters.containsKey("depositAmount")) {
+            try {
+                Long depositAmount = Long.parseLong(filters.get("depositAmount").replaceAll("[^0-9]", ""));
 
-        try {
-            Long amount = Long.parseLong(filters.get("amount"));
-
-            // 서브카테고리에 따라 다른 필드에 값 설정
-            if (subCategoryId != null) {
-                if (SubCategoryType.isDepositType(subCategoryId)) {
-                    // 정기예금/입출금예금 - 예치 금액
-                    request.setDepositAmount(amount);
-                } else if (SubCategoryType.isSavingType(subCategoryId)) {
-                    // 자유적금/정기적금 - 월 납입 금액
-                    request.setMonthlyPayment(amount);
+                // 서브카테고리에 따라 다른 필드에 설정
+                if (subCategoryId != null) {
+                    if (subCategoryId == 101L) { // 정기예금
+                        request.setDepositAmount(depositAmount);
+                    } else if (subCategoryId == 102L || subCategoryId == 104L) { // 자유적금, 정기적금
+                        request.setDepositAmount(depositAmount);
+                    } else {
+                        // 기본적으로 depositAmount에 설정
+                        request.setDepositAmount(depositAmount);
+                    }
+                } else {
+                    // 서브카테고리가 없으면 depositAmount에 설정
+                    request.setDepositAmount(depositAmount);
                 }
-            } else {
-                // 서브카테고리 ID가 없을 경우 예치 금액으로 기본 설정
-                request.setDepositAmount(amount);
+
+                log.debug("금액 필터 설정: {}", depositAmount);
+            } catch (NumberFormatException e) {
+                log.warn("금액 파싱 오류: {}", filters.get("depositAmount"));
             }
-        } catch (NumberFormatException e) {
-            log.warn("금액 파싱 오류: {}", filters.get("amount"));
         }
     }
-
     @Override
     public ProductListResponse searchProducts(ProductSearchRequest request) {
         // 기본값 설정
@@ -383,7 +391,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         Integer offset = (page - 1) * pageSize;
 
         // 금액 필터링
-        Integer minAmount = getMinAmountBySubcategory(request);
+        //Integer minAmount = getMinAmountBySubcategory(request);
+        Long depositAmount = request.getDepositAmount();
 
         // banks 리스트를 콤마로 구분된 문자열로 변환
         String banksStr = (request.getBanks() != null && !request.getBanks().isEmpty())
@@ -394,8 +403,9 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         CategoryType categoryType = CategoryType.fromId(request.getCategoryId());
         String categoryName = categoryType.getName();
 
-        // 상품 조회
-        List<ProductDTO> products = financialProductMapper.findProducts(
+        // 1. 먼저 필터링된 상품의 총 개수를 확인하기 위해 모든 상품 조회 (페이지네이션 없이)
+        // 여기서 minAmount가 이미 금액 필터링의 일부를 처리
+        List<ProductDTO> allProducts = financialProductMapper.findProducts(
                 null,
                 categoryName,
                 request.getCategoryId(),
@@ -405,30 +415,46 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 request.getSaveTrm(),
                 request.getIntrRateType(),
                 request.getJoinWay(),
-                minAmount,
+                request.getDepositAmount(),
                 request.getSortBy(),
                 request.getSortDirection(),
-                pageSize,
-                offset,
+                null, // 페이지 크기를 null로 설정하여 모든 결과 가져오기
+                null, // 오프셋도 null로 설정
                 banksStr
         );
 
-        // 전체 상품 수 조회
-        int totalCount = financialProductMapper.countProducts(
-                categoryName,
-                request.getCategoryId(),
-                request.getSubCategoryId(),
-                request.getSearchText(),
-                request.getMinIntrRate(),
-                request.getSaveTrm(),
-                request.getIntrRateType(),
-                request.getJoinWay(),
-                minAmount,
-                banksStr
-        );
+        // 2. 금액 최대값 필터링 적용 (최소값은 이미 DB에서 필터링됨)
+        if (depositAmount != null && depositAmount > 0) {
+            allProducts = allProducts.stream()
+                .filter(product -> {
+                    // 최대 가입 금액 (0이면 무제한으로 처리)
+                    Long maxAmount = product.getMaxLimit() != null && product.getMaxLimit() > 0 ?
+                                   product.getMaxLimit() : Long.MAX_VALUE;
+
+                    // 입력 금액이 최대값 이하인지 확인
+                    return depositAmount <= maxAmount;
+                })
+                .collect(Collectors.toList());
+
+            log.debug("금액 필터링 적용 후 상품 수: {}", allProducts.size());
+        }
+
+        // 3. 필터링된 전체 상품 수 계산
+        int totalCount = allProducts.size();
+
+        // 4. 필터링된 전체 상품에서 해당 페이지의 상품만 추출
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalCount);
+
+        List<ProductDTO> pagedProducts;
+        if (startIndex < totalCount) {
+            pagedProducts = allProducts.subList(startIndex, endIndex);
+        } else {
+            pagedProducts = new ArrayList<>();
+        }
 
         // 결과 변환
-        List<ProductListResponse.ProductSummary> summaries = products.stream()
+        List<ProductListResponse.ProductSummary> summaries = pagedProducts.stream()
                 .map(this::convertToProductSummary)
                 .collect(Collectors.toList());
 
@@ -438,16 +464,14 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .categoryId(request.getCategoryId())
                 .subcategoryId(request.getSubCategoryId())
                 .products(summaries)
-                .totalCount(totalCount)
+                .totalCount(totalCount) // 필터링 후 전체 상품 수
                 .currentPage(page)
                 .pageSize(pageSize)
                 .totalPages((int) Math.ceil((double) totalCount / pageSize))
                 .sortBy(request.getSortBy())
                 .sortDirection(request.getSortDirection())
                 .build();
-    }
-
-    /**
+    }    /**
      * 연금 상품 검색
      */
     private ProductListResponse searchPensionProducts(ProductSearchRequest request) {
@@ -703,6 +727,35 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                     .productType(categoryType == CategoryType.PENSION ? "pension" : "deposit")
                     .categoryId(categoryType.getId())
                     .subcategoryId(subcategoryId);
+        }
+
+        // ProductSearchServiceImpl.java 또는 관련 서비스 클래스에 추가
+        private List<DepositProductDTO> filterByAmount(List<DepositProductDTO> products, Map<String, String> filters) {
+            if (!filters.containsKey("depositAmount")) {
+                return products; // 금액 필터가 없으면 그대로 반환
+            }
+
+            try {
+                Long amount = Long.parseLong(filters.get("depositAmount"));
+
+                return products.stream()
+                    .filter(product -> {
+                        // 최소 가입 금액 (null이면 0으로 처리)
+                        Long minAmount = product.getJoinAmt() != null ? product.getJoinAmt() : 0L;
+
+                        // 최대 가입 금액 (null이면 제한 없음으로 처리)
+                        Long maxAmount = product.getMaxLimit() != null && product.getMaxLimit() > 0 ?
+                                         product.getMaxLimit() : Long.MAX_VALUE;
+
+                        // 입력 금액이 최소 이상, 최대 이하인 경우만 포함
+                        return minAmount <= amount && amount <= maxAmount;
+                    })
+                    .collect(Collectors.toList());
+            } catch (NumberFormatException e) {
+                // 금액 변환 실패 시 로그 출력 후 원본 리스트 반환
+                log.warn("Invalid amount format: {}", filters.get("amount"), e);
+                return products;
+            }
         }
 
         /**

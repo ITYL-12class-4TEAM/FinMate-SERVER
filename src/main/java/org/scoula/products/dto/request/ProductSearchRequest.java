@@ -77,6 +77,11 @@ public class ProductSearchRequest {
             addDepositFilters(filters);
         }
 
+        // 예치 금액
+        if (this.depositAmount != null) {
+            filters.put("depositAmount", this.depositAmount.toString());
+        }
+
         return filters;
     }
 

@@ -53,9 +53,9 @@
                 AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
             </if>
             <!-- 예치 금액 필터링 -->
-            <if test="amount != null">
-                AND dp.min_deposit &lt;= #{amount}
-                AND (dp.max_limit IS NULL OR dp.max_limit >= #{amount})
+            <if test="depositAmount != null">
+                AND dp.min_deposit &lt;= #{depositAmount}
+                AND (dp.max_limit IS NULL OR dp.max_limit >= #{depositAmount})
             </if>
             <!-- 은행명 필터링 - 단일 문자열 버전 -->
             <if test="banksStr != null and banksStr != ''">
@@ -70,6 +70,21 @@
             </if>
 
         </where>
+        GROUP BY
+                fp.product_id,
+                do.save_trm,
+                fp.fin_co_no,
+                fp.fin_prdt_cd,
+                fp.kor_co_nm,
+                fp.product_name,
+                c.name,
+                do.intr_rate,
+                do.intr_rate2,
+                do.intr_rate_type,
+                do.intr_rate_type_nm,
+                dp.min_deposit,
+                dp.max_limit,
+                fp.external_link
         <!-- 정렬 조건 -->
         <choose>
             <when test="sortBy != null and sortBy == 'intrRate' and sortDirection != null and sortDirection == 'desc'">
