@@ -38,6 +38,7 @@ import org.springframework.web.servlet.view.JstlView;
         "org.scoula.products.controller",
         "org.scoula.preinfo.controller",
         "org.scoula.wmti.controller",
+        "org.scoula.notification.controller",
 }) // Spring MVC용 컴포넌트 등록을 위한 스캔 패키지
 public class ServletConfig implements WebMvcConfigurer {
 

@@ -116,6 +116,7 @@ public class SecurityConfig {
                 // 회원만 접근 가능한 개인화 기능
                 .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능
                 .antMatchers("/api/scraps/**").authenticated()                       // 스크랩 기능
+                .antMatchers("/api/notifications/**").authenticated()                // 알림 기능 (추가)
                 .antMatchers("/api/posts/my").authenticated()                        // ⭐ 내가 쓴 글 (회원 전용)
                 .antMatchers("/api/comments/my").authenticated()                     // ⭐ 내가 쓴 댓글 (회원 전용)
                 .antMatchers(HttpMethod.POST, "/api/posts/**").authenticated()       // 게시물 작성

@@ -187,6 +187,21 @@ public enum ResponseCode {
     PREINFO_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사전 정보 분석 중 오류가 발생했습니다."),
     PREINFO_ILLEGAL_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
     /**
+     * Notification response
+     */
+    NOTIFICATION_LIST_SUCCESS(HttpStatus.OK, "알림 목록 조회에 성공했습니다."),
+    NOTIFICATION_READ_SUCCESS(HttpStatus.OK, "알림 읽음 처리에 성공했습니다."),
+    NOTIFICATION_READ_ALL_SUCCESS(HttpStatus.OK, "모든 알림 읽음 처리에 성공했습니다."),
+    NOTIFICATION_CREATE_SUCCESS(HttpStatus.CREATED, "알림이 생성되었습니다."),
+    NOTIFICATION_SETTINGS_UPDATE_SUCCESS(HttpStatus.OK, "알림 설정이 업데이트되었습니다."),
+    NOTIFICATION_SETTINGS_GET_SUCCESS(HttpStatus.OK, "알림 설정 조회에 성공했습니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
+    NOTIFICATION_UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "해당 알림에 접근할 권한이 없습니다."),
+    NOTIFICATION_ALREADY_READ(HttpStatus.BAD_REQUEST, "이미 읽은 알림입니다."),
+    NOTIFICATION_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 알림 타입입니다."),
+    NOTIFICATION_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "알림 생성에 실패했습니다."),
+
+    /**
      * WMTI response
      */
     WMTI_SURVEY_SUBMITTED(HttpStatus.OK, "성향 테스트가 성공적으로 제출되었습니다."),
