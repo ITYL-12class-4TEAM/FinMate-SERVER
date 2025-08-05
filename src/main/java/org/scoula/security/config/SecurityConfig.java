@@ -62,6 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()          // 개별 게시물 읽기
                 .antMatchers(HttpMethod.GET, "/api/post-like/{postId}/count").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/scraps/posts/{postId}/count").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/admin/scheduler/hot-posts/update").permitAll()
 
                 // 댓글 조회 (비회원 접근 가능)
                 .antMatchers(HttpMethod.GET, "/api/comments/{commentId}").permitAll()           // 댓글 단건 조회
