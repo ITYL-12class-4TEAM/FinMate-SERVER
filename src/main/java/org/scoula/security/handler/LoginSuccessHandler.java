@@ -13,12 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.UUID;
 
 
 @Log4j2
@@ -29,6 +30,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtProcessor jwtProcessor;
     private final MemberMapper memberMapper;
     private final RedisService redisService;
+    private final ObjectMapper objectMapper;
 
 
     private AuthResultDTO makeAuthResult(CustomUser user) {
@@ -42,7 +44,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 accessToken
         );
         memberMapper.updateTokens(username, refreshToken); //
-        return new AuthResultDTO(accessToken, refreshToken, memberId, UserInfoDTO.of(user.getMember()), false);
+        return new AuthResultDTO(accessToken, refreshToken, UserInfoDTO.of(user.getMember()), false);
 
     }
 
@@ -69,9 +71,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                         user.getMember().getMemberId(),
                         user.getUsername()
                 );
-                // 이메일과 이름 정보 추가
-                String email = user.getMember().getEmail();
-                String username = user.getMember().getUsername();
+
+                // 이메일과 이름 정보 - 유니코드 안전하게 처리
+                String email = user.getMember().getEmail() != null ? user.getMember().getEmail() : "";
+                String username = user.getMember().getUsername() != null ? user.getMember().getUsername() : "";
 
                 // URL 인코딩
                 String encodedEmail = URLEncoder.encode(email, "UTF-8");
@@ -91,11 +94,13 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
                 AuthResultDTO result = makeAuthResult(user);
 
-                // 프론트엔드로 리다이렉트 (기존 회원)
+                String tempCode = UUID.randomUUID().toString();
+                String resultJson = objectMapper.writeValueAsString(result);
+                redisService.save("code:" + tempCode, resultJson, 300);
+
                 String redirectUrl = String.format(
-                        "http://localhost:5173/auth/oauth2/redirect?token=%s&refreshToken=%s&isNewMember=false",
-                        result.getAccessToken(),
-                        result.getRefreshToken()
+                        "http://localhost:5173/auth/oauth2/redirect?code=%s&isNewMember=false",
+                        tempCode
                 );
                 response.sendRedirect(redirectUrl);
                 return;

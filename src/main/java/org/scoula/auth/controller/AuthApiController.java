@@ -11,6 +11,7 @@ import org.scoula.response.ApiResponse;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JwtProcessor;
 import org.springframework.web.bind.annotation.*;
+import org.scoula.security.account.dto.AuthResultDTO;
 
 @Api(tags = "아이디 비밀번호 찾기 및 토큰 갱신 API")
 @RestController
@@ -20,6 +21,7 @@ public class AuthApiController {
 
     private final AuthService authService;
     private final JwtProcessor jwtProcessor;
+
 
     @ApiOperation("리프레시 토큰으로 새로운 액세스 토큰 발급")
     @PostMapping("/refresh")
@@ -72,5 +74,12 @@ public class AuthApiController {
 
         authService.checkPassword(request, email);
         return ApiResponse.success(ResponseCode.PASSWORD_CHECK_SUCCESS);
+    }
+    @ApiOperation("OAuth2 임시 코드로 토큰 교환")
+    @PostMapping("/oauth2/token")
+    public ApiResponse<?> exchangeToken(@RequestParam String code) {
+         AuthResultDTO result = authService.exchangeToken(code);
+         return ApiResponse.success(ResponseCode.LOGIN_SUCCESS,result);
+
     }
 }

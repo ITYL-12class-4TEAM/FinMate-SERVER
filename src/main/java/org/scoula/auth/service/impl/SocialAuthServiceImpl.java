@@ -49,7 +49,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         }
 
         if (member.getMemberId() == null) {
-            throw new AuthenticationException(ResponseCode.SERVER_ERROR);
+            throw new AuthenticationException(ResponseCode.MEMBER_NOT_FOUND);
         }
 
         if (!Boolean.TRUE.equals(member.getIsNewMember())) {
@@ -110,7 +110,7 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
         String username = jwtProcessor.getUsername(jwt);
         if (username == null || username.isEmpty()) {
-            throw new AuthenticationException(ResponseCode.INVALID_TOKEN);
+            throw new AuthenticationException(ResponseCode.MEMBER_NOT_FOUND);
         }
 
         MemberVO member = memberMapper.findByEmail(username);

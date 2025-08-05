@@ -21,35 +21,18 @@ import org.springframework.web.bind.annotation.*;
 public class SignupApiController {
     private final SignupService signupService;
 
-    @ApiOperation(
-            value = "회원가입",
-            notes = "회원가입을 처리하고 성공 시 회원 정보를 반환합니다."
-    )
+    @ApiOperation(value = "회원가입")
     @PostMapping("/signup")
     public ApiResponse<?> register(@Validated @RequestBody RegisterDTO dto) {
-        try {
-            signupService.register(dto, dto.getPhoneNumber());
-            return ApiResponse.success(ResponseCode.SIGNUP_SUCCESS);
-        } catch (Exception e) {
-            log.error("회원가입 오류", e);
-            return ApiResponse.fail(ResponseCode.SERVER_ERROR);
-        }
+        signupService.register(dto, dto.getPhoneNumber());
+        return ApiResponse.success(ResponseCode.SIGNUP_SUCCESS);
     }
 
-    @ApiOperation(
-            value = "소셜 로그인 회원가입",
-            notes = "소셜 로그인을 통한 회원가입을 처리합니다."
-    )
+    @ApiOperation(value = "소셜 로그인 회원가입")
     @PostMapping("/signup/social")
-    public ApiResponse<?> socialRegister(@Validated @RequestBody SocialRegisterDTO dto) {
-        try {
-            log.info("[DEBUG] 소셜 회원가입 요청 - 이메일: {}, 닉네임: {}", dto.getEmail(), dto.getNickname());
-            signupService.socialRegister(dto);
-            AuthResultDTO authResult = signupService.createAuthResult(dto.getEmail());
-            return ApiResponse.success(ResponseCode.SIGNUP_SUCCESS, authResult);
-
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.SERVER_ERROR, e.getMessage());
-        }
+    public ApiResponse<AuthResultDTO> socialRegister(@Validated @RequestBody SocialRegisterDTO dto) {
+        signupService.socialRegister(dto);
+        AuthResultDTO authResult = signupService.createAuthResult(dto.getEmail());
+        return ApiResponse.success(ResponseCode.SIGNUP_SUCCESS, authResult);
     }
 }

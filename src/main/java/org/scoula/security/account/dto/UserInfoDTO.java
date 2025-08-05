@@ -13,12 +13,14 @@ import java.util.List;
 public class UserInfoDTO {
     String username;
     String email;
+    Long memberId;
     List<String> roles;
 
     public static UserInfoDTO of(MemberVO member) {
         return new UserInfoDTO(
                 member.getUsername(),
                 member.getEmail(),
+                member.getMemberId(),
                 List.of("ROLE_" + member.getRole())  // Spring Security 권한 규칙 반영
         );
     }

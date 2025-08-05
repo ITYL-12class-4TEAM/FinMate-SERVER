@@ -16,9 +16,10 @@ import org.scoula.member.service.impl.SignupServiceImpl;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.account.domain.MemberVO;
 import org.scoula.security.util.JwtProcessor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.scoula.security.account.dto.AuthResultDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @Service
@@ -51,9 +52,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String newAccessToken = jwtProcessor.generateAccessToken(memberId, username);
+        String newRefreshToken = jwtProcessor.generateRefreshToken(username);
         redisService.saveAccessToken("ACCESS:" + memberId, newAccessToken);
 
-        return new TokenResponseDTO(newAccessToken);
+        memberMapper.updateTokens(username, newRefreshToken);
+
+        return new TokenResponseDTO(newAccessToken, newRefreshToken);
     }
 
     @Override
@@ -131,6 +135,21 @@ public class AuthServiceImpl implements AuthService {
 
         if (!encoder.matches(request.getPassword(), member.getPassword())) {
             throw new AuthenticationException(ResponseCode.PASSWORD_MISMATCH);
+        }
+    }
+    @Override
+    public AuthResultDTO exchangeToken(String code) {
+        try {
+            String resultJson = redisService.get("code:" + code);
+            if (resultJson == null) {
+                throw new AuthenticationException(ResponseCode.INVALID_TOKEN);
+            }
+            ObjectMapper objectMapper = new ObjectMapper();
+            AuthResultDTO result = objectMapper.readValue(resultJson, AuthResultDTO.class);
+            redisService.delete("code:" + code);
+            return result;
+        } catch (Exception e) {
+            throw new AuthenticationException(ResponseCode.TOKEN_EXCHANGE_FAILED);
         }
     }
 

@@ -2,7 +2,7 @@ package org.scoula.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
+import org.scoula.response.ResponseCode;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -14,8 +14,11 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
 @Log4j2
 @Component
 public class LoginFailureHandler implements AuthenticationFailureHandler {
@@ -31,43 +34,42 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         boolean isOAuth2 = requestURI.contains("/oauth2/") || requestURI.contains("/login/oauth2/code/");
 
         if (isOAuth2) {
-            log.error("[DEBUG] OAuth2 로그인 실패!");
-            log.error("[DEBUG] 요청 URI: {}", requestURI);
-            log.error("[DEBUG] 실패 원인: {}", exception.getMessage());
-            log.error("[DEBUG] 예외 타입: {}", exception.getClass().getSimpleName());
-
-            // 주소를 5173으로 통일
-            response.sendRedirect("http://localhost:5173/login?error=oauth2_failed&message=" +
-                    exception.getMessage());
-            return;
+            handleOAuth2Failure(response, exception);
         } else {
-            log.error("[DEBUG] 일반 로그인 실패: {}", exception.getMessage());
+            handleFormLoginFailure(response, exception);
         }
+    }
 
+    private void handleOAuth2Failure(HttpServletResponse response, AuthenticationException exception) throws IOException {
+        log.error("[OAuth2] 로그인 실패: {}", exception.getMessage());
 
-        String errorCode = "INVALID_CREDENTIALS";
-        int status = HttpStatus.UNAUTHORIZED.value(); // 기본: 401
-        String message = "사용자 ID 또는 비밀번호가 일치하지 않습니다.";
+        String message = exception.getMessage();
+        String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8);
+
+        log.info("[OAuth2] 리다이렉트: message={}", message);
+        response.sendRedirect("http://localhost:5173/auth/oauth2/redirect?error=oauth2_failed&message=" + encodedMessage);
+    }
+
+    private void handleFormLoginFailure(HttpServletResponse response, AuthenticationException exception) throws IOException {
+        log.error("[Form Login] 로그인 실패: {}", exception.getMessage());
+
+        ResponseCode responseCode;
 
         if (exception instanceof LockedException) {
-            errorCode = "ACCOUNT_LOCKED";
-            status = 423;
-            message = "계정이 잠겨 있습니다.";
+            responseCode = ResponseCode.ACCOUNT_LOCKED;
         } else if (exception instanceof AccountExpiredException) {
-            errorCode = "ACCOUNT_EXPIRED";
-            status = HttpStatus.UNAUTHORIZED.value();
-            message = "계정 사용 기간이 만료되었습니다.";
+            responseCode = ResponseCode.ACCOUNT_EXPIRED;
         } else if (exception instanceof BadCredentialsException) {
-            errorCode = "INVALID_CREDENTIALS";
-            status = HttpStatus.UNAUTHORIZED.value();
-            message = "잘못된 인증 정보입니다.";
+            responseCode = ResponseCode.INVALID_CREDENTIALS;
+        } else {
+            responseCode = ResponseCode.INVALID_CREDENTIALS;
         }
 
         Map<String, Object> body = new HashMap<>();
-        body.put("errorCode", errorCode);
-        body.put("message", message);
+        body.put("errorCode", responseCode.name());
+        body.put("message", responseCode.getMessage());
 
-        response.setStatus(status);
+        response.setStatus(responseCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");
         objectMapper.writeValue(response.getWriter(), body);
     }

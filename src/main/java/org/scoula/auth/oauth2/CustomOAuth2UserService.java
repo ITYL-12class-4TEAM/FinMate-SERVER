@@ -2,12 +2,14 @@ package org.scoula.auth.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.scoula.response.ResponseCode;
 import org.scoula.security.account.domain.CustomUser;
 import org.scoula.security.account.domain.MemberVO;
 import org.scoula.member.mapper.MemberMapper;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +24,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
-        try {
-            OAuth2User oauth2User = super.loadUser(userRequest);
-            CustomUser result = processOAuth2User(userRequest, oauth2User);
-            return result;
-
-        } catch (Exception ex) {
-            throw new OAuth2AuthenticationException("OAuth2 사용자 처리 중 오류가 발생했습니다.");
-        }
+        OAuth2User oauth2User = super.loadUser(userRequest);
+        return processOAuth2User(userRequest, oauth2User);
     }
 
     private CustomUser processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
@@ -39,15 +34,37 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 registrationId, oauth2User.getAttributes());
 
         if (oauth2UserInfo.getEmail() == null || oauth2UserInfo.getEmail().isEmpty()) {
-            throw new OAuth2AuthenticationException("OAuth2 제공자로부터 이메일을 찾을 수 없습니다.");
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(
+                            ResponseCode.OAUTH2_EMAIL_NOT_PROVIDED.name(),
+                            ResponseCode.OAUTH2_EMAIL_NOT_PROVIDED.getMessage(),
+                            null
+                    )
+            );
         }
         MemberVO member = memberMapper.selectByEmail(oauth2UserInfo.getEmail());
 
         if (member != null) {
+            if (member.getSocialType() == null || member.getSocialType().isEmpty()) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error(
+                                ResponseCode.EMAIL_ALREADY_REGISTERED.name(),
+                                ResponseCode.EMAIL_ALREADY_REGISTERED.getMessage(),
+                                null
+                        )
+                );
+            }
+
             if (!registrationId.equals(member.getSocialType())) {
                 throw new OAuth2AuthenticationException(
-                        "이미 " + member.getSocialType() + "로 가입된 이메일입니다.");
+                        new OAuth2Error(
+                                ResponseCode.OAUTH2_DIFFERENT_SOCIAL_TYPE.name(),
+                                ResponseCode.OAUTH2_DIFFERENT_SOCIAL_TYPE.getMessage(),
+                                null
+                        )
+                );
             }
+
             member = updateExistingUser(member, oauth2UserInfo);
         } else {
             member = registerNewUser(registrationId, oauth2UserInfo);
@@ -55,6 +72,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return new CustomUser(member, oauth2User.getAttributes());
     }
+
+
+
     private MemberVO registerNewUser(String registrationId, OAuth2UserInfo oauth2UserInfo) {
         MemberVO newMember = MemberVO.builder()
                 .email(oauth2UserInfo.getEmail())
@@ -64,7 +84,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .socialId(oauth2UserInfo.getId())
                 .role("USER")
                 .level(1)
-                .isNewMember(true)  // 신규 회원 표시
+                .isNewMember(true)
                 .createdAt(new Date())
                 .build();
 
@@ -81,7 +101,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .profileImage(oauth2UserInfo.getImageUrl())
                 .socialType(existingMember.getSocialType())
                 .socialId(oauth2UserInfo.getId())
-                .isNewMember(false)  // 기존 회원
+                .isNewMember(false)
                 .phoneNumber(existingMember.getPhoneNumber())
                 .birthDate(existingMember.getBirthDate())
                 .gender(existingMember.getGender())
