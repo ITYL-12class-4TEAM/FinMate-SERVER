@@ -123,7 +123,7 @@ public class ProductSearchRequest {
 
         // 가입 방법
         if (this.joinWay != null) {
-            filters.put("joinMethod", this.joinWay);
+            filters.put("joinWay", this.joinWay);
         }
 
         // 최소 금리

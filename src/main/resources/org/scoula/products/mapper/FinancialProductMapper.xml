@@ -18,7 +18,7 @@
         do.intr_rate_type_nm as "intr_rate_type_nm",
         dp.min_deposit as "minDeposit",         <!-- 별칭 변경: min_deposit_amount -> minDeposit -->
         dp.max_limit as "maxLimit",             <!-- 최대 예치 금액 추가 -->
-        fp.external_link as "join_way"
+        fp.join_way as "join_way"
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
         JOIN deposit_product dp ON fp.product_id = dp.product_id
@@ -48,9 +48,13 @@
             <if test="intrRateType != null and intrRateType != ''">
                 AND do.intr_rate_type = #{intrRateType}
             </if>
-            <!-- 가입 방식 필터링 -->
-            <if test="joinWay != null and joinWay != ''">
-                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            <!-- 가입 방식 필터링 (쉼표로 구분된 여러 값 지원) -->
+            <if test="joinWay != null and joinWay != '' and joinWay != 'all'">
+                AND (
+                <foreach item="way" collection="joinWay.split(',')" separator=" OR ">
+                    fp.join_way LIKE CONCAT('%', #{way}, '%')
+                </foreach>
+                )
             </if>
             <!-- 예치 금액 필터링 -->
             <if test="depositAmount != null">
@@ -71,20 +75,20 @@
 
         </where>
         GROUP BY
-                fp.product_id,
-                do.save_trm,
-                fp.fin_co_no,
-                fp.fin_prdt_cd,
-                fp.kor_co_nm,
-                fp.product_name,
-                c.name,
-                do.intr_rate,
-                do.intr_rate2,
-                do.intr_rate_type,
-                do.intr_rate_type_nm,
-                dp.min_deposit,
-                dp.max_limit,
-                fp.external_link
+        fp.product_id,
+        do.save_trm,
+        fp.fin_co_no,
+        fp.fin_prdt_cd,
+        fp.kor_co_nm,
+        fp.product_name,
+        c.name,
+        do.intr_rate,
+        do.intr_rate2,
+        do.intr_rate_type,
+        do.intr_rate_type_nm,
+        dp.min_deposit,
+        dp.max_limit,
+        fp.join_way
         <!-- 정렬 조건 -->
         <choose>
             <when test="sortBy != null and sortBy == 'intrRate' and sortDirection != null and sortDirection == 'desc'">
@@ -162,9 +166,13 @@
             <if test="intrRateType != null and intrRateType != ''">
                 AND do.intr_rate_type = #{intrRateType}
             </if>
-            <!-- 가입 방식 필터링 -->
-            <if test="joinWay != null and joinWay != '' and joinWay != '전체'">
-                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            <!-- 가입 방식 필터링 (쉼표로 구분된 여러 값 지원) -->
+            <if test="joinWay != null and joinWay != '' and joinWay != 'all'">
+              AND (
+                <foreach item="way" collection="joinWay.split(',')" separator=" OR ">
+                  fp.join_way LIKE CONCAT('%', #{way}, '%')
+                </foreach>
+              )
             </if>
             <!-- 예치 금액 필터링 -->
             <if test="amount != null">
