@@ -33,6 +33,9 @@ public class ScrapServiceImpl implements ScrapService {
     public ScrapResponseDTO toggleScrap(Long postId) {
         validatePostExists(postId);
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
         boolean isScraped;
 
         if (scrapMapper.existsScrap(postId, memberId)) {
@@ -67,6 +70,9 @@ public class ScrapServiceImpl implements ScrapService {
     @Override
     public List<PostListResponseDTO> getMyScrapList() {
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
 
         return scrapMapper.getScrapPostsByMemberId(memberId).stream()
                 .map(post -> {
@@ -111,7 +117,7 @@ public class ScrapServiceImpl implements ScrapService {
 
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+            return null;
         }
 
         String email = authentication.getName();
