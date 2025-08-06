@@ -79,9 +79,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String encodedEmail = URLEncoder.encode(email, "UTF-8");
                 String encodedUsername = URLEncoder.encode(username, "UTF-8");
                 String redirectUrl = String.format(
-                        "%s?token=%s&isNewMember=true&email=%s&username=%s",
+                        "%s?isNewMember=true&email=%s&username=%s",
                         appProperties.getFrontendOAuth2RedirectUrl(),
-                        tempToken,
                         encodedEmail,
                         encodedUsername
                 );
