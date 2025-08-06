@@ -50,6 +50,7 @@ public class SecurityConfig {
 
     @Bean
     public ClientRegistration googleClientRegistration() {
+        System.out.println("url=== " + oauth2Properties.getGoogle().getRedirectUri());
         return ClientRegistration.withRegistrationId("google")
                 .clientId(oauth2Properties.getGoogle().getClientId())
                 .clientSecret(oauth2Properties.getGoogle().getClientSecret())
