@@ -32,6 +32,7 @@ public class ProductSearchRequest {
     private Integer saveTrm;       // 저축 기간 (개월)
     private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
     private String joinWay;        // 가입 방법
+    private List<String> joinWays; // 가입 방법 다중 선택용
     private Boolean isOnline;      // 온라인 가입 여부
 
     // 금액 필터링 - 서브카테고리별 다른 의미
@@ -66,8 +67,7 @@ public class ProductSearchRequest {
         }
 
         // 상품 타입에 따른 필터 처리
-        String category = filters.getOrDefault("category",
-                this.productType != null ? this.productType : "deposit");
+        String category = filters.getOrDefault("category", this.productType != null ? this.productType : "deposit");
 
         if ("pension".equals(category)) {
             // 연금 상품 필터 추가
@@ -121,9 +121,14 @@ public class ProductSearchRequest {
             filters.put("saveTerm", this.saveTrm.toString());
         }
 
-        // 가입 방법
+        // 가입 방법 (단일 선택 기존 코드 유지 - 하위 호환성)
         if (this.joinWay != null) {
             filters.put("joinWay", this.joinWay);
+        }
+
+        // 다중 선택 가입 방법 처리 추가
+        if (this.joinWays != null && !this.joinWays.isEmpty()) {
+            filters.put("joinWays", String.join(",", this.joinWays));
         }
 
         // 최소 금리

@@ -23,7 +23,7 @@ public interface FinancialProductMapper {
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
-            @Param("joinWay") String joinWay,
+            @Param("joinWays") String joinWays,  // 파라미터명 변경: joinWay -> joinWays
             @Param("depositAmount") Long depositAmount,
             @Param("sortBy") String sortBy,
             @Param("sortDirection") String sortDirection,
@@ -42,7 +42,7 @@ public interface FinancialProductMapper {
             @Param("minIntrRate") Double minIntrRate,
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
-            @Param("joinWay") String joinWay,
+            @Param("joinWays") String joinWays,  // 파라미터명 변경: joinWay -> joinWays
             @Param("amount") Integer amount,
             @Param("banksStr") String banksStr);
 

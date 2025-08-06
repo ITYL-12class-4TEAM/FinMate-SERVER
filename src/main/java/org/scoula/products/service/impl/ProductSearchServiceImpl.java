@@ -242,11 +242,19 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             request.setIntrRateType(filters.get("interestRateType"));
         }
 
-        // 가입 방법 필터 설정
-        if (filters.containsKey("joinMethod")) {
-            String joinMethod = filters.get("joinMethod");
-            if (!"전체".equals(joinMethod)) {
-                request.setJoinWay(joinMethod);
+        // 가입 방법 다중 선택 처리
+        if (filters.containsKey("joinWays")) {
+            String joinWaysStr = filters.get("joinWays");
+            if (joinWaysStr != null && !joinWaysStr.isEmpty()) {
+                List<String> joinWays = Arrays.asList(joinWaysStr.split(","));
+                request.setJoinWays(joinWays);
+            }
+        }
+        // 이전 버전 호환성을 위한 단일 선택 처리
+        else if (filters.containsKey("joinWay")) {
+            String joinWay = filters.get("joinWay");
+            if (joinWay != null && !joinWay.isEmpty() && !joinWay.equals("전체")) {
+                request.setJoinWay(joinWay);
             }
         }
 
@@ -312,8 +320,9 @@ public class ProductSearchServiceImpl implements ProductSearchService {
      */
     /**
      * 금액 필터 설정
-     * @param request ProductSearchRequest 객체
-     * @param filters 필터 맵
+     *
+     * @param request       ProductSearchRequest 객체
+     * @param filters       필터 맵
      * @param subCategoryId 서브카테고리 ID
      */
     private void setAmountFilter(ProductSearchRequest request, Map<String, String> filters, Long subCategoryId) {
@@ -343,6 +352,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             }
         }
     }
+
     @Override
     public ProductListResponse searchProducts(ProductSearchRequest request) {
         // 기본값 설정
@@ -403,6 +413,12 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         CategoryType categoryType = CategoryType.fromId(request.getCategoryId());
         String categoryName = categoryType.getName();
 
+        // 가입 방법을 콤마로 구분된 문자열로 변환
+        String joinWaysStr = null;
+        if (request.getJoinWays() != null && !request.getJoinWays().isEmpty()) {
+            joinWaysStr = String.join(",", request.getJoinWays());
+        }
+
         // 1. 먼저 필터링된 상품의 총 개수를 확인하기 위해 모든 상품 조회 (페이지네이션 없이)
         // 여기서 minAmount가 이미 금액 필터링의 일부를 처리
         List<ProductDTO> allProducts = financialProductMapper.findProducts(
@@ -414,7 +430,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 request.getMinIntrRate(),
                 request.getSaveTrm(),
                 request.getIntrRateType(),
-                request.getJoinWay(),
+                joinWaysStr,
                 request.getDepositAmount(),
                 request.getSortBy(),
                 request.getSortDirection(),
@@ -424,19 +440,46 @@ public class ProductSearchServiceImpl implements ProductSearchService {
         );
 
         // 2. 금액 최대값 필터링 적용 (최소값은 이미 DB에서 필터링됨)
-        if (depositAmount != null && depositAmount > 0) {
+        // 메모리에서 가입 방법 필터링 처리
+        if (request.getJoinWays() != null && !request.getJoinWays().isEmpty()) {
+            List<String> selectedJoinWays = request.getJoinWays();
+
             allProducts = allProducts.stream()
-                .filter(product -> {
-                    // 최대 가입 금액 (0이면 무제한으로 처리)
-                    Long maxAmount = product.getMaxLimit() != null && product.getMaxLimit() > 0 ?
-                                   product.getMaxLimit() : Long.MAX_VALUE;
+                    .filter(product -> {
+                        // 상품에 가입 방법 정보가 없으면 포함 안함
+                        if (product.getJoinWay() == null || product.getJoinWay().isEmpty()) {
+                            return false;
+                        }
 
-                    // 입력 금액이 최대값 이하인지 확인
-                    return depositAmount <= maxAmount;
-                })
-                .collect(Collectors.toList());
+                        // 상품의 가입 방법을 배열로 분리
+                        List<String> productJoinWays = Arrays.asList(product.getJoinWay().split(","));
 
-            log.debug("금액 필터링 적용 후 상품 수: {}", allProducts.size());
+                        // 선택된 가입 방법 중 하나라도 상품의 가입 방법에 포함되면 결과에 포함
+                        return selectedJoinWays.stream()
+                                .anyMatch(selectedWay ->
+                                        productJoinWays.stream()
+                                                .anyMatch(productWay ->
+                                                        productWay.trim().equalsIgnoreCase(selectedWay.trim())
+                                                )
+                                );
+                    })
+                    .collect(Collectors.toList());
+        }
+        // 단일 선택 가입 방법 처리 (기존 코드 호환성)
+        else if (request.getJoinWay() != null && !request.getJoinWay().isEmpty()) {
+            String joinWay = request.getJoinWay();
+
+            allProducts = allProducts.stream()
+                    .filter(product -> {
+                        if (product.getJoinWay() == null || product.getJoinWay().isEmpty()) {
+                            return false;
+                        }
+
+                        List<String> productJoinWays = Arrays.asList(product.getJoinWay().split(","));
+                        return productJoinWays.stream()
+                                .anyMatch(way -> way.trim().equalsIgnoreCase(joinWay.trim()));
+                    })
+                    .collect(Collectors.toList());
         }
 
         // 3. 필터링된 전체 상품 수 계산
@@ -471,7 +514,9 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .sortBy(request.getSortBy())
                 .sortDirection(request.getSortDirection())
                 .build();
-    }    /**
+    }
+
+    /**
      * 연금 상품 검색
      */
     private ProductListResponse searchPensionProducts(ProductSearchRequest request) {
@@ -739,18 +784,18 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 Long amount = Long.parseLong(filters.get("depositAmount"));
 
                 return products.stream()
-                    .filter(product -> {
-                        // 최소 가입 금액 (null이면 0으로 처리)
-                        Long minAmount = product.getJoinAmt() != null ? product.getJoinAmt() : 0L;
+                        .filter(product -> {
+                            // 최소 가입 금액 (null이면 0으로 처리)
+                            Long minAmount = product.getJoinAmt() != null ? product.getJoinAmt() : 0L;
 
-                        // 최대 가입 금액 (null이면 제한 없음으로 처리)
-                        Long maxAmount = product.getMaxLimit() != null && product.getMaxLimit() > 0 ?
-                                         product.getMaxLimit() : Long.MAX_VALUE;
+                            // 최대 가입 금액 (null이면 제한 없음으로 처리)
+                            Long maxAmount = product.getMaxLimit() != null && product.getMaxLimit() > 0 ?
+                                    product.getMaxLimit() : Long.MAX_VALUE;
 
-                        // 입력 금액이 최소 이상, 최대 이하인 경우만 포함
-                        return minAmount <= amount && amount <= maxAmount;
-                    })
-                    .collect(Collectors.toList());
+                            // 입력 금액이 최소 이상, 최대 이하인 경우만 포함
+                            return minAmount <= amount && amount <= maxAmount;
+                        })
+                        .collect(Collectors.toList());
             } catch (NumberFormatException e) {
                 // 금액 변환 실패 시 로그 출력 후 원본 리스트 반환
                 log.warn("Invalid amount format: {}", filters.get("amount"), e);
@@ -819,7 +864,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
          * 가입 방법 목록 반환
          */
         private List<String> getJoinMethods() {
-            return Arrays.asList("전체", "온라인", "오프라인");
+            return Arrays.asList("전화", "영업점", "인터넷", "스마트폰");
         }
 
         /**
