@@ -74,13 +74,6 @@ public class RootConfig {
   String password;
   @Autowired
   ApplicationContext applicationContext;
-  @PostConstruct
-  public void printProperties() {
-    System.out.println("[TEST] jdbc.driver = " + driver);
-    System.out.println("[TEST] jdbc.url = " + url);
-    System.out.println("[TEST] jdbc.username = " + username);
-    System.out.println("[TEST] jdbc.password = " + password);
-  }
 
   @Bean
   public static PropertySourcesPlaceholderConfigurer propertyConfig() throws IOException {
