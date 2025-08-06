@@ -26,7 +26,7 @@ public class WishlistApiController {
     public ApiResponse<?> addFavorite(
             @ApiParam(value = "관심상품 등록 요청 DTO", required = true)
             @Valid @RequestBody FavoriteProductRequest request) {
-        favoriteProductService.addFavorite(request.getProductId(), request.getSaveTrm(), request.getRsrvType());
+        favoriteProductService.addFavorite(request.getProductId(), request.getSaveTrm(), request.getIntrRateType(),request.getRsrvType());
         return ApiResponse.success(ResponseCode.FAVORITE_CREATE_SUCCESS);
     }
 

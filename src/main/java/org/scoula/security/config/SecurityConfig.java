@@ -60,15 +60,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/board").permitAll()                               // 게시판 목록 조회
                 .antMatchers(HttpMethod.GET, "/api/posts").permitAll()               // 게시물 목록 조회 (GET만)
                 .antMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()          // 개별 게시물 읽기
+                .antMatchers(HttpMethod.GET, "/api/post-like/{postId}/count").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/scraps/posts/{postId}/count").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/admin/scheduler/hot-posts/update").permitAll()
 
                 // 댓글 조회 (비회원 접근 가능)
                 .antMatchers(HttpMethod.GET, "/api/comments/{commentId}").permitAll()           // 댓글 단건 조회
                 .antMatchers(HttpMethod.GET, "/api/comments/parent/{parentCommentId}").permitAll() // 부모댓글+대댓글 조회
                 .antMatchers(HttpMethod.GET, "/api/comments/post/{postId}").permitAll()         // 게시글 댓글 리스트
+                .antMatchers(HttpMethod.GET, "/api/comment-like/{commentId}/count").permitAll()
 
                 // 금융 상품 비교/요약 (비회원 접근 가능)
                 .antMatchers("/api/chat/compare").permitAll()                        // 금융 상품 비교
                 .antMatchers("/api/chat/summary").permitAll()                        // 금융 상품 요약
+                .antMatchers("/api/wmti/analysis/all").permitAll()
 
                 // 회원만 접근 가능한 개인화 기능
                 .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능

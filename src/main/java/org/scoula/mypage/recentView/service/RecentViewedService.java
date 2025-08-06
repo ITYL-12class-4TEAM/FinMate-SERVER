@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface RecentViewedService {
     // 최근 본 상품 저장
-    void saveRecentView(Long productId, Integer saveTrm, String rsrvType);
+    void saveRecentView(Long productId, Integer saveTrm, String intrRateType, String rsrvType);
 
     // 최근 본 상품 목록 조회
     List<RecentProductResponse> getRecentViews();

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FavoriteProductService {
     // 즐겨찾기 추가
-    void addFavorite(Long productId, Integer saveTrm, String rsrvType);
+    void addFavorite(Long productId, Integer saveTrm, String intrRateType, String rsrvType);
 
     // 즐겨찾기 삭제
     void removeFavorite(Long productId);

@@ -1,56 +1,65 @@
-package org.scoula.product;
+package org.scoula.product.scheduler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Properties;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.*;
+import java.util.Properties;
 
-public class PensionProductFetcher {
-    private static final String API_URL;
-    private static final String AUTH_KEY;
-
-    private static final String DB_URL;
-    private static final String DB_USER;
-    private static final String DB_PASS;
-    static {
-        Properties props = new Properties();
-
-        try (FileInputStream oauthInput = new FileInputStream("server-submodule/application-oauth.properties")) {
-            props.load(oauthInput);
-        } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load API properties", e);
-        }
-
-        try (FileInputStream dbInput = new FileInputStream("server-submodule/application-local.properties")) {
-            props.load(dbInput);
-        } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load DB properties", e);
-        }
-
-        // 프로퍼티 값 설정
-        API_URL = props.getProperty("finlife.api.url.pension");
-        AUTH_KEY = props.getProperty("finlife.api.key");
-
-        DB_URL = props.getProperty("jdbc.url");
-        DB_USER = props.getProperty("jdbc.username");
-        DB_PASS = props.getProperty("jdbc.password");
-    }
-
-
-
-
+@Component
+public class PensionProductScheduler {
     private static final String[] GROUP_CODES = {"050000", "060000"}; // 보험, 금융투자
 
+    private String API_URL;
+    private String AUTH_KEY;
+    private String DB_URL;
+    private String DB_USER;
+    private String DB_PASS;
 
-    public static void main(String[] args) throws Exception {
+    @PostConstruct
+    public void init() {
+        try {
+            Properties props = new Properties();
+            String baseDir = System.getProperty("config.location", "");
+            if (!baseDir.isEmpty() && !baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+                baseDir = baseDir + "/";
+            }
+            String oauthPath = baseDir + "application-oauth.properties";
+            String dbPath = baseDir + "application-local.properties";
+            try (FileInputStream oauthInput = new FileInputStream(oauthPath)) {
+                props.load(oauthInput);
+            }
+            try (FileInputStream dbInput = new FileInputStream(dbPath)) {
+                props.load(dbInput);
+            }
+            API_URL = props.getProperty("finlife.api.url.pension");
+            AUTH_KEY = props.getProperty("finlife.api.key");
+            DB_URL = props.getProperty("jdbc.url");
+            DB_USER = props.getProperty("jdbc.username");
+            DB_PASS = props.getProperty("jdbc.password");
+        } catch (Exception e) {
+            throw new RuntimeException("프로퍼티 로딩 실패", e);
+        }
+    }
+    @Scheduled(cron = "0 0 4 * * 1")
+    public void fetchPensionProductsScheduled() {
+        executeDataFetch();
+    }
+    public void fetchPensiontProductsManually() {
+        System.out.println("🔧 [Spring Legacy] 수동 연금상품 데이터 수집 시작...");
+        executeDataFetch();
+    }
+
+    public void executeDataFetch() {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -101,7 +110,7 @@ public class PensionProductFetcher {
     }
 
     // 전체 페이지 수 조회
-    private static int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
+    private int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
         String url = API_URL + "?auth=" + AUTH_KEY + "&topFinGrpNo=" + groupCode + "&pageNo=1";
         String body = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
                 HttpResponse.BodyHandlers.ofString()).body();

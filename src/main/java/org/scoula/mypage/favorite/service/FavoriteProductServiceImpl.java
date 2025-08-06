@@ -25,7 +25,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
     /**
      * 즐겨찾기 추가
      */
-    public void addFavorite(Long productId, Integer saveTrm, String rsrvType) {
+    public void addFavorite(Long productId, Integer saveTrm, String intrRateType,String rsrvType) {
         Long memberId = securityUtil.getCurrentUserIdAsLong();
 
         // 상품 존재 여부 확인
@@ -39,7 +39,7 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
         }
 
         try {
-            favoriteProductMapper.insertFavorite(memberId, productId, saveTrm, rsrvType);
+            favoriteProductMapper.insertFavorite(memberId, productId, saveTrm,intrRateType, rsrvType);
             favoriteProductMapper.increaseWishlistCount(productId);
         } catch (Exception e) {
             throw new DatabaseOperationException(ResponseCode.DATABASE_ERROR);

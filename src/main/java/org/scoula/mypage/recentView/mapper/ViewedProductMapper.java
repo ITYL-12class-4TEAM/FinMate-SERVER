@@ -10,10 +10,10 @@ import java.util.List;
 public interface ViewedProductMapper {
 
     // 최근 본 상품 추가
-    void insertViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm, @Param("rsrvType") String rsrvType);
+    void insertViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm,@Param("intrRateType") String intrRateType, @Param("rsrvType") String rsrvType);
 
     // 기존 동일 상품 삭제 (중복 방지용)
-    void deleteExistingViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm, @Param("rsrvType") String rsrvType);
+    void deleteExistingViewedProduct(@Param("memberId") Long memberId, @Param("productId") Long productId, @Param("saveTrm") Integer saveTrm, @Param("intrRateType") String intrRateType, @Param("rsrvType") String rsrvType);
 
     // 최근 본 상품 목록 조회
     List<RecentProductResponse> selectRecentViewedProducts(@Param("memberId") Long memberId);
