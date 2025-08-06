@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.mypage.recentView.mapper.ViewedProductMapper">
+
+    <delete id="deleteExistingViewedProduct">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId}
+          AND product_id = #{productId}
+          AND (save_trm = #{saveTrm} OR (save_trm IS NULL AND #{saveTrm} IS NULL))
+          AND (rsrv_type = #{rsrvType} OR (rsrv_type IS NULL AND #{rsrvType} IS NULL))
+    </delete>
+
+    <insert id="insertViewedProduct">
+        INSERT INTO viewed_product (member_id, product_id, save_trm, rsrv_type,viewed_at, intr_rate_type)
+        VALUES (#{memberId}, #{productId}, #{saveTrm}, #{rsrvType}, NOW(), #{intrRateType})
+    </insert>
+    <select id="selectRecentViewedProducts" resultType="org.scoula.mypage.recentView.dto.RecentProductResponse">
+        SELECT
+            fp.product_id AS productId,
+            fp.product_name AS productName,
+            fp.kor_co_nm AS korCoNm,
+            pc.name AS categoryName,
+            psc.name AS subcategoryName,
+            fp.external_link AS externalLink,
+            fp.wishlist_count AS wishlistCount,
+            dopt.rsrv_type_nm AS rstvTypeName,
+            dopt.rsrv_type      AS rstvValue,
+            dopt.intr_rate2 AS maxRate,
+            DATE_FORMAT(vp.viewed_at, '%Y-%m-%d %H:%i:%s') AS viewedAt,
+            dopt.intr_rate_type AS intrRateType,
+            dopt.save_trm AS saveTrm
+        FROM viewed_product vp
+                 JOIN financial_product fp ON vp.product_id = fp.product_id
+                 LEFT JOIN product_category pc ON fp.category_id = pc.category_id
+                 LEFT JOIN product_subcategory psc ON fp.subcategory_id = psc.subcategory_id
+                 LEFT JOIN deposit_option dopt
+                           ON dopt.product_id = fp.product_id
+                               AND dopt.save_trm = vp.save_trm
+                               AND dopt.intr_rate_type = vp.intr_rate_type
+                               AND (
+                                  vp.rsrv_type IS NULL AND dopt.rsrv_type IS NULL
+                                      OR vp.rsrv_type IS NOT NULL AND dopt.rsrv_type = vp.rsrv_type
+                                  )
+                 LEFT JOIN pension_product pp ON pp.product_id = fp.product_id
+        WHERE vp.member_id = #{memberId}
+        ORDER BY vp.viewed_at DESC
+        LIMIT 20
+    </select>
+
+    <!-- 최근 본 상품 기록 존재 여부 확인 -->
+    <select id="existsRecentView" parameterType="map" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM viewed_product
+        WHERE member_id = #{memberId}
+        AND product_id = #{productId}
+    </select>
+
+    <!-- 특정 상품의 최근 본 기록 삭제 -->
+    <delete id="deleteViewedProduct" parameterType="map">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId}
+        AND product_id = #{productId}
+    </delete>
+
+    <!-- 모든 최근 본 상품 기록 삭제 -->
+    <delete id="deleteAllViewedProducts" parameterType="Long">
+        DELETE FROM viewed_product
+        WHERE member_id = #{memberId}
+    </delete>
+
+
+
+</mapper>

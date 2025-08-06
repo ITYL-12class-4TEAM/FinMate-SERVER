@@ -69,6 +69,9 @@
     <update id="updateSurveyResult" parameterType="org.scoula.wmti.entity.SurveyResult">
         UPDATE wmti_profile
         SET
+            result_type = #{resultType},
+            risk_preference = #{riskPreference},
+            username = #{userName},
             wmti_code = #{wmtiCode},
             answers_json = #{answersJson},
             a_score = #{aScore},

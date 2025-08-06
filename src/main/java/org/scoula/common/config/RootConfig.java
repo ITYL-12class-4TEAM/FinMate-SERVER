@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -32,6 +31,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = {
         "org.scoula.chatgpt.util",
         "org.scoula.common.config",
+        "org.scoula.mypage",
         "org.scoula.products.service",
         "org.scoula.products.service.impl",
         "org.scoula.products.service.api",
@@ -40,7 +40,7 @@ import javax.sql.DataSource;
         "org.scoula.products.config",
         "org.scoula.products.mapper",
         "org.scoula.common.config",
-        "org.scoula"
+        "org.scoula",
 })
 //@PropertySource("file:${config.location}/application.properties")
 @MapperScan(basePackages = {
@@ -50,6 +50,10 @@ import javax.sql.DataSource;
         "org.scoula.community.postlike.mapper",
         "org.scoula.community.commentlike.mapper",
         "org.scoula.member.mapper",
+        "org.scoula.community.board.mapper",
+        "org.scoula.mypage.portfolio.mapper",
+        "org.scoula.mypage.recentView.mapper",
+        "org.scoula.mypage.favorite.mapper",
         "org.scoula.community.scrap.mapper",
         "org.scoula.wmti.mapper",
         "org.scoula.preinfo.mapper",

@@ -1,8 +1,12 @@
-package org.scoula.product;
+package org.scoula.product.scheduler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.scoula.product.EtcNoteParsedResult;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -16,40 +20,52 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DepositProductFetcher {
-    private static final String[] GROUP_CODES = {"020000", "030300"}; // 은행, 저축은행
+@Component
+public class DepositProductScheduler {
+    private static final String[] GROUP_CODES = {"020000", "030300"};
 
-    private static final String API_URL;
-    private static final String AUTH_KEY;
+    private String API_URL;
+    private String AUTH_KEY;
+    private String DB_URL;
+    private String DB_USER;
+    private String DB_PASS;
 
-    private static final String DB_URL;
-    private static final String DB_USER;
-    private static final String DB_PASS;
-    static {
-        Properties props = new Properties();
-
-        try (FileInputStream oauthInput = new FileInputStream("server-submodule/application-oauth.properties")) {
-            props.load(oauthInput);
+    @PostConstruct
+    public void init() {
+        try {
+            Properties props = new Properties();
+            String baseDir = System.getProperty("config.location", "");
+            if (!baseDir.isEmpty() && !baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+                baseDir = baseDir + "/";
+            }
+            String oauthPath = baseDir + "application-oauth.properties";
+            String dbPath = baseDir + "application-local.properties";
+            try (FileInputStream oauthInput = new FileInputStream(oauthPath)) {
+                props.load(oauthInput);
+            }
+            try (FileInputStream dbInput = new FileInputStream(dbPath)) {
+                props.load(dbInput);
+            }
+            API_URL = props.getProperty("finlife.api.url.deposit");
+            AUTH_KEY = props.getProperty("finlife.api.key");
+            DB_URL = props.getProperty("jdbc.url");
+            DB_USER = props.getProperty("jdbc.username");
+            DB_PASS = props.getProperty("jdbc.password");
         } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load API properties", e);
+            throw new RuntimeException("프로퍼티 로딩 실패", e);
         }
-
-        try (FileInputStream dbInput = new FileInputStream("server-submodule/application-local.properties")) {
-            props.load(dbInput);
-        } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to load DB properties", e);
-        }
-
-        // 프로퍼티 값 설정
-        API_URL = props.getProperty("finlife.api.url.deposit");
-        AUTH_KEY = props.getProperty("finlife.api.key");
-
-        DB_URL = props.getProperty("jdbc.url");
-        DB_USER = props.getProperty("jdbc.username");
-        DB_PASS = props.getProperty("jdbc.password");
+    }
+    @Scheduled(cron = "0 0 4 * * 1")
+    public void fetchDepositProductsScheduled() {
+        executeDataFetch();
     }
 
-    public static void main(String[] args) throws Exception {
+    public void fetchDepositProductsManually() {
+        System.out.println("🔧 [Spring Legacy] 수동 예금상품 데이터 수집 시작...");
+        executeDataFetch();
+    }
+
+    public void executeDataFetch() {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -100,7 +116,7 @@ public class DepositProductFetcher {
     }
 
     // 전체 페이지 수 조회
-    private static int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
+    private int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
         String url = API_URL + "?auth=" + AUTH_KEY + "&topFinGrpNo=" + groupCode + "&pageNo=1";
         String body = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
                 HttpResponse.BodyHandlers.ofString()).body();
@@ -112,9 +128,10 @@ public class DepositProductFetcher {
     // 기본 상품 정보 처리
     private static void processBaseProduct(Connection conn, JsonNode base) throws SQLException {
         // 1. financial_product 저장
-        String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month, risk_level, external_link, category_id, subcategory_id) " +
-                "VALUES (?, ?, ?, ?, ?, 'LOW', '', 1, 101) " +  // 예금(1), 정기예금(101)
-                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)";
+        String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month,join_way,join_deny, join_member, risk_level, external_link, category_id, subcategory_id) " +
+                "VALUES (?, ?, ?, ?, ?,  ?, ?, ?,'LOW', '', 1, 101) " +  // 예금(1), 정기예금(101)
+                "ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), kor_co_nm=VALUES(kor_co_nm), dcls_month=VALUES(dcls_month)" +
+                "";
 
         try (PreparedStatement ps = conn.prepareStatement(insertFin, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, base.path("fin_co_no").asText());
@@ -122,6 +139,9 @@ public class DepositProductFetcher {
             ps.setString(3, base.path("fin_prdt_nm").asText());
             ps.setString(4, base.path("kor_co_nm").asText());
             ps.setString(5, base.path("dcls_month").asText());
+            ps.setString(6, base.path("join_way").asText()); // 가입방법
+            ps.setString(7, base.path("join_deny").asText()); // 가입제한
+            ps.setString(8, base.path("join_member").asText()); // 가입대상
             ps.executeUpdate();
 
             Long productId = getProductId(conn, ps, base);
@@ -153,8 +173,8 @@ public class DepositProductFetcher {
 
     // deposit_product 테이블에 삽입
     private static void insertDepositProduct(Connection conn, JsonNode base, Long productId) throws SQLException {
-        String insDp = "INSERT INTO deposit_product (product_id, min_deposit, preferential_conditions, inquiry_url, etc_note, max_limit, dcls_strt_day, dcls_end_day, fin_co_subm_day, contract_period, interest_payment_type, is_digital_only, one_account_per_person, account_limit_note, rotation_cycle, preferential_tags) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+        String insDp = "INSERT INTO deposit_product (product_id, min_deposit, preferential_conditions, inquiry_url, etc_note, max_limit, dcls_strt_day, dcls_end_day, fin_co_subm_day, contract_period, interest_payment_type, is_digital_only, one_account_per_person, account_limit_note, rotation_cycle, preferential_tags, mtrt_int) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE " +
                 "preferential_conditions=VALUES(preferential_conditions), etc_note=VALUES(etc_note), " +
                 "contract_period=VALUES(contract_period), interest_payment_type=VALUES(interest_payment_type), " +
@@ -210,6 +230,8 @@ public class DepositProductFetcher {
             String spclCnd = base.path("spcl_cnd").asText(null);
             String preferentialTags = extractPreferentialTags(spclCnd);
             psDp.setString(16, preferentialTags);
+            psDp.setString(17, base.path("mtrt_int").asText(null));
+
 
             psDp.executeUpdate();
         }

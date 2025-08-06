@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.scoula.mypage.portfolio.mapper.PortfolioMapper">
+
+    <!-- 포트폴리오 아이템 조회 -->
+    <select id="getPortfolioItems" resultType="org.scoula.mypage.portfolio.dto.PortfolioItemResponse">
+        SELECT p.portfolio_id AS portfolioId,
+               p.member_id AS memberId,
+               p.category AS category,
+               p.subcategory AS subcategory,
+               p.custom_product_name AS customProductName,
+               p.custom_company_name AS customCompanyName,
+               p.amount,
+               DATE_FORMAT(p.join_date, '%Y-%m-%d') AS joinDate,
+               p.maturity_date AS maturityDate,
+               p.save_trm AS saveTrm,
+               p.interest_rate AS interestRate,
+               p.expected_return AS expectedReturn,
+               p.custom_rate AS customRate,
+               p.risk_level AS riskLevel,
+               p.memo,
+               p.created_at AS createdAt,
+               p.updated_at AS updatedAt
+        FROM portfolio_item p
+        WHERE p.member_id = #{memberId}
+        ORDER BY p.created_at DESC
+    </select>
+
+    <!-- 포트폴리오 아이템 추가 -->
+    <insert id="insertPortfolioItem">
+        INSERT INTO portfolio_item (
+            member_id, category, subcategory, custom_product_name, custom_company_name,
+            amount, join_date, maturity_date, save_trm,
+            interest_rate, expected_return, custom_rate, risk_level, memo
+        ) VALUES (
+                     #{memberId}, #{dto.category}, #{dto.subcategory}, #{dto.customProductName}, #{dto.customCompanyName},
+                     #{dto.amount}, #{dto.joinDate}, #{dto.maturityDate}, #{dto.saveTrm},
+                     #{dto.interestRate}, #{dto.expectedReturn}, #{dto.customRate}, #{dto.riskLevel}, #{dto.memo}
+                 )
+    </insert>
+
+    <!-- 포트폴리오 아이템 업데이트 -->
+    <update id="updatePortfolioItem">
+        UPDATE portfolio_item
+        <set>
+            <if test="dto.category != null">category = #{dto.category},</if>
+            <if test="dto.subcategory != null">subcategory = #{dto.subcategory},</if>
+            <if test="dto.customProductName != null">custom_product_name = #{dto.customProductName},</if>
+            <if test="dto.customCompanyName != null">custom_company_name = #{dto.customCompanyName},</if>
+            <if test="dto.amount != null">amount = #{dto.amount},</if>
+            <if test="dto.joinDate != null">join_date = #{dto.joinDate},</if>
+            <if test="dto.maturityDate != null">maturity_date = #{dto.maturityDate},</if>
+            <if test="dto.saveTrm != null">save_trm = #{dto.saveTrm},</if>
+            <if test="dto.interestRate != null">interest_rate = #{dto.interestRate},</if>
+            <if test="dto.expectedReturn != null">expected_return = #{dto.expectedReturn},</if>
+            <if test="dto.customRate != null">custom_rate = #{dto.customRate},</if>
+            <if test="dto.riskLevel != null">risk_level = #{dto.riskLevel},</if>
+            <if test="dto.memo != null">memo = #{dto.memo},</if>
+            updated_at = NOW()
+        </set>
+        WHERE portfolio_id = #{portfolioId}
+    </update>
+
+    <!-- 포트폴리오 아이템 삭제 -->
+    <delete id="deletePortfolioItem">
+        DELETE FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+    </delete>
+
+    <!-- 포트폴리오 요약 정보 조회 -->
+    <select id="getPortfolioSummary" resultType="map">
+        SELECT
+            p.category AS categoryName,
+            p.subcategory AS subcategoryName,
+            SUM(p.amount) AS totalAmount
+        FROM portfolio_item p
+        WHERE p.member_id = #{memberId}
+        GROUP BY p.category, p.subcategory
+    </select>
+
+    <!-- 사용자의 나이 조회 -->
+    <select id="getAgeByMemberId" resultType="int">
+        SELECT TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) as age
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 사용자의 총 자산 조회 -->
+    <select id="getTotalAssetsByMemberId" resultType="long">
+        SELECT COALESCE(SUM(amount), 0) as totalAssets
+        FROM portfolio_item
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 사용자의 WMTI 코드 조회 -->
+    <select id="getWmtiCodeByMemberId" resultType="string">
+        SELECT wmti_code
+        FROM wmti_profile
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 같은 나이대 사용자들의 평균 비율 -->
+    <select id="getAgeGroupComparison" resultType="map">
+        WITH age_group_portfolio AS (
+            SELECT
+                pi.member_id,
+                pi.subcategory AS categoryName,
+                SUM(pi.amount) as categoryAmount,
+                (SELECT SUM(amount) FROM portfolio_item pi2 WHERE pi2.member_id = pi.member_id) as totalAmount
+            FROM portfolio_item pi
+                     JOIN member m ON pi.member_id = m.member_id
+            WHERE TIMESTAMPDIFF(YEAR, m.birth_date, CURDATE()) BETWEEN #{ageMin} AND #{ageMax}
+              AND pi.member_id != #{memberId}
+              AND m.status = 'ACTIVE'
+            GROUP BY pi.member_id, pi.subcategory
+        )
+        SELECT
+            categoryName,
+            ROUND(AVG(categoryAmount * 100.0 / totalAmount), 1) as averageRatio
+        FROM age_group_portfolio
+        WHERE totalAmount > 0
+        GROUP BY categoryName
+        HAVING COUNT(DISTINCT member_id) >= 1
+        ORDER BY averageRatio DESC
+    </select>
+
+    <!-- 같은 자산 규모 사용자들의 평균 비율 -->
+    <select id="getAmountGroupComparison" resultType="map">
+        WITH user_assets AS (
+            SELECT member_id, SUM(amount) as totalAssets
+            FROM portfolio_item
+            GROUP BY member_id
+        ),
+             amount_group_portfolio AS (
+                 SELECT
+                     pi.member_id,
+                     pi.subcategory AS categoryName,
+                     SUM(pi.amount) as categoryAmount,
+                     ua.totalAssets
+                 FROM portfolio_item pi
+                          JOIN user_assets ua ON pi.member_id = ua.member_id
+                 WHERE ua.totalAssets BETWEEN #{amountMin} AND #{amountMax}
+                   AND pi.member_id != #{memberId}
+                 GROUP BY pi.member_id, pi.subcategory, ua.totalAssets
+             )
+        SELECT
+            categoryName,
+            ROUND(AVG(categoryAmount * 100.0 / totalAssets), 1) as averageRatio
+        FROM amount_group_portfolio
+        GROUP BY categoryName
+        HAVING COUNT(DISTINCT member_id) >= 1
+        ORDER BY averageRatio DESC
+    </select>
+
+    <!-- 같은 WMTI 사용자들의 평균 비율 -->
+    <select id="getWMTIComparison" resultType="map">
+        WITH wmti_portfolio AS (
+            SELECT
+                pi.member_id,
+                pi.subcategory AS categoryName,
+                SUM(pi.amount) as categoryAmount,
+                (SELECT SUM(amount) FROM portfolio_item pi2 WHERE pi2.member_id = pi.member_id) as totalAmount
+            FROM portfolio_item pi
+                     JOIN wmti_profile wp ON pi.member_id = wp.member_id
+            WHERE wp.wmti_code = #{wmtiCode}
+              AND pi.member_id != #{memberId}
+            GROUP BY pi.member_id, pi.subcategory
+        )
+        SELECT
+            categoryName,
+            ROUND(AVG(categoryAmount * 100.0 / totalAmount), 1) as averageRatio
+        FROM wmti_portfolio
+        WHERE totalAmount > 0
+        GROUP BY categoryName
+        HAVING COUNT(DISTINCT member_id) >= 1
+        ORDER BY averageRatio DESC
+    </select>
+
+    <!-- 연령대별 사용자 수 조회 -->
+    <select id="getPortfolioMemberCountByAgeGroup" resultType="java.util.Map">
+        SELECT
+            FLOOR(TIMESTAMPDIFF(YEAR, m.birth_date, CURDATE()) / 10) * 10 AS age_group,
+            COUNT(DISTINCT m.member_id) AS user_count
+        FROM portfolio_item p
+                 JOIN member m ON p.member_id = m.member_id
+        GROUP BY age_group
+        ORDER BY age_group
+    </select>
+
+    <!-- 포트폴리오 존재 여부 확인 -->
+    <select id="existsById" parameterType="Long" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+    </select>
+
+    <!-- 포트폴리오 소유권 확인 -->
+    <select id="isOwner" parameterType="map" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM portfolio_item
+        WHERE portfolio_id = #{portfolioId}
+          AND member_id = #{memberId}
+    </select>
+</mapper>
