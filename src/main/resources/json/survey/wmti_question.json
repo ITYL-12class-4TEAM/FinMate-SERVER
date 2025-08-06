@@ -53,7 +53,7 @@
     "dimension": "M/W",
     "reverse": false,
     "left_ans": "매우 중요하다.",
-    "right_ans": "최우선으로 보는요소는 아님."
+    "right_ans": "그렇지는 않다."
   },
   {
     "id": 8,
@@ -69,7 +69,7 @@
     "dimension": "L/C",
     "reverse": false,
     "left_ans": "그렇다",
-    "right_ans": "리밸런싱이 뭔지도 모름."
+    "right_ans": "잘 모른다."
   },
   {
     "id": 10,
@@ -77,14 +77,14 @@
     "dimension": "P/B",
     "reverse": true,
     "left_ans": "매일 확인한다.",
-    "right_ans": "정보는 직접 찾는편이다."
+    "right_ans": "정보는 직접 찾는편."
   },
   {
     "id": 11,
     "question": "나는 내가 투자중인 자산의 규모와 위험성에 대해 잘 이해하고 있다.",
     "dimension": "P/B",
     "reverse": false,
-    "left_ans": "매우 잘 알고있다.",
+    "left_ans": "잘 알고있다.",
     "right_ans": "전혀 모르겠다."
   },
   {
@@ -117,7 +117,7 @@
     "dimension": "P/B",
     "reverse": false,
     "left_ans": "그렇다",
-    "right_ans": "아니다, 견디기 어렵다."
+    "right_ans": "아니다,\n 견디기 어렵다."
   },
   {
     "id": 16,
@@ -125,7 +125,7 @@
     "dimension": "M/W",
     "reverse": false,
     "left_ans": "바로 투자한다",
-    "right_ans": "우선 관망하겠다."
+    "right_ans": "우선 관망한다."
   },
   {
     "id": 17,
@@ -140,16 +140,16 @@
     "question": "현재 성과가 좋은 종목보다 저평가된 종목에 투자한다.",
     "dimension": "M/W",
     "reverse": true,
-    "left_ans": "그렇다, 기업가치에 집중하는 편.",
-    "right_ans": "그렇지 않다, 현재성과가 중요."
+    "left_ans": "그렇다,\n기업가치에 집중하는 편.",
+    "right_ans": "그렇지 않다,\n현재성과가 중요."
   },
   {
     "id": 19,
     "question": "나는 모바일 투자전문가! 앱을 통해 투자상품 거래가 익숙하다.",
     "dimension": "L/C",
     "reverse": false,
-    "left_ans": "앱이 편하다.",
-    "right_ans": "직접 은행에 가는게 편하다."
+    "left_ans": "금융앱의 사용이\n편하다.",
+    "right_ans": "은행에 가는게\n편하다."
   },
   {
     "id": 20,

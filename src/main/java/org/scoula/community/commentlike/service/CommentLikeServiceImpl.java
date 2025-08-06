@@ -26,6 +26,12 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     @Transactional
     public boolean toggleLike(Long commentId) {
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+        if (!commentMapper.existsById(commentId)) {
+            throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
+        }
 
         CommentLikeVO like = commentLikeMapper.findByCommentIdAndMemberId(commentId, memberId);
 
@@ -60,7 +66,14 @@ public class CommentLikeServiceImpl implements CommentLikeService {
         return like != null && like.isLiked();
     }
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        String email = authentication.getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
 }

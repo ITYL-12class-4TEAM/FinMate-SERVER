@@ -56,7 +56,7 @@ public class WMTIController {
 
     // 설문 결과 조회 (GET)
     @ApiOperation(value = "최신 설문 결과 조회", notes = "회원의 최신 WMTI 성향 검사 결과를 조회합니다.")
-    @GetMapping("/{memberId}")
+    @GetMapping("result/{memberId}")
     public ApiResponse<SurveyResultDTO> getSurveyResult(
             @ApiParam(value = "회원 ID", required = true, example = "1")
             @PathVariable Long memberId,
@@ -101,6 +101,14 @@ public class WMTIController {
     ) {
         WMTIProfileDTO result = wmtiService.getAnalysisByWMTICode(wmtiCode);
         return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, result);
+    }
+    
+    // 모든 성향코드(16종)에 대한 분석 결과 조회 (GET)
+    @ApiOperation(value = "전체 WMTI 성향 분석 목록 조회", notes = "16개의 WMTI 성향 코드에 대한 분석 정보를 모두 제공합니다.")
+    @GetMapping("/analysis/all")
+    public ApiResponse<List<WMTIProfileDTO>> getAllAnalyses() {
+        List<WMTIProfileDTO> allProfiles = wmtiService.getAllAnalysisProfiles();
+        return ApiResponse.success(ResponseCode.WMTI_ANALYSIS_SUCCESS, allProfiles);
     }
     //wmti설문문항 전달API
     @ApiOperation(value = "WMTI 설문 문항 조회", notes = "프론트에서 설문지를 렌더링할 수 있도록 20개의 WMTI 설문 문항을 반환합니다.")

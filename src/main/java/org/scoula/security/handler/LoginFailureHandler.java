@@ -1,13 +1,14 @@
 package org.scoula.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.response.ResponseCode;
+import org.scoula.common.config.AppProperties;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +22,11 @@ import java.util.Map;
 
 @Log4j2
 @Component
+@RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final AppProperties appProperties;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -41,13 +44,13 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     }
 
     private void handleOAuth2Failure(HttpServletResponse response, AuthenticationException exception) throws IOException {
-        log.error("[OAuth2] 로그인 실패: {}", exception.getMessage());
+
 
         String message = exception.getMessage();
         String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8);
 
-        log.info("[OAuth2] 리다이렉트: message={}", message);
-        response.sendRedirect("http://localhost:5173/auth/oauth2/redirect?error=oauth2_failed&message=" + encodedMessage);
+        response.sendRedirect(appProperties.getFrontendOAuth2RedirectUrl() +
+                "?error=oauth2_failed&message=" + encodedMessage);
     }
 
     private void handleFormLoginFailure(HttpServletResponse response, AuthenticationException exception) throws IOException {

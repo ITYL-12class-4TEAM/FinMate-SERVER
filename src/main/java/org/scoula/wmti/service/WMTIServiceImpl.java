@@ -25,6 +25,7 @@ import org.scoula.wmti.util.WMTIHistoryMapperUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,6 +58,11 @@ public class WMTIServiceImpl implements WMTIService {
         }
         return analysis;
     }
+    @Override
+    public List<WMTIProfileDTO> getAllAnalysisProfiles() {
+        return wmtiAnalysis.getAllAnalysisProfiles();// Map<String, WMTIProfileDTO>
+    }
+
 
     @Override
     public SurveyResult saveSurveyResult(Long memberId, List<Integer> answers) {

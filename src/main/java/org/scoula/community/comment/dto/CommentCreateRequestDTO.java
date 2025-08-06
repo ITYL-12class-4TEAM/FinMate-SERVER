@@ -29,7 +29,7 @@ public class CommentCreateRequestDTO {
 
     @ApiModelProperty(value = "부모 댓글 ID (답글일 경우). " +
             "null이면 최상위 댓글. " +
-            "부모 댓글이 존재한다면 해당 댓글이 존재하고 게시글이 일치하는지 검증 필요.", example = "null")
+            "부모 댓글이 존재한다면 해당 댓글이 존재하고 게시글이 일치하는지 검증 필요.")
     private Long parentComment;
 
 
