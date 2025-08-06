@@ -72,20 +72,126 @@
     </select>
 
     <!-- 인기 상품 Top 5 조회 (서브카테고리별) -->
+    <!-- 최대 금리 기준 인기 상품 조회 -->
     <select id="selectPopularFavorites" resultType="org.scoula.mypage.favorite.dto.FavoriteProductResponse">
-        SELECT
-            product_id,
-            product_name,
-            kor_co_nm,
-            risk_level,
-            external_link,
-            wishlist_count
-        FROM financial_product
-        WHERE subcategory_id = #{subcategoryId}
-          AND created_at >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
-        ORDER BY wishlist_count DESC
-        LIMIT 5
+        <choose>
+            <!-- 예적금 카테고리 -->
+            <when test="subcategoryId >= 101 and subcategoryId &lt;= 105">
+                SELECT
+                p.product_id AS productId,
+                p.product_name AS productName,
+                p.kor_co_nm AS korCoNm,
+                p.risk_level AS riskLevel,
+                p.external_link AS externalLink,
+                p.wishlist_count AS wishlistCount,
+                pc.name AS categoryName,
+                psc.name AS subcategoryName,
+                best_option.intr_rate AS baseRate,
+                best_option.intr_rate2 AS maxRate,
+                best_option.save_trm AS saveTrm,
+                best_option.rsrv_type_nm AS rstvTypeName,
+                best_option.rsrv_type AS rstvValue,
+                'DEPOSIT' AS prdtTypeName,
+                best_option.intr_rate_type AS intrRateType
+                FROM (
+                -- 각 상품별로 최대 금리를 가진 옵션 선택
+                SELECT
+                dopt.product_id,
+                dopt.save_trm,
+                dopt.rsrv_type,
+                dopt.rsrv_type_nm,
+                dopt.intr_rate_type,
+                dopt.intr_rate,
+                dopt.intr_rate2,
+                ROW_NUMBER() OVER (
+                PARTITION BY dopt.product_id
+                ORDER BY COALESCE(dopt.intr_rate2, dopt.intr_rate, 0) DESC
+                ) as rn
+                FROM deposit_option dopt
+                JOIN financial_product fp ON dopt.product_id = fp.product_id
+                WHERE fp.subcategory_id = #{subcategoryId}
+                ) best_option
+                JOIN financial_product p ON best_option.product_id = p.product_id
+                LEFT JOIN product_category pc ON p.category_id = pc.category_id
+                LEFT JOIN product_subcategory psc ON p.subcategory_id = psc.subcategory_id
+                WHERE best_option.rn = 1
+                ORDER BY p.wishlist_count DESC, best_option.intr_rate2 DESC
+                LIMIT 5
+            </when>
+
+            <!-- 연금 카테고리 -->
+            <when test="subcategoryId >= 501 and subcategoryId &lt;= 503">
+                SELECT
+                p.product_id AS productId,
+                p.product_name AS productName,
+                p.kor_co_nm AS korCoNm,
+                CASE
+                WHEN pp.category = 'LOW' THEN 'LOW'
+                WHEN pp.category = 'HIGH' THEN 'HIGH'
+                ELSE 'MEDIUM'
+                END AS riskLevel,
+                p.external_link AS externalLink,
+                p.wishlist_count AS wishlistCount,
+                pc.name AS categoryName,
+                psc.name AS subcategoryName,
+                pp.dcls_rate AS baseRate,
+                best_pension.max_profit_rate AS maxRate,
+                null AS saveTrm,
+                null AS rstvTypeName,
+                null AS rstvValue,
+                pp.prdt_type_nm AS prdtTypeName,
+                'PENSION' AS intrRateType
+                FROM (
+                -- 각 연금 상품별로 최대 수익률 계산
+                SELECT
+                pp2.product_id,
+                GREATEST(
+                COALESCE(pp2.dcls_rate, 0),
+                COALESCE(pp2.guar_rate, 0),
+                COALESCE(pp2.btrm_prft_rate_1, 0),
+                COALESCE(pp2.btrm_prft_rate_2, 0),
+                COALESCE(pp2.btrm_prft_rate_3, 0)
+                ) as max_profit_rate
+                FROM pension_product pp2
+                JOIN financial_product fp ON pp2.product_id = fp.product_id
+                WHERE fp.subcategory_id = #{subcategoryId}
+                ) best_pension
+                JOIN financial_product p ON best_pension.product_id = p.product_id
+                JOIN pension_product pp ON p.product_id = pp.product_id
+                LEFT JOIN product_category pc ON p.category_id = pc.category_id
+                LEFT JOIN product_subcategory psc ON p.subcategory_id = psc.subcategory_id
+                ORDER BY p.wishlist_count DESC, best_pension.max_profit_rate DESC
+                LIMIT 5
+            </when>
+
+            <!-- 기타 카테고리 -->
+            <otherwise>
+                SELECT
+                p.product_id AS productId,
+                p.product_name AS productName,
+                p.kor_co_nm AS korCoNm,
+                p.risk_level AS riskLevel,
+                p.external_link AS externalLink,
+                p.wishlist_count AS wishlistCount,
+                pc.name AS categoryName,
+                psc.name AS subcategoryName,
+                null AS baseRate,
+                null AS maxRate,
+                null AS saveTrm,
+                null AS rstvTypeName,
+                null AS rstvValue,
+                null AS prdtTypeName,
+                null AS intrRateType
+                FROM financial_product p
+                LEFT JOIN product_category pc ON p.category_id = pc.category_id
+                LEFT JOIN product_subcategory psc ON p.subcategory_id = psc.subcategory_id
+                WHERE p.subcategory_id = #{subcategoryId}
+                ORDER BY p.wishlist_count DESC
+                LIMIT 5
+            </otherwise>
+        </choose>
     </select>
+
     <select id="selectPensionRateByProductId" resultType="java.math.BigDecimal">
         SELECT dcls_rate
         FROM pension_product

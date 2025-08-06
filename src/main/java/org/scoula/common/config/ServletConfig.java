@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -54,6 +55,10 @@ public class ServletConfig implements WebMvcConfigurer {
                 .addResourceHandler("/resources/**")
                 .addResourceLocations("/resources/");
 
+        // 업로드 파일 정적 리소스 핸들러 추가
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
+
         // Swagger UI 리소스를 위한 핸들러 설정
         registry.addResourceHandler("/swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
@@ -83,8 +88,10 @@ public class ServletConfig implements WebMvcConfigurer {
     // 📍 Servlet 3.0 파일 업로드 설정
     @Bean
     public MultipartResolver multipartResolver() {
-        StandardServletMultipartResolver resolver =
-                new StandardServletMultipartResolver();
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.setMaxUploadSize(10485760); // 10MB
+        resolver.setMaxInMemorySize(1024);   // 1KB
+        resolver.setDefaultEncoding("UTF-8");
         return resolver;
     }
 

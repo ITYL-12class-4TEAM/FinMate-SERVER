@@ -31,18 +31,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProcessor jwtProcessor;
     private final UserDetailsService userDetailsService;
     private final RedisService redisService;
-    private final MemberMapper memberMapper;
+
 
     private Authentication getAuthentication(String token) {
         String username = jwtProcessor.getUsername(token);
         UserDetails principal = userDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        boolean shouldSkip =
+                path.equals("/") ||                     // 메인 페이지
+                        path.equals("/login") ||                // 로그인 페이지
+                        path.startsWith("/oauth2/") ||          // OAuth2 관련
+                        path.startsWith("/login/oauth2/code/") ||
+                        path.startsWith("/api/auth/") ||
+                        path.startsWith("/auth/oauth2/redirect");
+        log.info("[JWT Filter] 요청 경로: {}, 제외 여부: {}", path, shouldSkip);
+        return shouldSkip;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        log.info("[JWT Filter] doFilterInternal 실행 - 경로: {}", request.getRequestURI());
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
