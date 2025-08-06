@@ -9,12 +9,6 @@ public enum ResponseCode {
     AUTH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "인증 토큰이 존재하지 않거나 올바르지 않습니다."),
     AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다."),
     AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
-
-    // 추가된 인증 관련 응답 코드들
-
-
-
-
     /**
      * Member response
      */
@@ -52,9 +46,10 @@ public enum ResponseCode {
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
     PROFILE_IMAGE_UPLOAD_SUCCESS(HttpStatus.OK, "사진이 성공적으로 업로드되었습니다."),
-    UNAUTHORIZED_USER(HttpStatus.FORBIDDEN, "로그인이 필요합니다."),
-    PASSWORD_CHECK_SUCCESS(HttpStatus.OK,"본인인증에 성공했습니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+    PASSWORD_CHECK_SUCCESS(HttpStatus.OK,"본인인증에 성공했습니다.") ,
     TOKEN_EXCHANGE_FAILED(HttpStatus.UNAUTHORIZED, "토큰 교환에 실패했습니다."),
+
     /**
      * OAuth2 / Social Login 관련 응답
      */
