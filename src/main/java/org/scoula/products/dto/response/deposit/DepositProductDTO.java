@@ -57,6 +57,10 @@ public class DepositProductDTO {
     @JsonProperty("spcl_cnd")
     private String spclCnd;
 
+    // 우대조건 내용 파싱한 태그
+    @JsonProperty("preferential_tags")
+    private String preferentialTags;
+
     // 가입대상
     @JsonProperty("join_member")
     private String joinMember;
