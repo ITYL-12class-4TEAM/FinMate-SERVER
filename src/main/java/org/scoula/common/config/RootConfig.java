@@ -23,6 +23,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
@@ -54,14 +55,12 @@ import javax.sql.DataSource;
         "org.scoula.mypage.recentView.mapper",
         "org.scoula.mypage.favorite.mapper",
         "org.scoula.community.scrap.mapper",
-        "org.scoula.community.post.mapper",
-        "org.scoula.member.mapper",
         "org.scoula.wmti.mapper",
         "org.scoula.preinfo.mapper",
-        "org.scoula.member.mapper",
 })
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 @MapperScan(basePackages = {"org.scoula.products.mapper"})
+
 public class RootConfig {
 
   @Value("${jdbc.driver}")
@@ -74,13 +73,6 @@ public class RootConfig {
   String password;
   @Autowired
   ApplicationContext applicationContext;
-  @PostConstruct
-  public void printProperties() {
-    System.out.println("[TEST] jdbc.driver = " + driver);
-    System.out.println("[TEST] jdbc.url = " + url);
-    System.out.println("[TEST] jdbc.username = " + username);
-    System.out.println("[TEST] jdbc.password = " + password);
-  }
 
   @Bean
   public static PropertySourcesPlaceholderConfigurer propertyConfig() throws IOException {
@@ -173,5 +165,9 @@ public class RootConfig {
   public DataSourceTransactionManager transactionManager(DataSource dataSource) {
     DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource);
     return manager;
+  }
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 }

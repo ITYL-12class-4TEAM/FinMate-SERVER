@@ -35,7 +35,7 @@ public class LogoutServiceImpl implements LogoutService {
             throw new TokenValidationException(ResponseCode.INVALID_TOKEN);
         }
 
-        Long memberId = memberMapper.findIdByUsername(username);
+        Long memberId = jwtProcessor.getMemberId(accessToken);
         if (memberId == null) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_NOT_FOUND);
         }

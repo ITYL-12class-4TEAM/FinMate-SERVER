@@ -12,8 +12,15 @@ public enum ResponseCode {
     /**
      * Member response
      */
+    LOGIN_SUCCESS(HttpStatus.OK, "로그인에 성공했습니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 ID 또는 비밀번호가 일치하지 않습니다."),
+    ACCOUNT_LOCKED(HttpStatus.LOCKED, "계정이 잠겨 있습니다."),
+    ACCOUNT_EXPIRED(HttpStatus.UNAUTHORIZED, "계정 사용 기간이 만료되었습니다."),
+    MEMBER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 조회에 성공했습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다,"),
+    MEMBER_WITHDRAW_SUCCESS(HttpStatus.OK, "회원탈퇴가 완료되었습니다."),
+    MEMBER_WITHDRAW_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원탈퇴에 실패했습니다."),
     AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     PROFILE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보 수정에 실패했습니다."),
     INVALID_BIRTHDATE_FORMAT(HttpStatus.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다."),
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
@@ -38,12 +45,25 @@ public enum ResponseCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
+    PROFILE_IMAGE_UPLOAD_SUCCESS(HttpStatus.OK, "사진이 성공적으로 업로드되었습니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+    PASSWORD_CHECK_SUCCESS(HttpStatus.OK,"본인인증에 성공했습니다.") ,
+    TOKEN_EXCHANGE_FAILED(HttpStatus.UNAUTHORIZED, "토큰 교환에 실패했습니다."),
+
+    /**
+     * OAuth2 / Social Login 관련 응답
+     */
+
+    OAUTH2_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "소셜 로그인에 실패했습니다."),
+    OAUTH2_EMAIL_NOT_PROVIDED(HttpStatus.BAD_REQUEST, "소셜 계정에서 이메일 정보를 가져올 수 없습니다."),
+    OAUTH2_DIFFERENT_SOCIAL_TYPE(HttpStatus.CONFLICT, "다른 소셜 계정으로 이미 가입된 이메일입니다."),
+    SOCIAL_SIGNUP_SUCCESS(HttpStatus.CREATED, "소셜 회원가입이 완료되었습니다."),
+    EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
     INVALID_AGE_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 나이 범위입니다"),
     INVALID_ASSET_RANGE(HttpStatus.BAD_REQUEST, "유효하지 않은 자산 범위입니다"),
     INVALID_WMTI_CODE_FORMAT(HttpStatus.BAD_REQUEST, "WMTI 코드 형식이 올바르지 않습니다"),
     INVALID_CATEGORY_OR_SUBCATEGORY(HttpStatus.BAD_REQUEST, "카테고리 및 소분류는 필수입니다."),
 
-    UNAUTHORIZED_USER(HttpStatus.FORBIDDEN, "로그인이 필요합니다."),
     /**
      * SMS response
      */
@@ -220,6 +240,7 @@ public enum ResponseCode {
     INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "가입 금액은 0보다 커야 합니다"),
     INVALID_SAVE_TERM(HttpStatus.BAD_REQUEST, "저축 기간은 0보다 커야 합니다"),
     INVALID_MEMBER_ID(HttpStatus.BAD_REQUEST, "회원 ID는 양수여야 합니다"),
+
 
     /**
      * Product response

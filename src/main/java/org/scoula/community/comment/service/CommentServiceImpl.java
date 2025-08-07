@@ -74,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
         if (currentUserId != null) {
             isLiked = commentLikeService.isLikedByMember(commentId, currentUserId);
         }
-        return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(currentUserId));
+        return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
     }
 
     @Transactional
@@ -120,7 +120,7 @@ public class CommentServiceImpl implements CommentService {
         if (currentUserId == null) {
             // 로그인 안 된 사용자면 isLiked false로 처리
             return comments.stream()
-                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(currentUserId)))
+                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(comment.getMemberId())))
                     .toList();
         }
 
@@ -133,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(currentUserId));
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
@@ -154,7 +154,7 @@ public class CommentServiceImpl implements CommentService {
         Long currentUserId = getCurrentUserIdAsLong();
         if (currentUserId == null) {
             return comments.stream()
-                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(currentUserId)))
+                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(comment.getMemberId())))
                     .toList();
         }
 
@@ -167,7 +167,7 @@ public class CommentServiceImpl implements CommentService {
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(currentUserId));
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
@@ -194,7 +194,7 @@ public class CommentServiceImpl implements CommentService {
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(memberId));
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
