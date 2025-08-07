@@ -41,10 +41,7 @@ public class ScrapApiController {
 
     @ApiOperation(value = "내 스크랩 목록 조회", notes = "현재 사용자가 스크랩한 게시글 목록을 조회합니다.")
     @GetMapping("/my")
-    public ApiResponse<List<PostListResponseDTO>> getMyScrapList(@AuthenticationPrincipal UserDetails user) {
-        if (user == null) {
-            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
-        }
+    public ApiResponse<List<PostListResponseDTO>> getMyScrapList() {
         return ApiResponse.success(ResponseCode.SCRAP_LIST_SUCCESS, scrapService.getMyScrapList());
     }
 

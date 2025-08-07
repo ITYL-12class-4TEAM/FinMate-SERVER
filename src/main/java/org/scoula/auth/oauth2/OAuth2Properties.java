@@ -13,7 +13,7 @@ public class OAuth2Properties {
     @Value("${oauth2.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${oauth2.google.redirect-uri:http://localhost:8080/login/oauth2/code/google}")
+    @Value("${oauth2.google.redirect-uri}")
     private String googleRedirectUri;
 
     @Value("${oauth2.kakao.client-id}")
@@ -22,7 +22,7 @@ public class OAuth2Properties {
     @Value("${oauth2.kakao.client-secret}")
     private String kakaoClientSecret;
 
-    @Value("${oauth2.kakao.redirect-uri:http://localhost:8080/login/oauth2/code/kakao}")
+    @Value("${oauth2.kakao.redirect-uri}")
     private String kakaoRedirectUri;
 
     // getter 메서드들

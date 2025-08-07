@@ -3,7 +3,8 @@ package org.scoula.preinfo.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.scoula.preinfo.entity.PreInformation;
+import org.scoula.preinfo.enums.InvestmentCapacity;
+import org.scoula.preinfo.enums.InvestmentType;
 import org.scoula.wmti.enums.RiskPreference;
 
 import java.time.LocalDateTime;
@@ -46,13 +47,13 @@ public class PreInfoViewDTO {
     private Integer financialHealthScore;
 
     @ApiModelProperty(value = "투자 여력", example = "보통")
-    private String investmentCapacity;
+    private InvestmentCapacity investmentCapacity;
 
     @ApiModelProperty(value = "추천 월 투자금액", example = "500000")
     private Long recommendedMonthlyInvestment;
 
     @ApiModelProperty(value = "도출된 투자자 유형", example = "소극적 실용가형")
-    private String resultType;
+    private InvestmentType resultType;
 
     @ApiModelProperty(value = "위험 성향", example = "위험중립형")
     private RiskPreference riskPreference;
@@ -60,7 +61,7 @@ public class PreInfoViewDTO {
     @ApiModelProperty(value = "입력 시각", example = "2025-07-26T10:45:00")
     private LocalDateTime createdAt;
 
-    public static PreInfoViewDTO from(PreInformation e) {
+    public static PreInfoViewDTO from(org.scoula.preinfo.entity.PreInformation e) {
         return PreInfoViewDTO.builder()
                 .preInfoId(e.getPreInfoId())
                 .memberId(e.getMemberId())
@@ -72,9 +73,9 @@ public class PreInfoViewDTO {
                 .surplusAmount(e.getSurplusAmount())
                 .savingsRate(e.getSavingsRate())
                 .financialHealthScore(e.getFinancialHealthScore())
-                .investmentCapacity(e.getInvestmentCapacity().getLabel())
+                .investmentCapacity(e.getInvestmentCapacity())
                 .recommendedMonthlyInvestment(e.getRecommendedMonthlyInvestment())
-                .resultType(e.getResultType().getLabel())
+                .resultType(e.getResultType())
                 .riskPreference(e.getRiskPreference())
                 .createdAt(e.getCreatedAt())
                 .build();

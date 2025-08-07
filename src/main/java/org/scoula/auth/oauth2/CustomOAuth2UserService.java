@@ -45,7 +45,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         MemberVO member = memberMapper.selectByEmail(oauth2UserInfo.getEmail());
 
         if (member != null) {
-            if (member.getSocialType() == null || member.getSocialType().isEmpty()) {
+            if ("none".equals(member.getSocialType())) {
                 throw new OAuth2AuthenticationException(
                         new OAuth2Error(
                                 ResponseCode.EMAIL_ALREADY_REGISTERED.name(),

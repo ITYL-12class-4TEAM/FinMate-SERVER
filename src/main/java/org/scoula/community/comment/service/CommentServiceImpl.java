@@ -34,6 +34,11 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponseDTO create(CommentCreateRequestDTO commentCreateRequestDTO) {
         log.info("create........." + commentCreateRequestDTO);
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
         if (!postMapper.existsById(commentCreateRequestDTO.getPostId())) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
@@ -48,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         CommentVO vo = commentCreateRequestDTO.toVo();
-        vo.setMemberId(getCurrentUserIdAsLong());
+        vo.setMemberId(memberId);
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
 
@@ -69,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
         if (currentUserId != null) {
             isLiked = commentLikeService.isLikedByMember(commentId, currentUserId);
         }
-        return CommentResponseDTO.of(comment, isLiked);
+        return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
     }
 
     @Transactional
@@ -80,6 +85,10 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentNotFoundException(ResponseCode.COMMENT_NOT_FOUND);
         }
         Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
         if (comment.getMemberId()!= memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
@@ -111,7 +120,7 @@ public class CommentServiceImpl implements CommentService {
         if (currentUserId == null) {
             // 로그인 안 된 사용자면 isLiked false로 처리
             return comments.stream()
-                    .map(comment -> CommentResponseDTO.of(comment, false))
+                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(comment.getMemberId())))
                     .toList();
         }
 
@@ -124,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked);
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
@@ -145,7 +154,7 @@ public class CommentServiceImpl implements CommentService {
         Long currentUserId = getCurrentUserIdAsLong();
         if (currentUserId == null) {
             return comments.stream()
-                    .map(comment -> CommentResponseDTO.of(comment, false))
+                    .map(comment -> CommentResponseDTO.of(comment, false, memberMapper.getNicknameByMemberId(comment.getMemberId())))
                     .toList();
         }
 
@@ -158,7 +167,7 @@ public class CommentServiceImpl implements CommentService {
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked);
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
@@ -166,9 +175,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDTO> getMyComments() {
         log.info("getMyComments..........");
-        Long currentUserId = getCurrentUserIdAsLong();
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
 
-        List<CommentVO> comments = commentMapper.getCommentsByMemberId(currentUserId);
+        List<CommentVO> comments = commentMapper.getCommentsByMemberId(memberId);
         if (comments == null || comments.isEmpty()) {
             return List.of();
         }
@@ -177,19 +189,26 @@ public class CommentServiceImpl implements CommentService {
                 .map(CommentVO::getCommentId)
                 .toList();
 
-        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(currentUserId, commentIds);
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByMemberIdAndCommentIds(memberId, commentIds);
 
         return comments.stream()
                 .map(comment -> {
                     boolean isLiked = likedCommentIds.contains(comment.getCommentId());
-                    return CommentResponseDTO.of(comment, isLiked);
+                    return CommentResponseDTO.of(comment, isLiked, memberMapper.getNicknameByMemberId(comment.getMemberId()));
                 })
                 .toList();
     }
 
 
     private Long getCurrentUserIdAsLong() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberMapper.getMemberIdByEmail(email); // 👈 이메일로 memberId 조회하는 쿼리 필요
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        String email = authentication.getName();
+        return memberMapper.getMemberIdByEmail(email);
     }
 }

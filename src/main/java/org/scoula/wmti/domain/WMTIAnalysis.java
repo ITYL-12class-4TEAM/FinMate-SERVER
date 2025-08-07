@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -52,4 +53,12 @@ public class WMTIAnalysis {
         }
         return analysisData.get(wmtiCode);
     }
+    public List<WMTIProfileDTO> getAllAnalysisProfiles() {
+        if (analysisData == null || analysisData.isEmpty()) {
+            log.warn("WMTI 분석 데이터가 비어있습니다.");
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(analysisData.values());
+    }
+
 }
