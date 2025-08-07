@@ -83,13 +83,13 @@ public class DepositComparisonDataBuilder {
     private Map<String, List<Object>> buildTermInfo(List<DepositProductDTO> products) {
         // 각 상품의 저축 기간 추출
         List<Object> terms = products.stream()
-            .map(product -> {
-                if (product.getOptions() != null && !product.getOptions().isEmpty()) {
-                    return product.getOptions().get(0).getSaveTrm();
-                }
-                return null;
-            })
-            .collect(Collectors.toList());
+                .map(product -> {
+                    if (product.getOptions() != null && !product.getOptions().isEmpty()) {
+                        return product.getOptions().get(0).getSaveTrm();
+                    }
+                    return null;
+                })
+                .collect(Collectors.toList());
 
         Map<String, List<Object>> termInfo = new HashMap<>();
         termInfo.put("계약기간(개월)", terms);
@@ -98,15 +98,41 @@ public class DepositComparisonDataBuilder {
 
     private Map<String, List<String>> buildConditionInfo(List<DepositProductDTO> products) {
         Map<String, List<String>> conditionInfo = new HashMap<>();
-        conditionInfo.put("가입방법", products.stream().map(DepositProductDTO::getJoinWay).collect(Collectors.toList()));
-        conditionInfo.put("가입대상", products.stream().map(DepositProductDTO::getJoinMember).collect(Collectors.toList()));
-        conditionInfo.put("우대조건", products.stream().map(DepositProductDTO::getSpclCnd).collect(Collectors.toList()));
+
+        // 가입방법 - 직접 복사
+        List<String> joinWays = new ArrayList<>();
+        for (DepositProductDTO product : products) {
+            joinWays.add(product.getJoinWay()); // null이어도 그대로 추가
+        }
+        conditionInfo.put("가입방법", joinWays);
+
+        // 가입대상 - 직접 복사
+        List<String> joinMembers = new ArrayList<>();
+        for (DepositProductDTO product : products) {
+            joinMembers.add(product.getJoinMember()); // null이어도 그대로 추가
+        }
+        conditionInfo.put("가입대상", joinMembers);
+
+        // 우대조건 - 직접 복사
+        List<String> preferentialConditions = new ArrayList<>();
+        for (DepositProductDTO product : products) {
+            preferentialConditions.add(product.getSpclCnd()); // null이어도 그대로 추가
+        }
+        conditionInfo.put("우대조건", preferentialConditions);
+
         return conditionInfo;
     }
 
     private Map<String, List<String>> buildEtcInfo(List<DepositProductDTO> products) {
         Map<String, List<String>> etcInfo = new HashMap<>();
-        etcInfo.put("만기 후 이자율", products.stream().map(DepositProductDTO::getMtrtInt).collect(Collectors.toList()));
+
+        // 만기 후 이자율 - 직접 복사
+        List<String> mtrtIntRates = new ArrayList<>();
+        for (DepositProductDTO product : products) {
+            mtrtIntRates.add(product.getMtrtInt()); // null이어도 그대로 추가
+        }
+        etcInfo.put("만기 후 이자율", mtrtIntRates);
+
         return etcInfo;
     }
 }

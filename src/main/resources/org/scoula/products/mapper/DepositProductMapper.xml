@@ -152,6 +152,9 @@
         fp.dcls_month AS dclsMonth,
         fp.subcategory_id AS subcategoryId,
         fp.category_id AS categoryId,
+        fp.join_way AS joinWay,
+        fp.join_member AS joinMember,
+        '없음' AS joinDeny,
 
         dp.min_deposit AS joinAmt,
         dp.min_deposit AS minDepositAmount, <!-- 추가 -->
@@ -173,10 +176,8 @@
         dp.one_account_per_person AS oneAccountPerPerson,
         dp.account_limit_note AS accountLimitNote,
         dp.rotation_cycle AS rotationCycle,
+        dp.mtrt_int AS mtrtInt
 
-        NULL AS joinWay,
-        '제한없음' AS joinMember,
-        '없음' AS joinDeny
         FROM financial_product fp
         JOIN deposit_product dp ON fp.product_id = dp.product_id
         WHERE fp.product_id IN
