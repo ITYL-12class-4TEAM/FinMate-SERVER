@@ -8,11 +8,16 @@
                dp.min_deposit             as joinAmt,
                dp.max_limit               as maxLimit,
                dp.preferential_conditions as spclCnd,
+               dp.preferential_tags       as preferentialTags,
                fp.product_id              as productId,
                fp.fin_co_no,
                fp.fin_prdt_cd,
                fp.product_name            as fin_prdt_nm,
-               fp.kor_co_nm
+               fp.kor_co_nm,
+                fp.join_way              as joinWay,
+                fp.join_member         as joinMember,
+                dp.etc_note          as etcNote,
+                dp.mtrt_int
         FROM deposit_product dp
                  JOIN financial_product fp ON dp.product_id = fp.product_id
         WHERE fp.product_id = #{productId}
@@ -27,13 +32,19 @@
 
     <!-- 예금 상품 목록 조회 (필터링 적용) -->
     <select id="findDepositProducts" resultType="org.scoula.products.dto.response.deposit.DepositProductDTO">
-        SELECT dp.*,dp.min_deposit as joinAmt,dp.max_limit as maxLimit,dp.preferential_conditions as spclCnd,
-        fp.fin_co_no, fp.fin_prdt_cd, fp.product_name as
-        fin_prdt_nm,
-        fp.kor_co_nm
-        FROM deposit_product dp
-        JOIN financial_product fp ON dp.product_id = fp.product_id
-        JOIN deposit_option do ON dp.product_id = do.product_id
+        SELECT
+                dp.*,
+                dp.min_deposit as minDepositAmount,
+                dp.max_limit as maxDepositAmount,
+                dp.preferential_conditions as spclCnd,
+                dp.preferential_tags as preferentialTags,
+                fp.fin_co_no,
+                fp.fin_prdt_cd,
+                fp.product_name as fin_prdt_nm,
+                fp.kor_co_nm
+            FROM deposit_product dp
+            JOIN financial_product fp ON dp.product_id = fp.product_id
+            JOIN deposit_option do ON dp.product_id = do.product_id
         <where>
             <!-- 카테고리 필터링 추가 -->
             <if test="categoryId != null">
@@ -54,6 +65,11 @@
             <if test="minIntrRate != null">
                 AND do.intr_rate >= #{minIntrRate}
             </if>
+            <!-- 예치 금액 필터링 -->
+            <if test="minAmount != null">
+                AND dp.min_deposit &lt;= #{minAmount}
+                AND (dp.max_limit IS NULL OR dp.max_limit = 0 OR dp.max_limit &gt;= #{minAmount})
+            </if>
         </where>
         GROUP BY dp.product_id
     </select>
@@ -69,6 +85,7 @@
                dp.min_deposit             as joinAmt,
                dp.max_limit               as maxLimit,
                dp.preferential_conditions as spclCnd,
+               dp.preferential_tags       aS preferentialTags,
                dp.etc_note                as etcNote,
                dp.interest_payment_type   as mtrtInt,
                dp.dcls_strt_day           as dclsStrtDay,
@@ -123,41 +140,44 @@
 
     <select id="findByProductIds" resultType="org.scoula.products.dto.response.deposit.DepositProductDTO">
         SELECT
-            fp.product_id AS productId,
-            fp.fin_co_no AS finCoNo,
-            fp.fin_prdt_cd AS finPrdtCd,
-            fp.product_name AS finPrdtNm,
-            fp.kor_co_nm AS korCoNm,
-            fp.risk_level AS riskLevel,
-            fp.external_link AS externalLink,
-            fp.wishlist_count AS wishlistCount,
-            fp.created_at AS createdAt,
-            fp.dcls_month AS dclsMonth,
-            fp.subcategory_id AS subcategoryId,
-            fp.category_id AS categoryId,
+        fp.product_id AS productId,
+        fp.fin_co_no AS finCoNo,
+        fp.fin_prdt_cd AS finPrdtCd,
+        fp.product_name AS finPrdtNm,
+        fp.kor_co_nm AS korCoNm,
+        fp.risk_level AS riskLevel,
+        fp.external_link AS externalLink,
+        fp.wishlist_count AS wishlistCount,
+        fp.created_at AS createdAt,
+        fp.dcls_month AS dclsMonth,
+        fp.subcategory_id AS subcategoryId,
+        fp.category_id AS categoryId,
+        fp.join_way AS joinWay,
+        fp.join_member AS joinMember,
+        '없음' AS joinDeny,
 
-            dp.min_deposit AS minDeposit,
-            dp.min_deposit AS joinAmt,
-            dp.preferential_conditions AS preferentialConditions,
-            dp.preferential_conditions AS spclCnd,
-            dp.inquiry_url AS inquiryUrl,
-            dp.etc_note AS etcNote,
-            dp.max_limit AS maxLimit,
-            dp.dcls_strt_day AS dclsStrtDay,
-            dp.dcls_end_day AS dclsEndDay,
-            dp.fin_co_subm_day AS finCoSubmDay,
-            dp.preferential_tags AS preferentialTags,
-            dp.contract_period AS contractPeriod,
-            dp.interest_payment_type AS interestPaymentType,
-            dp.interest_payment_type AS mtrtInt,
-            dp.is_digital_only AS isDigitalOnly,
-            dp.one_account_per_person AS oneAccountPerPerson,
-            dp.account_limit_note AS accountLimitNote,
-            dp.rotation_cycle AS rotationCycle,
+        dp.min_deposit AS joinAmt,
+        dp.min_deposit AS minDepositAmount, <!-- 추가 -->
+        dp.max_limit AS maxLimit,
+        dp.max_limit AS maxDepositAmount, <!-- 추가 -->
+        dp.preferential_conditions AS preferentialConditions,
+        dp.preferential_conditions AS spclCnd,
+        dp.inquiry_url AS inquiryUrl,
+        dp.etc_note AS etcNote,
+        dp.max_limit AS maxLimit,
+        dp.dcls_strt_day AS dclsStrtDay,
+        dp.dcls_end_day AS dclsEndDay,
+        dp.fin_co_subm_day AS finCoSubmDay,
+        dp.preferential_tags AS preferentialTags,
+        dp.contract_period AS contractPeriod,
+        dp.interest_payment_type AS interestPaymentType,
+        dp.interest_payment_type AS mtrtInt,
+        dp.is_digital_only AS isDigitalOnly,
+        dp.one_account_per_person AS oneAccountPerPerson,
+        dp.account_limit_note AS accountLimitNote,
+        dp.rotation_cycle AS rotationCycle,
+        dp.mtrt_int AS mtrtInt
 
-            NULL AS joinWay,
-            '제한없음' AS joinMember,
-            '없음' AS joinDeny
         FROM financial_product fp
         JOIN deposit_product dp ON fp.product_id = dp.product_id
         WHERE fp.product_id IN

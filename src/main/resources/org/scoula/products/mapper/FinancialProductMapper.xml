@@ -16,8 +16,9 @@
         CAST(do.save_trm AS CHAR) as "save_trm",
         do.intr_rate_type as "intr_rate_type",
         do.intr_rate_type_nm as "intr_rate_type_nm",
-        dp.min_deposit as "min_deposit_amount",
-        fp.external_link as "join_way"
+        dp.min_deposit as "minDeposit",
+        dp.max_limit as "maxLimit",
+        fp.join_way as "join_way"
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
         JOIN deposit_product dp ON fp.product_id = dp.product_id
@@ -47,14 +48,18 @@
             <if test="intrRateType != null and intrRateType != ''">
                 AND do.intr_rate_type = #{intrRateType}
             </if>
-            <!-- 가입 방식 필터링 -->
-            <if test="joinWay != null and joinWay != ''">
-                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            <!-- 가입 방식 다중 필터링 -->
+            <if test="joinWays != null and joinWays != '' and joinWays != 'all'">
+                AND (
+                <foreach item="way" collection="joinWays.split(',')" separator=" OR ">
+                    fp.join_way LIKE CONCAT('%', #{way}, '%')
+                </foreach>
+                )
             </if>
             <!-- 예치 금액 필터링 -->
-            <if test="minAmount != null">
-                AND dp.min_deposit &lt;= #{minAmount}
-                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            <if test="depositAmount != null">
+                AND dp.min_deposit &lt;= #{depositAmount}
+                AND (dp.max_limit IS NULL OR dp.max_limit = 0 OR dp.max_limit >= #{depositAmount})
             </if>
             <!-- 은행명 필터링 - 단일 문자열 버전 -->
             <if test="banksStr != null and banksStr != ''">
@@ -69,6 +74,21 @@
             </if>
 
         </where>
+        GROUP BY
+        fp.product_id,
+        do.save_trm,
+        fp.fin_co_no,
+        fp.fin_prdt_cd,
+        fp.kor_co_nm,
+        fp.product_name,
+        c.name,
+        do.intr_rate,
+        do.intr_rate2,
+        do.intr_rate_type,
+        do.intr_rate_type_nm,
+        dp.min_deposit,
+        dp.max_limit,
+        fp.join_way
         <!-- 정렬 조건 -->
         <choose>
             <when test="sortBy != null and sortBy == 'intrRate' and sortDirection != null and sortDirection == 'desc'">
@@ -146,14 +166,18 @@
             <if test="intrRateType != null and intrRateType != ''">
                 AND do.intr_rate_type = #{intrRateType}
             </if>
-            <!-- 가입 방식 필터링 -->
-            <if test="joinWay != null and joinWay != '' and joinWay != '전체'">
-                AND fp.external_link LIKE CONCAT('%', #{joinWay}, '%')
+            <!-- 가입 방식 다중 필터링 -->
+            <if test="joinWays != null and joinWays != '' and joinWays != 'all'">
+                AND (
+                <foreach item="way" collection="joinWays.split(',')" separator=" OR ">
+                    fp.join_way LIKE CONCAT('%', #{way}, '%')
+                </foreach>
+                )
             </if>
             <!-- 예치 금액 필터링 -->
-            <if test="minAmount != null">
-                AND dp.min_deposit &lt;= #{minAmount}
-                AND (dp.max_limit IS NULL OR dp.max_limit >= #{minAmount})
+            <if test="amount != null">
+                AND dp.min_deposit &lt;= #{amount}
+                AND (dp.max_limit IS NULL OR dp.max_limit = 0 OR dp.max_limit >= #{amount})
             </if>
             <!-- 은행명 필터링 -->
             <if test="banksStr != null and banksStr != ''">
@@ -165,30 +189,29 @@
         </where>
     </select>
 
-    <!-- 상품명 자동완성 검색 -->
+    <!-- 나머지 쿼리는 그대로 유지 -->
     <select id="findProductNamesByKeyword" resultType="string">
         SELECT DISTINCT product_name
         FROM financial_product
         WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
-        LIMIT 10
+            LIMIT 10
     </select>
 
-    <!-- 상품 상세 정보 조회 -->
     <select id="findProductDetail" resultType="java.util.HashMap">
         SELECT
             fp.*,
             dp.*,
             c.name as category_name
         FROM financial_product fp
-        JOIN deposit_product dp ON fp.product_id = dp.product_id
-        JOIN product_category c ON fp.category_id = c.category_id
+                 JOIN deposit_product dp ON fp.product_id = dp.product_id
+                 JOIN product_category c ON fp.category_id = c.category_id
         WHERE fp.fin_prdt_cd = #{productId}
     </select>
 
-    <!-- 고유 은행명 목록 조회 -->
     <select id="getDistinctBanks" resultType="string">
         SELECT DISTINCT kor_co_nm
         FROM financial_product
+        WHERE category_id = #{categoryId}
         ORDER BY kor_co_nm
     </select>
 
