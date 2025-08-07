@@ -70,9 +70,9 @@ public class NotificationApiController {
 
     @ApiOperation("알림 설정 조회")
     @GetMapping("/settings")
-    public ApiResponse<Map<NotificationType, Boolean>> getNotificationSettings(Principal principal) {
+    public ApiResponse<?> getNotificationSettings(Principal principal) {
         Long memberId = Long.valueOf(principal.getName());
-        Map<NotificationType, Boolean> settings = notificationService.getNotificationSettings(memberId);
+        boolean settings = notificationService.getNotificationSettings(memberId);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_SETTINGS_GET_SUCCESS, settings);
     }

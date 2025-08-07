@@ -33,7 +33,7 @@ public interface NotificationService {
     void createHotPostNotification(Long postId, String postTitle, String category, int likeCount);
 
     // 알림 설정 관리
-    Map<NotificationType, Boolean> getNotificationSettings(Long memberId);
+    boolean getNotificationSettings(Long memberId);
     void updateNotificationSettings(Long memberId, NotificationSettingUpdateRequest request);
 
     long getUnreadCount(Long memberId);
