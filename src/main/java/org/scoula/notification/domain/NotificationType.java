@@ -2,7 +2,7 @@ package org.scoula.notification.domain;
 
 public enum NotificationType {
     POST_COMMENT("댓글 알림", "회원님의 게시글에 새 댓글이 달렸습니다"),
-    POST_LIKE("좋아요 알림", "회원님의 게시글에 좋아요가 눌렸습니다"),
+    POST_LIKE("좋아요 알림", "회원님의 게시글에 좋아요를 눌렀습니다"),
     COMMENT_REPLY("대댓글 알림", "회원님의 댓글에 답글이 달렸습니다"),
     HOT_POST("인기 게시글 알림", "관심 카테고리에 인기 게시글이 올라왔습니다"),
     SYSTEM("시스템 알림", "시스템 공지사항입니다"),

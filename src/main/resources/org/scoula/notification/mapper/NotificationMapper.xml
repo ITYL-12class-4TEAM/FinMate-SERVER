@@ -68,28 +68,13 @@
         WHERE member_id = #{memberId} AND is_read = false
     </update>
 
-    <!-- 사용자 알림 설정 조회 (receive_push_notification 컬럼 사용) -->
-    <select id="selectNotificationSettings" resultType="map">
-        SELECT
-            member_id,
-            receive_push_notification as enabled
+    <!-- 사용자 알림 설정 조회  -->
+    <select id="selectNotificationSetting" resultType="boolean">
+        SELECT receive_push_notification
         FROM member
         WHERE member_id = #{memberId}
     </select>
 
-    <!-- 특정 타입 알림 설정 조회 (receive_push_notification 컬럼 사용) -->
-    <select id="selectNotificationSetting" resultType="map">
-        SELECT
-            member_id,
-            receive_push_notification as enabled
-        FROM member
-        WHERE member_id = #{memberId}
-    </select>
-
-<!--    &lt;!&ndash; 알림 설정 삽입 (사용하지 않음) &ndash;&gt;-->
-<!--    <insert id="insertNotificationSetting">-->
-<!--        &lt;!&ndash; 빈 쿼리 - member 테이블의 receive_push_notification 컬럼만 사용 &ndash;&gt;-->
-<!--    </insert>-->
 
     <!-- 알림 설정 업데이트 -->
     <update id="updateNotificationSetting">

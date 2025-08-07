@@ -13,5 +13,5 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class NotificationSettingUpdateRequest {
-    private Map<NotificationType, Boolean> settings;
+    private Boolean isEnabled;
 }

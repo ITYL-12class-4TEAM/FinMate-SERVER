@@ -115,7 +115,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createNotification(NotificationCreateRequest request) {
         // 알림 설정 확인
-        if (!isNotificationEnabled(request.getMemberId(), request.getType())) {
+        if (!getNotificationSettings(request.getMemberId())) {
             log.debug("알림이 비활성화됨: memberId={}, type={}", request.getMemberId(), request.getType());
             return;
         }
@@ -151,7 +151,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle) {
-        // 게시글 작성자에게 알림 발송 (본인 제외)
+
         List<Long> interestedMemberIds = notificationMapper.selectInterestedMemberIds(postId, authorId);
 
         for (Long memberId : interestedMemberIds) {
@@ -200,8 +200,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createHotPostNotification(Long postId, String postTitle, String category, int likeCount) {
-        // 해당 카테고리에 관심 있는 모든 사용자에게 알림 발송
-        // 실제 구현에서는 사용자 관심 카테고리 테이블을 조회해야 함
 
         Map<String, Object> relatedData = new HashMap<>();
         relatedData.put("postId", postId);
@@ -213,34 +211,17 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Map<NotificationType, Boolean> getNotificationSettings(Long memberId) {
-        Map<String, Object> memberSetting = (Map<String, Object>) notificationMapper.selectNotificationSettings(memberId);
-        boolean globalEnabled = memberSetting != null && Boolean.TRUE.equals(memberSetting.get("enabled"));
-
-        Map<NotificationType, Boolean> settingsMap = new HashMap<>();
-        // 모든 타입에 대해 동일한 설정 적용
-        for (NotificationType type : NotificationType.values()) {
-            settingsMap.put(type, globalEnabled);
-        }
-
-        return settingsMap;
+    public boolean getNotificationSettings(Long memberId) {
+        boolean setting = notificationMapper.selectNotificationSetting(memberId);
+        return Boolean.TRUE.equals(setting);
     }
 
     @Override
     public void updateNotificationSettings(Long memberId, NotificationSettingUpdateRequest request) {
-        // 전체 알림 설정만 업데이트 (첫 번째 설정값 사용)
-        if (!request.getSettings().isEmpty()) {
-            boolean isEnabled = request.getSettings().values().iterator().next();
-            notificationMapper.updateNotificationSetting(memberId, null, isEnabled);
-        }
+        notificationMapper.updateNotificationSetting(memberId, request.getIsEnabled());
     }
 
-    private boolean isNotificationEnabled(Long memberId, NotificationType type) {
-        // member 테이블의 receive_push_notification 컬럼 확인
-        Map<String, Object> setting = (Map<String, Object>) notificationMapper.selectNotificationSetting(memberId, type);
-        return setting != null && Boolean.TRUE.equals(setting.get("enabled"));
-    }
+
 
     private NotificationResponseDTO convertToResponseDTO(NotificationVO notification) {
         Map<String, Object> relatedData = null;

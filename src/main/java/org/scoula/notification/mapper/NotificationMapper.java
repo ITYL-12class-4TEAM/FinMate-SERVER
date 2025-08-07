@@ -33,14 +33,9 @@ public interface NotificationMapper {
     int updateNotificationAsRead(@Param("id") Long id, @Param("memberId") Long memberId);
     int updateAllNotificationsAsRead(@Param("memberId") Long memberId);
 
-    // 알림 설정 CRUD
-//    List<NotificationSettingVO> selectNotificationSettings(@Param("memberId") Long memberId);
-//    NotificationSettingVO selectNotificationSetting(@Param("memberId") Long memberId, @Param("type") NotificationType type);
-//    int insertNotificationSetting(NotificationSettingVO setting);
 
-    Map<String, Object> selectNotificationSettings(@Param("memberId") Long memberId);
-    Map<String, Object> selectNotificationSetting(@Param("memberId") Long memberId, @Param("type") NotificationType type);
-    int updateNotificationSetting(@Param("memberId") Long memberId, @Param("type") NotificationType type, @Param("isEnabled") Boolean isEnabled);
+    boolean selectNotificationSetting(@Param("memberId") Long memberId);
+    int updateNotificationSetting(@Param("memberId") Long memberId,  @Param("isEnabled") Boolean isEnabled);
 
     int deleteOldNotifications(@Param("daysBefore") int daysBefore);
 
