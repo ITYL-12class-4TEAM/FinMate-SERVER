@@ -42,7 +42,7 @@ public class ProductApiController {
     @ApiOperation(value = "상품 목록 조회",
             notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
     @GetMapping
-    public ApiResponse<ProductListResponse> getProducts(ProductSearchRequest request) {
+    public ApiResponse<ProductListResponse> getProducts(@RequestBody ProductSearchRequest request) {
         // 필터 맵 생성
         Map<String, String> filters = request.toFilterMap();
 
