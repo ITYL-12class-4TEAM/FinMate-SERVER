@@ -25,6 +25,8 @@ public class MemberDTO {
     private String phoneNumber;
     private Date birthDate;
     private String gender;
+    private String socialType;
+    private String socialId;
     private String role;
     private Boolean receivePushNotification;
     private Date createdAt;
