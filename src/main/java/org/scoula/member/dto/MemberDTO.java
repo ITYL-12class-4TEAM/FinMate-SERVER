@@ -47,6 +47,8 @@ public class MemberDTO {
                 .phoneNumber(m.getPhoneNumber())
                 .birthDate(m.getBirthDate())
                 .gender(m.getGender())
+                .socialType(m.getSocialType())
+                .socialId(m.getSocialId())
                 .role(m.getRole())
                 .receivePushNotification(m.getReceivePushNotification())
                 .createdAt(m.getCreatedAt())
