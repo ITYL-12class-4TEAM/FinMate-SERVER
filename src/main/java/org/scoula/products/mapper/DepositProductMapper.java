@@ -42,10 +42,12 @@ public interface DepositProductMapper {
     List<DepositProductDTO> findDepositProducts(
             @Param("saveTrm") Integer saveTrm,
             @Param("intrRateType") String intrRateType,
-            @Param("minIntrRate") Double minIntrRate);
+            @Param("minIntrRate") Double minIntrRate,
+            @Param("amount") Integer amount);
+
 
     // 상품 코드로 상품 정보 조회
-        DepositProductDTO findByProductCode(@Param("productCode") String productCode);
+    DepositProductDTO findByProductCode(@Param("productCode") String productCode);
 
     /**
      * 카테고리별 최소 예치 금액 조회
