@@ -57,6 +57,10 @@ public class DepositProductDTO {
     @JsonProperty("spcl_cnd")
     private String spclCnd;
 
+    // 우대조건 내용 파싱한 태그
+    @JsonProperty("preferential_tags")
+    private String preferentialTags;
+
     // 가입대상
     @JsonProperty("join_member")
     private String joinMember;
@@ -66,12 +70,12 @@ public class DepositProductDTO {
     private String joinDeny;
 
     // 최소 가입 금액
-    @JsonProperty("min_deposit")
-    private Long joinAmt;
+    @JsonProperty("minDepositAmount")
+    private Long joinAmt;  // 필드명은 그대로 두고 JSON 속성명만 변경
 
     // 최대 가입 금액 (예금은 납입 전부, 적금은 월별 납입)
-    @JsonProperty("max_deposit")
-    private Long maxLimit;
+    @JsonProperty("maxDepositAmount")
+    private Long maxLimit;  // 필드명은 그대로 두고 JSON 속성명만 변경
 
     // 공시 시작일
     @JsonProperty("dcls_strt_day")
