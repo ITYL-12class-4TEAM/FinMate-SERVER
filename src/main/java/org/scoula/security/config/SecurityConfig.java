@@ -91,10 +91,13 @@ public class SecurityConfig {
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
                 .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**",
+                        "/api/wmti/questions", "/v2/api-docs", "/swagger-resources/**", "/webjars/**",
                         "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
                 .permitAll()
 
+                // 비회원도 접근 가능한 상품 검색 및 조회 기능
+                .antMatchers(HttpMethod.GET, "/api/products/**").permitAll()         // 상품 목록 조회, 필터링 항목
+                .antMatchers(HttpMethod.POST, "/api/products/**").permitAll()        // 상품 검색
 
                 // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
                 .antMatchers("/api/chatbot/**").permitAll()                          // 챗봇 (비회원도 금융 질문 가능)
@@ -133,8 +136,6 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.POST, "/api/comments/**").authenticated()    // 댓글 작성
                 .antMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()  // 댓글 삭제
                 .antMatchers("/api/wishlist/**").authenticated()                     // 관심상품 기능
-
-
 
                 .anyRequest().authenticated()
                 .and()
