@@ -2,6 +2,7 @@ package org.scoula.products.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
 import org.scoula.products.dto.request.ProductSearchRequest;
 import org.scoula.products.dto.response.*;
 import org.scoula.products.service.ProductCategoryService;
@@ -41,8 +42,8 @@ public class ProductApiController {
      */
     @ApiOperation(value = "상품 목록 조회",
             notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
-    @GetMapping
-    public ApiResponse<ProductListResponse> getProducts(@RequestBody ProductSearchRequest request) {
+    @PostMapping("/search")
+    public ApiResponse<ProductListResponse> searchProducts(@RequestBody @Valid ProductSearchRequest request) {
         // 필터 맵 생성
         Map<String, String> filters = request.toFilterMap();
 
