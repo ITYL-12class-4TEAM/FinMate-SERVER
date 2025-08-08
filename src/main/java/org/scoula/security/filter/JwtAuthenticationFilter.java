@@ -3,7 +3,8 @@ package org.scoula.security.filter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.common.service.RedisService;
-import org.scoula.member.mapper.MemberMapper;
+import org.scoula.response.ResponseCode;
+import org.scoula.security.util.JsonResponse;
 import org.scoula.security.util.JwtProcessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,8 +46,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/") ||                     // 메인 페이지
                         path.equals("/login") ||                // 로그인 페이지
                         path.startsWith("/oauth2/") ||          // OAuth2 관련
+                        path.startsWith("/oauth2/authorization") ||
                         path.startsWith("/login/oauth2/code/") ||
-                        path.startsWith("/api/auth/") ||
+                        path.equals("/api/auth/login") ||         // 로그인 API
+                        path.equals("/api/auth/refresh") ||
+                        path.equals("/api/auth/find-id") ||
+                        path.equals("/api/auth/find-password") ||
+                        path.equals("/api/auth/reset-password") ||
+                        path.equals("/api/auth/oauth2/token") ||
                         path.startsWith("/auth/oauth2/redirect");
         log.info("[JWT Filter] 요청 경로: {}, 제외 여부: {}", path, shouldSkip);
         return shouldSkip;
@@ -65,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 토큰 유효성 검증
                 if (!jwtProcessor.validateToken(token)) {
                     log.warn("[JWT] 유효하지 않은 토큰: {}", token);
-                    filterChain.doFilter(request, response);
+                    JsonResponse.sendError(response, ResponseCode.INVALID_TOKEN);
                     return;
                 }
 
@@ -77,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String redisToken = redisService.get("ACCESS:" + memberId);
                 if (!token.equals(redisToken)) {
                     log.warn("[JWT] Redis에 저장된 토큰과 일치하지 않음");
-                    filterChain.doFilter(request, response);
+                    JsonResponse.sendError(response, ResponseCode.INVALID_TOKEN);
                     return;
                 }
 
