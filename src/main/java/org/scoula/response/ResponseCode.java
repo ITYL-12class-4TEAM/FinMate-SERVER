@@ -16,6 +16,7 @@ public enum ResponseCode {
      */
     LOGIN_SUCCESS(HttpStatus.OK, "로그인에 성공했습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 ID 또는 비밀번호가 일치하지 않습니다."),
+    MEMBER_DELETED(HttpStatus.FORBIDDEN, "탈퇴된 회원입니다."),
     ACCOUNT_LOCKED(HttpStatus.LOCKED, "계정이 잠겨 있습니다."),
     ACCOUNT_EXPIRED(HttpStatus.UNAUTHORIZED, "계정 사용 기간이 만료되었습니다."),
     MEMBER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 조회에 성공했습니다."),
@@ -28,6 +29,7 @@ public enum ResponseCode {
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    EMAIL_MISMATCH(HttpStatus.BAD_REQUEST, "이메일이 일치하지 않습니다."),
     REQUIRED_TERMS_NOT_AGREED(HttpStatus.BAD_REQUEST, "필수 약관에 동의해 주세요."),
     MISSING_REQUIRED_FIELDS(HttpStatus.BAD_REQUEST, "모든 필수 입력값을 입력해 주세요."),
     SIGNUP_SUCCESS(HttpStatus.CREATED, "회원가입이 완료되었습니다."),
