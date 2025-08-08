@@ -1,6 +1,7 @@
 package org.scoula.security.handler;
 
 import lombok.extern.log4j.Log4j2;
+import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JsonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -20,6 +21,5 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
         log.error("========== 인증 에러 ============");
-        JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, authException.getMessage());
-    }
+        JsonResponse.sendError(response, ResponseCode.UNAUTHORIZED_USER);    }
 }

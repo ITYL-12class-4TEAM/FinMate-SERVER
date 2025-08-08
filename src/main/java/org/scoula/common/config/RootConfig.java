@@ -40,6 +40,8 @@ import javax.sql.DataSource;
         "org.scoula.products.config",
         "org.scoula.products.mapper",
         "org.scoula.common.config",
+        "org.scoula.notification.service",
+        "org.scoula.notification.service.impl",
         "org.scoula",
 })
 //@PropertySource("file:${config.location}/application.properties")

@@ -46,4 +46,28 @@ public class RedisService {
     public void delete(String key) {
         redisTemplate.delete(key);
     }
+    public boolean exists(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    public void deleteAll(java.util.List<String> keys) {
+        redisTemplate.delete(keys);
+    }
+
+    public boolean ping() {
+        try {
+            String result = redisTemplate.getConnectionFactory().getConnection().ping();
+            return "PONG".equals(result);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public long getTtl(String key) {
+        return redisTemplate.getExpire(key);
+    }
+
+    public java.util.Set<String> getKeys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
 }

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.scoula.auth.oauth2.OAuth2Properties;
 import org.scoula.security.filter.JwtAuthenticationFilter;
 import org.scoula.security.filter.JwtUsernamePasswordAuthenticationFilter;
+import org.scoula.security.handler.CustomAccessDeniedHandler;
+import org.scoula.security.handler.CustomAuthenticationEntryPoint;
 import org.scoula.security.handler.LoginFailureHandler;
 import org.scoula.security.handler.LoginSuccessHandler;
 import org.scoula.auth.oauth2.CustomOAuth2UserService;
@@ -88,11 +90,14 @@ public class SecurityConfig {
 
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())  // 인증 실패 핸들러
+                .accessDeniedHandler(new CustomAccessDeniedHandler())            // 인가 실패 핸들러
+                .and()
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
-                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
+                .antMatchers( "/api/sms/**", "/api/validation/**", "/api/signup/**", "/oauth2/**", "/login/oauth2/code/*", "/auth/oauth2/redirect/**","/api/auth/oauth2/token",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**",
-                        "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
+                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**")  // 경로 수정
                 .permitAll()
 
 
