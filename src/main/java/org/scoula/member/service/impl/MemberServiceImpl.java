@@ -7,6 +7,7 @@ import org.scoula.member.mapper.MemberMapper;
 import org.scoula.member.service.MemberService;
 import org.scoula.response.ResponseCode;
 import org.scoula.security.account.domain.MemberVO;
+import org.scoula.security.util.JwtProcessor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
+    private final JwtProcessor jwtProcessor;
 
     @Override
     public boolean isEmailAvailable(String email) {
@@ -33,6 +35,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDTO getCurrentUser(String email) {
         MemberVO memberVO = memberMapper.selectByEmail(email);
+
         if (memberVO == null) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_NOT_FOUND);
         }

@@ -27,6 +27,7 @@ public class MemberVO {
     private Date createdAt;
     private Date updatedAt;
     private String role;
+    private String status;
     private String socialType;
     private String socialId;
     private String accessToken;
