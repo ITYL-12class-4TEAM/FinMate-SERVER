@@ -56,3 +56,4 @@ bin/
 /finmate-key.pem
 !/server-submodule/.idea/
 
+!/.gitattributes
