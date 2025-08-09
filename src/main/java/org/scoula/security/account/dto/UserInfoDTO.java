@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoDTO {
     String username;
+    String nickname;
     String email;
     Long memberId;
     List<String> roles;
@@ -19,6 +20,7 @@ public class UserInfoDTO {
     public static UserInfoDTO of(MemberVO member) {
         return new UserInfoDTO(
                 member.getUsername(),
+                member.getNickname(),
                 member.getEmail(),
                 member.getMemberId(),
                 List.of("ROLE_" + member.getRole())  // Spring Security 권한 규칙 반영

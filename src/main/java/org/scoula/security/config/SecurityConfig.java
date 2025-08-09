@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.scoula.auth.oauth2.OAuth2Properties;
 import org.scoula.security.filter.JwtAuthenticationFilter;
 import org.scoula.security.filter.JwtUsernamePasswordAuthenticationFilter;
+import org.scoula.security.handler.CustomAccessDeniedHandler;
+import org.scoula.security.handler.CustomAuthenticationEntryPoint;
 import org.scoula.security.handler.LoginFailureHandler;
 import org.scoula.security.handler.LoginSuccessHandler;
 import org.scoula.auth.oauth2.CustomOAuth2UserService;
@@ -100,13 +102,19 @@ public class SecurityConfig {
 
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())  // 인증 실패 핸들러
+                .accessDeniedHandler(new CustomAccessDeniedHandler())            // 인가 실패 핸들러
+                .and()
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
-                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
+                .antMatchers( "/api/sms/**", "/api/validation/**", "/api/signup/**", "/oauth2/**", "/login/oauth2/code/*", "/auth/oauth2/redirect/**","/api/auth/oauth2/token",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**",
-                        "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
+                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**")  // 경로 수정
                 .permitAll()
 
+                // 비회원도 접근 가능한 상품 검색 및 조회 기능
+                .antMatchers(HttpMethod.GET, "/api/products/**").permitAll()         // 상품 목록 조회, 필터링 항목
+                .antMatchers(HttpMethod.POST, "/api/products/**").permitAll()        // 상품 검색
 
                 // 비회원도 접근 가능한 챗봇 및 커뮤니티 기능
                 .antMatchers("/api/chatbot/**").permitAll()                          // 챗봇 (비회원도 금융 질문 가능)
@@ -137,6 +145,7 @@ public class SecurityConfig {
                 // 회원만 접근 가능한 개인화 기능
                 .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능
                 .antMatchers("/api/scraps/**").authenticated()                       // 스크랩 기능
+                .antMatchers("/api/notifications/**").authenticated()                // 알림 기능 (추가)
                 .antMatchers("/api/posts/my").authenticated()                        // ⭐ 내가 쓴 글 (회원 전용)
                 .antMatchers("/api/comments/my").authenticated()                     // ⭐ 내가 쓴 댓글 (회원 전용)
                 .antMatchers(HttpMethod.POST, "/api/posts/**").authenticated()       // 게시물 작성
@@ -145,8 +154,6 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.POST, "/api/comments/**").authenticated()    // 댓글 작성
                 .antMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()  // 댓글 삭제
                 .antMatchers("/api/wishlist/**").authenticated()                     // 관심상품 기능
-
-
 
                 .anyRequest().authenticated()
                 .and()

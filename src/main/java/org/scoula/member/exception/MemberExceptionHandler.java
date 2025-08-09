@@ -62,4 +62,21 @@ public class MemberExceptionHandler {
 
         return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
     }
+
+    @ExceptionHandler(MemberDeletedException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleMemberDeletedException(
+            MemberDeletedException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                exception.getResponseCode().name(),
+                request.getRequestURI()
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.fail(exception.getResponseCode(), errorResponse);
+
+        return new ResponseEntity<>(apiResponse, exception.getResponseCode().getHttpStatus());
+    }
 }

@@ -8,6 +8,7 @@
     </settings>
     <typeAliases>
         <package name="org.scoula.security.account.domain"/>
+        <package name="org.scoula.notification.domain"/>
     </typeAliases>
     <typeHandlers>
         <typeHandler handler="org.scoula.community.board.handler.BoardTypeHandler" />
@@ -19,5 +20,6 @@
         <package name="org.scoula.security.account.mapper"/>
         <package name="org.scoula.member.mapper"/>
         <package name="org.scoula.auth.mapper"/>
+        <package name="org.scoula.notification.mapper"/>
     </mappers>
 </configuration>
