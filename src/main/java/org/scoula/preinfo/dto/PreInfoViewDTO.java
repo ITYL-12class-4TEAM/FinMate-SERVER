@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.scoula.preinfo.enums.InvestmentCapacity;
+import org.scoula.preinfo.enums.InvestmentPeriod;
 import org.scoula.preinfo.enums.InvestmentType;
+import org.scoula.preinfo.enums.PurposeCategory;
 import org.scoula.wmti.enums.RiskPreference;
 
 import java.time.LocalDateTime;
@@ -36,6 +38,12 @@ public class PreInfoViewDTO {
 
     @ApiModelProperty(value = "월 고정 지출", example = "1200000")
     private Long fixedCost;
+
+    @ApiModelProperty(value = "목표 투자기간", example = "SHORT")
+    private InvestmentPeriod investmentPeriod;
+
+    @ApiModelProperty(value = "투자목적", example = "TRAVEL")
+    private PurposeCategory purposeCategory;
 
     @ApiModelProperty(value = "월 잉여 자산", example = "1800000")
     private Long surplusAmount;
@@ -70,6 +78,8 @@ public class PreInfoViewDTO {
                 .married(e.getMarried())
                 .monthlyIncome(e.getMonthlyIncome())
                 .fixedCost(e.getFixedCost())
+                .investmentPeriod(e.getPeriod())
+                .purposeCategory(e.getPurposeCategory())
                 .surplusAmount(e.getSurplusAmount())
                 .savingsRate(e.getSavingsRate())
                 .financialHealthScore(e.getFinancialHealthScore())
