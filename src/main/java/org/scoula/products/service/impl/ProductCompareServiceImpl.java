@@ -13,7 +13,6 @@ import org.scoula.products.mapper.PensionProductMapper;
 import org.scoula.products.service.ProductCompareService;
 import org.scoula.response.ResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -52,12 +51,12 @@ public class ProductCompareServiceImpl implements ProductCompareService {
         }
     }
 
-    // 상수 정의
-    private static final String DEFAULT_JOIN_WAY = "인터넷뱅킹,스마트폰뱅킹,창구";
-    private static final String DEFAULT_JOIN_MEMBER = "제한없음";
-    private static final String DEFAULT_JOIN_DENY = "없음";
-    private static final String DEFAULT_INFO_TEXT = "정보 없음";
+    // 날짜 패턴 상수는 유지 (기술적 용도)
     private static final String ISO_DATE_PATTERN = "yyyyMMdd";
+
+    // 응답 메시지용 상수
+    public static final String NO_DATA_AVAILABLE = "정보 없음";
+    public static final String NO_RESTRICTION = "제한 없음";
 
     private final DepositProductMapper depositProductMapper;
     private final PensionProductMapper pensionProductMapper;
@@ -96,6 +95,255 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                 // 예금 상품 비교
                 return compareDepositProducts(productIds);
         }
+    }
+
+    /**
+     * 특정 상품 옵션을 고려한 비교 메서드
+     *
+     * @param productType       상품 유형 (deposit, pension 등)
+     * @param productOptionsMap 상품ID와 옵션 정보를 담은 맵
+     * @return 비교 결과
+     */
+    @Override
+    public ProductCompareResponse compareProductsWithOptions(
+            String productType,
+            Map<String, Map<String, String>> productOptionsMap) {
+
+        // 상품 유형 변환
+        ProductType type = ProductType.fromString(productType);
+
+        // 상품 유형에 따라 다른 비교 로직 수행
+        switch (type) {
+            case PENSION:
+                return comparePensionProductsWithOptions(productOptionsMap);
+            case DEPOSIT:
+            default:
+                return compareDepositProductsWithOptions(productOptionsMap);
+        }
+    }
+
+    /**
+     * 예금 상품들을 옵션 정보와 함께 비교
+     */
+    private ProductCompareResponse compareDepositProductsWithOptions(
+            Map<String, Map<String, String>> productOptionsMap) {
+
+        // 상품 ID 목록 추출
+        List<String> productIdStrings = new ArrayList<>(productOptionsMap.keySet());
+        List<Long> productIds = convertToLongIds(productIdStrings);
+
+        // 상품 정보 조회
+        List<DepositProductDTO> products = depositProductMapper.findByProductIds(productIds);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 상품 ID 목록
+        List<Long> fetchedProductIds = products.stream()
+                .map(DepositProductDTO::getProductId)
+                .collect(Collectors.toList());
+
+        // 옵션 정보 조회
+        List<DepositOptionDTO> allOptions = depositProductMapper.findOptionsByProductIds(fetchedProductIds);
+
+        // 로깅 추가
+//        log.debug("조회된 상품 수: {}, 조회된 옵션 수: {}", products.size(), allOptions.size());
+
+        // 상품별 옵션 그룹화
+        Map<Long, List<DepositOptionDTO>> optionsByProductId = allOptions.stream()
+                .collect(Collectors.groupingBy(DepositOptionDTO::getProductId));
+
+        // 각 상품을 옵션 정보로 필터링하여 보강
+        List<DepositProductDTO> enrichedProducts = new ArrayList<>();
+
+        for (int i = 0; i < productIds.size(); i++) {
+            Long productId = productIds.get(i);
+
+            // 해당 ID로 상품 찾기
+            Optional<DepositProductDTO> productOpt = products.stream()
+                    .filter(p -> p.getProductId().equals(productId))
+                    .findFirst();
+
+            if (productOpt.isPresent()) {
+                DepositProductDTO product = productOpt.get();
+
+                // 해당 상품의 모든 옵션
+                List<DepositOptionDTO> options = optionsByProductId
+                        .getOrDefault(product.getProductId(), new ArrayList<>());
+
+                // 요청된 옵션 정보
+                Map<String, String> requestedOptions = productOptionsMap.get(String.valueOf(productId));
+
+                // 옵션 필터링
+                List<DepositOptionDTO> filteredOptions;
+                if (requestedOptions != null && !requestedOptions.isEmpty()) {
+                    filteredOptions = filterDepositOptions(options, requestedOptions);
+
+                    // 필터링 결과 로깅
+//                    log.debug("상품 ID: {}, 전체 옵션: {}, 필터링된 옵션: {}",
+//                             productId, options.size(), filteredOptions.size());
+                } else {
+                    filteredOptions = options;
+                }
+
+                // 필터링된 옵션으로 상품 설정
+                product.setOptions(filteredOptions);
+
+                // 상품 데이터 보강
+                DepositProductDTO enrichedProduct = enrichDepositProductData(product);
+                enrichedProducts.add(enrichedProduct);
+            }
+        }
+
+        // 비교 데이터 생성
+        Map<String, Object> comparisonData = depositComparisonDataBuilder.build(enrichedProducts);
+
+        // 요약 정보 생성
+        ProductCompareResponse.ComparisonSummary summary = createDepositComparisonSummary(enrichedProducts);
+
+        // 응답 구성
+        return ProductCompareResponse.builder()
+                .productType(ProductType.DEPOSIT.getValue())
+                .products(enrichedProducts)
+                .comparisonData(comparisonData)
+                .summary(summary)
+                .build();
+    }
+
+    /**
+     * 예금 상품 옵션 필터링
+     */
+    private List<DepositOptionDTO> filterDepositOptions(
+            List<DepositOptionDTO> options,
+            Map<String, String> requestedOptions) {
+
+        // 가입 기간(saveTrm) 및 금리 유형(intrRateType) 필터링
+        return options.stream()
+                .filter(option -> {
+                    boolean matches = true;
+
+                    // 가입 기간 필터링
+                    if (requestedOptions.containsKey("saveTrm")) {
+                        String requestedSaveTrm = requestedOptions.get("saveTrm");
+                        matches = matches && String.valueOf(option.getSaveTrm()).equals(requestedSaveTrm);
+                    }
+
+                    // 금리 유형 필터링
+                    if (requestedOptions.containsKey("intrRateType")) {
+                        String requestedIntrRateType = requestedOptions.get("intrRateType");
+                        matches = matches && option.getIntrRateType().equals(requestedIntrRateType);
+                    }
+
+                    return matches;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 연금 상품들을 옵션 정보와 함께 비교
+     */
+    private ProductCompareResponse comparePensionProductsWithOptions(
+            Map<String, Map<String, String>> productOptionsMap) {
+
+        // 상품 ID 목록 추출
+        List<String> productIdStrings = new ArrayList<>(productOptionsMap.keySet());
+        List<Long> productIds = convertToLongIds(productIdStrings);
+
+        // 상품 정보 조회
+        List<PensionProductDTO> products = pensionProductMapper.findByProductIds(productIds);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 상품 ID 목록
+        List<Long> fetchedProductIds = products.stream()
+                .map(PensionProductDTO::getProductId)
+                .collect(Collectors.toList());
+
+        // 옵션 정보 조회
+        List<PensionOptionDTO> allOptions = pensionProductMapper.findOptionsByProductIds(fetchedProductIds);
+
+        // 상품별 옵션 그룹화
+        Map<Long, List<PensionOptionDTO>> optionsByProductId = allOptions.stream()
+                .collect(Collectors.groupingBy(PensionOptionDTO::getProductId));
+
+        // 각 상품을 옵션 정보로 필터링하여 보강
+        List<PensionProductDTO> enrichedProducts = products.stream()
+                .map(product -> {
+                    // 상품 ID를 문자열로 변환
+                    String productIdStr = String.valueOf(product.getProductId());
+
+                    // 해당 상품의 모든 옵션
+                    List<PensionOptionDTO> options = optionsByProductId
+                            .getOrDefault(product.getProductId(), new ArrayList<>());
+
+                    // 요청된 옵션 정보
+                    Map<String, String> requestedOptions = productOptionsMap.get(productIdStr);
+
+                    if (requestedOptions != null && !requestedOptions.isEmpty()) {
+                        // 옵션 필터링
+                        List<PensionOptionDTO> filteredOptions = filterPensionOptions(options, requestedOptions);
+                        product.setOptions(filteredOptions);
+                    } else {
+                        // 옵션 필터링 없이 모든 옵션 사용
+                        product.setOptions(options);
+                    }
+
+                    // 상품 데이터 보강
+                    return enrichPensionProductData(product);
+                })
+                .collect(Collectors.toList());
+
+        // 비교 데이터 생성
+        Map<String, Object> comparisonData = pensionComparisonDataBuilder.build(enrichedProducts);
+
+        // 요약 정보 생성
+        ProductCompareResponse.ComparisonSummary summary = createPensionComparisonSummary(enrichedProducts);
+
+        // 응답 구성
+        return ProductCompareResponse.builder()
+                .productType(ProductType.PENSION.getValue())
+                .products(enrichedProducts)
+                .comparisonData(comparisonData)
+                .summary(summary)
+                .build();
+    }
+
+    /**
+     * 연금 상품 옵션 필터링
+     */
+    private List<PensionOptionDTO> filterPensionOptions(
+            List<PensionOptionDTO> options,
+            Map<String, String> requestedOptions) {
+
+        // 연금 수령 기간, 가입 연령, 납입 금액 등으로 필터링
+        return options.stream()
+                .filter(option -> {
+                    boolean matches = true;
+
+                    // 연금 수령 기간 필터링
+                    if (requestedOptions.containsKey("pnsnRecpTrm")) {
+                        String requestedTrm = requestedOptions.get("pnsnRecpTrm");
+                        matches = matches && option.getPnsnRecpTrm().equals(requestedTrm);
+                    }
+
+                    // 가입 연령 필터링
+                    if (requestedOptions.containsKey("pnsnEntrAge")) {
+                        String requestedAge = requestedOptions.get("pnsnEntrAge");
+                        matches = matches && String.valueOf(option.getPnsnEntrAge()).equals(requestedAge);
+                    }
+
+                    // 월 납입 금액 필터링
+                    if (requestedOptions.containsKey("monPaymAtm")) {
+                        String requestedAmount = requestedOptions.get("monPaymAtm");
+                        matches = matches && String.valueOf(option.getMonPaymAtm()).equals(requestedAmount);
+                    }
+
+                    return matches;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -154,13 +402,15 @@ public class ProductCompareServiceImpl implements ProductCompareService {
      * 예금 상품 데이터를 보강하는 메서드
      */
     private DepositProductDTO enrichDepositProductData(DepositProductDTO original) {
-        // from() 대신 toBuilder() 사용
-        return original.toBuilder()
-                .joinWay(Optional.ofNullable(original.getJoinWay()).orElse(DEFAULT_JOIN_WAY))
-                .joinMember(Optional.ofNullable(original.getJoinMember()).orElse(DEFAULT_JOIN_MEMBER))
-                .joinDeny(Optional.ofNullable(original.getJoinDeny()).orElse(DEFAULT_JOIN_DENY))
-                .dclsStrtDay(formatDateIfNeeded(original.getDclsStrtDay()))
-                .build();
+        // toBuilder() 패턴 사용
+        DepositProductDTO.DepositProductDTOBuilder builder = original.toBuilder();
+
+        // 날짜 포맷팅은 유지 (기술적 변환)
+        if (original.getDclsStrtDay() != null) {
+            builder.dclsStrtDay(formatDateIfNeeded(original.getDclsStrtDay()));
+        }
+
+        return builder.build();
     }
 
     /**
@@ -224,12 +474,15 @@ public class ProductCompareServiceImpl implements ProductCompareService {
      * 연금 상품 데이터를 보강하는 메서드
      */
     private PensionProductDTO enrichPensionProductData(PensionProductDTO product) {
-        // from() 대신 toBuilder() 사용
-        PensionProductDTO.PensionProductDTOBuilder builder = product.toBuilder()
-                .joinWay(Optional.ofNullable(product.getJoinWay()).orElse(DEFAULT_INFO_TEXT))
-                .pnsnRcvMthd(Optional.ofNullable(product.getPnsnRcvMthd()).orElse(DEFAULT_INFO_TEXT))
-                .dclsStrtDay(formatDateIfNeeded(product.getDclsStrtDay()));
+        // toBuilder() 패턴 사용
+        PensionProductDTO.PensionProductDTOBuilder builder = product.toBuilder();
 
+        // 날짜 포맷팅 (기술적 변환)
+        if (product.getDclsStrtDay() != null) {
+            builder.dclsStrtDay(formatDateIfNeeded(product.getDclsStrtDay()));
+        }
+
+        // 옵션 정보 처리 (계산 및 분석 로직)
         if (product.getOptions() != null && !product.getOptions().isEmpty()) {
             // 최소/최대 가입 연령 계산
             List<Integer> entryAges = product.getOptions().stream()
@@ -253,14 +506,17 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                         .maxPayment(Collections.max(payments));
             }
 
-            // 옵션에서 월 납입액을 대표값으로 설정 (첫 번째 옵션 사용)
-            if (product.getOptions().get(0).getMonPaymAtm() != null) {
-                builder.mnthPymAtm(product.getOptions().get(0).getMonPaymAtm().longValue());
-            }
+            // 대표 옵션에서 정보 추출 (첫번째 옵션 사용)
+            if (!product.getOptions().isEmpty()) {
+                PensionOptionDTO representativeOption = product.getOptions().get(0);
 
-            // 연금 시작 연령 설정
-            if (product.getOptions().get(0).getPnsnStrtAge() != null) {
-                builder.pnsnStrtAge(product.getOptions().get(0).getPnsnStrtAge());
+                if (representativeOption.getMonPaymAtm() != null) {
+                    builder.mnthPymAtm(representativeOption.getMonPaymAtm().longValue());
+                }
+
+                if (representativeOption.getPnsnStrtAge() != null) {
+                    builder.pnsnStrtAge(representativeOption.getPnsnStrtAge());
+                }
             }
         }
 
@@ -299,9 +555,6 @@ public class ProductCompareServiceImpl implements ProductCompareService {
 
     /**
      * 연금 상품들의 비교 요약 정보 생성
-     */
-    /**
-     * 연금저축 상품들의 비교 요약 정보 생성
      */
     private ProductCompareResponse.ComparisonSummary createPensionComparisonSummary(List<PensionProductDTO> products) {
         return ProductCompareResponse.ComparisonSummary.builder()
@@ -415,7 +668,7 @@ public class ProductCompareServiceImpl implements ProductCompareService {
      */
     private ProductCompareResponse.ProductSummary findMostJoinWaysProduct(List<DepositProductDTO> products) {
         return products.stream()
-                .filter(p -> p.getJoinWay() != null)
+                .filter(p -> p.getJoinWay() != null && !p.getJoinWay().isEmpty())
                 .map(p -> Map.entry(p, p.getJoinWay().split(",").length))
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> ProductCompareResponse.ProductSummary.builder()
@@ -431,8 +684,12 @@ public class ProductCompareServiceImpl implements ProductCompareService {
      * 가입 대상이 가장 넓은 예금 상품 ("제한없음" 우선)
      */
     private ProductCompareResponse.ProductSummary findWidestTargetDepositProduct(List<DepositProductDTO> products) {
+        // "제한없음" 문구가 포함된 상품 찾기
         Optional<DepositProductDTO> noLimitProduct = products.stream()
-                .filter(p -> p.getJoinMember() != null && p.getJoinMember().contains(DEFAULT_JOIN_MEMBER))
+                .filter(p -> p.getJoinMember() != null &&
+                        (p.getJoinMember().contains("제한없음") ||
+                                p.getJoinMember().contains("제한 없음") ||
+                                p.getJoinMember().contains("모든 고객")))
                 .findFirst();
 
         if (noLimitProduct.isPresent()) {
@@ -445,9 +702,13 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                     .build();
         }
 
-        // "제한없음"이 없는 경우, 첫 번째 상품을 반환
-        if (!products.isEmpty()) {
-            DepositProductDTO product = products.get(0);
+        // "제한없음"이 없는 경우, 가입 조건이 있는 상품 중 첫 번째 상품 반환
+        Optional<DepositProductDTO> productWithMember = products.stream()
+                .filter(p -> p.getJoinMember() != null && !p.getJoinMember().isEmpty())
+                .findFirst();
+
+        if (productWithMember.isPresent()) {
+            DepositProductDTO product = productWithMember.get();
             return ProductCompareResponse.ProductSummary.builder()
                     .finPrdtCd(product.getFinPrdtCd())
                     .korCoNm(product.getKorCoNm())
@@ -456,7 +717,17 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                     .build();
         }
 
+        // 그 외 경우 첫 번째 상품 반환 (정보 없음으로 표시)
+        if (!products.isEmpty()) {
+            DepositProductDTO product = products.get(0);
+            return ProductCompareResponse.ProductSummary.builder()
+                    .finPrdtCd(product.getFinPrdtCd())
+                    .korCoNm(product.getKorCoNm())
+                    .finPrdtNm(product.getFinPrdtNm())
+                    .value(NO_DATA_AVAILABLE) // 상수 사용
+                    .build();
+        }
+
         return null;
     }
-
 }

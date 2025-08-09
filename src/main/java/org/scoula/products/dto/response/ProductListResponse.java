@@ -55,6 +55,7 @@ public class ProductListResponse {
         // 확장된 필드
         private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
         private Long minDepositAmount; // 최소 예치 금액
+        private Long maxDepositAmount; // 최대 예치 금액
     }
 
     /**

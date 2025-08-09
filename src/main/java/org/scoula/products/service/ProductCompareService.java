@@ -4,6 +4,7 @@ import org.scoula.products.dto.request.ProductCompareRequest;
 import org.scoula.products.dto.response.ProductCompareResponse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 금융 상품 비교 서비스 인터페이스
@@ -50,4 +51,8 @@ public interface ProductCompareService {
      * @return 비교 결과 정보
      */
     ProductCompareResponse comparePensionProductsLong(List<Long> productIds);
+
+    // 새 메서드 추가
+    ProductCompareResponse compareProductsWithOptions(
+            String productType, Map<String, Map<String, String>> productOptions);
 }

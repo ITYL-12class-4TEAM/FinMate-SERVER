@@ -43,6 +43,9 @@ public class ProductDetailResponse {
     // 우대 조건
     private String spclCnd;
 
+    // 우대 조건 내용 파싱한 태그
+    private String preferentialTags;
+
     // 가입 대상
     private String joinMember;
 
@@ -62,6 +65,7 @@ public class ProductDetailResponse {
         this.finPrdtNm = deposit.getFinPrdtNm();
         this.joinWay = deposit.getJoinWay();
         this.spclCnd = deposit.getSpclCnd();
+        this.preferentialTags = deposit.getPreferentialTags();
         this.joinMember = deposit.getJoinMember();
 
         // 최고 금리 계산 (옵션 중 가장 높은 금리)
