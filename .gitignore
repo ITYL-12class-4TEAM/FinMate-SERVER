@@ -55,3 +55,11 @@ bin/
 !/server-submodule/.idea/
 /finmate-key.pem
 !/server-submodule/.idea/
+
+!/.gitattributes
+
+# IntelliJ 설정 무시
+.idea/
+
+# 민감 키 파일 무시
+*.pem
