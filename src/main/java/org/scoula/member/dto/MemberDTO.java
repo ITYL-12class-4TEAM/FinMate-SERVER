@@ -25,6 +25,8 @@ public class MemberDTO {
     private String phoneNumber;
     private Date birthDate;
     private String gender;
+    private String socialType;
+    private String socialId;
     private String role;
     private Boolean receivePushNotification;
     private Date createdAt;
@@ -45,6 +47,8 @@ public class MemberDTO {
                 .phoneNumber(m.getPhoneNumber())
                 .birthDate(m.getBirthDate())
                 .gender(m.getGender())
+                .socialType(m.getSocialType())
+                .socialId(m.getSocialId())
                 .role(m.getRole())
                 .receivePushNotification(m.getReceivePushNotification())
                 .createdAt(m.getCreatedAt())
