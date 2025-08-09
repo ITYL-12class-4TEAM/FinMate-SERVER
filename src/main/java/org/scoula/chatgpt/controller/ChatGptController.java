@@ -56,7 +56,6 @@ public class ChatGptController {
     public ApiResponse<?> compare(@RequestBody List<FinancialProductGptRequest> products) {
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("아래 금융상품들에 대해 금리, 가입조건, 장단점, 주의사항 등을 상세히 비교해주세요.\n\n");
 
             int count = 1;
             for (FinancialProductGptRequest product : products) {
@@ -70,8 +69,12 @@ public class ChatGptController {
                 count++;
             }
 
-            ChatMessage message = new ChatMessage("user", sb.toString());
-            String response = chatGptService.compare(List.of(message));
+            List<ChatMessage> messages = List.of(
+                    new ChatMessage("system", comparePrompt),  // system 메시지로 프롬프트 전달
+                    new ChatMessage("user", sb.toString())      // user 메시지로 상품 정보 전달
+            );
+
+            String response = chatGptService.compare(messages);
             return ApiResponse.success(ResponseCode.CHATGPT_COMPARE_SUCCESS, response);
         } catch (Exception e) {
             return ApiResponse.fail(ResponseCode.CHATGPT_JSON_PARSING_FAILED);
