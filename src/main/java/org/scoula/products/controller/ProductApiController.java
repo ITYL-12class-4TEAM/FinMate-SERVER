@@ -2,6 +2,7 @@ package org.scoula.products.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
 import org.scoula.products.dto.request.ProductSearchRequest;
 import org.scoula.products.dto.response.*;
 import org.scoula.products.service.ProductCategoryService;
@@ -41,8 +42,8 @@ public class ProductApiController {
      */
     @ApiOperation(value = "상품 목록 조회",
             notes = "초기 진입 시 기본 상품 리스트 조회 및 다양한 조건으로 필터링할 수 있는 API")
-    @GetMapping
-    public ApiResponse<ProductListResponse> getProducts(ProductSearchRequest request) {
+    @PostMapping("/search")
+    public ApiResponse<ProductListResponse> searchProducts(@RequestBody @Valid ProductSearchRequest request) {
         // 필터 맵 생성
         Map<String, String> filters = request.toFilterMap();
 
@@ -124,20 +125,36 @@ public class ProductApiController {
     }
 
     @ApiOperation(value = "상품 비교",
-            notes = "선택한 상품들의 상세 정보를 비교합니다.")
+            notes = "선택한 상품들의 특정 옵션 정보를 비교합니다.")
     @GetMapping("/compare")
     public ApiResponse<?> compareProducts(
             @RequestParam List<String> productIds,
             @RequestParam(required = false, defaultValue = "deposit") String productType,
-            @RequestParam(required = false) String optionId) {
+            @RequestParam(required = false) List<String> saveTrm,          // 가입 기간 (예: 6,12,24)
+            @RequestParam(required = false) List<String> intrRateType) {   // 금리 유형 (예: S,M)
 
-        ProductCompareResponse response;
+        // 상품 ID와 옵션 정보를 매핑
+        Map<String, Map<String, String>> productOptions = new HashMap<>();
 
-        if ("pension".equals(productType)) {
-            response = compareService.comparePensionProducts(productIds, optionId);
-        } else {
-            response = compareService.compareProducts(productType, productIds);
+        // productIds 길이만큼 옵션 정보가 있다고 가정
+        for (int i = 0; i < productIds.size(); i++) {
+            Map<String, String> options = new HashMap<>();
+
+            // 가입 기간 정보가 있으면 추가
+            if (saveTrm != null && i < saveTrm.size()) {
+                options.put("saveTrm", saveTrm.get(i));
+            }
+
+            // 금리 유형 정보가 있으면 추가
+            if (intrRateType != null && i < intrRateType.size()) {
+                options.put("intrRateType", intrRateType.get(i));
+            }
+
+            productOptions.put(productIds.get(i), options);
         }
+
+        ProductCompareResponse response = compareService.compareProductsWithOptions(
+                productType, productOptions);
 
         return ApiResponse.success(ResponseCode.PRODUCT_COMPARISON_SUCCESS, response);
     }
