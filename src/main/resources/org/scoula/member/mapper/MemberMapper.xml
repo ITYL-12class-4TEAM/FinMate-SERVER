@@ -86,9 +86,12 @@
         WHERE member_id = #{memberId}
     </update>
 
-    <delete id="deleteMember">
-        DELETE FROM member WHERE member_id = #{memberId}
-    </delete>
+    <update id="deleteMember">
+        UPDATE member
+        SET status = 'DELETED',
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
 
     <!-- 소셜 로그인 관련 쿼리들 -->
     <select id="findByEmail" resultMap="memberMap">

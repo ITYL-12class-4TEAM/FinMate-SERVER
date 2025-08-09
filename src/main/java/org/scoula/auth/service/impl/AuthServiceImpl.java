@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtProcessor.generateAccessToken(memberId, username);
         String newRefreshToken = jwtProcessor.generateRefreshToken(username);
-        redisService.saveAccessToken("ACCESS:" + memberId, newAccessToken);
+        redisService.saveAccessToken(memberId.toString(), newAccessToken);
 
         memberMapper.updateTokens(username, newRefreshToken);
 
@@ -116,13 +116,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void withdrawMember(WithdrawRequest request) {
+    public void withdrawMember(WithdrawRequest request ,String email) {
+        System.out.println("회원탈퇴 요청: " + request);
+        System.out.println(email);
+        if(!request.getUsername().equals(email)) {
+            throw new AuthenticationException(ResponseCode.EMAIL_MISMATCH);
+        }
         MemberVO member = memberMapper.selectByEmail(request.getUsername());
         if (member == null) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_NOT_FOUND);
-        }
-        if (!encoder.matches(request.getPassword(), member.getPassword())) {
-            throw new AuthenticationException(ResponseCode.PASSWORD_MISMATCH);
         }
         if (memberMapper.deleteMember(member.getMemberId()) == 0) {
             throw new MemberNotFoundException(ResponseCode.MEMBER_WITHDRAW_FAILED);

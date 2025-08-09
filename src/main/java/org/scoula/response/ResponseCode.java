@@ -9,11 +9,14 @@ public enum ResponseCode {
     AUTH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "인증 토큰이 존재하지 않거나 올바르지 않습니다."),
     AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다."),
     AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+
     /**
      * Member response
      */
     LOGIN_SUCCESS(HttpStatus.OK, "로그인에 성공했습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 ID 또는 비밀번호가 일치하지 않습니다."),
+    MEMBER_DELETED(HttpStatus.FORBIDDEN, "탈퇴된 회원입니다."),
     ACCOUNT_LOCKED(HttpStatus.LOCKED, "계정이 잠겨 있습니다."),
     ACCOUNT_EXPIRED(HttpStatus.UNAUTHORIZED, "계정 사용 기간이 만료되었습니다."),
     MEMBER_INFO_SUCCESS(HttpStatus.OK, "사용자 정보 조회에 성공했습니다."),
@@ -26,6 +29,7 @@ public enum ResponseCode {
     PHONE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "휴대폰 인증을 완료해 주세요."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    EMAIL_MISMATCH(HttpStatus.BAD_REQUEST, "이메일이 일치하지 않습니다."),
     REQUIRED_TERMS_NOT_AGREED(HttpStatus.BAD_REQUEST, "필수 약관에 동의해 주세요."),
     MISSING_REQUIRED_FIELDS(HttpStatus.BAD_REQUEST, "모든 필수 입력값을 입력해 주세요."),
     SIGNUP_SUCCESS(HttpStatus.CREATED, "회원가입이 완료되었습니다."),
@@ -42,7 +46,6 @@ public enum ResponseCode {
     PASSWORD_RESET_SUCCESS(HttpStatus.OK, "비밀번호가 성공적으로 변경되었습니다."),
     PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "프로필이 성공적으로 수정되었습니다."),
     LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃 성공"),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근이 거부되었습니다."),
     PROFILE_IMAGE_UPLOAD_SUCCESS(HttpStatus.OK, "사진이 성공적으로 업로드되었습니다."),
@@ -266,6 +269,21 @@ public enum ResponseCode {
     PREINFO_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 동일한 사전 정보가 존재합니다."),
     PREINFO_ANALYSIS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사전 정보 분석 중 오류가 발생했습니다."),
     PREINFO_ILLEGAL_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
+    /**
+     * Notification response
+     */
+    NOTIFICATION_LIST_SUCCESS(HttpStatus.OK, "알림 목록 조회에 성공했습니다."),
+    NOTIFICATION_READ_SUCCESS(HttpStatus.OK, "알림 읽음 처리에 성공했습니다."),
+    NOTIFICATION_READ_ALL_SUCCESS(HttpStatus.OK, "모든 알림 읽음 처리에 성공했습니다."),
+    NOTIFICATION_CREATE_SUCCESS(HttpStatus.CREATED, "알림이 생성되었습니다."),
+    NOTIFICATION_SETTINGS_UPDATE_SUCCESS(HttpStatus.OK, "알림 설정이 업데이트되었습니다."),
+    NOTIFICATION_SETTINGS_GET_SUCCESS(HttpStatus.OK, "알림 설정 조회에 성공했습니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
+    NOTIFICATION_UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "해당 알림에 접근할 권한이 없습니다."),
+    NOTIFICATION_ALREADY_READ(HttpStatus.BAD_REQUEST, "이미 읽은 알림입니다."),
+    NOTIFICATION_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 알림 타입입니다."),
+    NOTIFICATION_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "알림 생성에 실패했습니다."),
+
     /**
      * WMTI response
      */

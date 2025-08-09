@@ -3,8 +3,11 @@ package org.scoula.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.scoula.member.exception.MemberDeletedException;
+import org.scoula.member.exception.MemberNotFoundException;
 import org.scoula.response.ResponseCode;
 import org.scoula.common.config.AppProperties;
+import org.scoula.security.util.JsonResponse;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -57,23 +60,20 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         log.error("[Form Login] 로그인 실패: {}", exception.getMessage());
 
         ResponseCode responseCode;
+        Throwable cause = exception.getCause();
 
-        if (exception instanceof LockedException) {
+        if (cause instanceof MemberDeletedException) {
+            responseCode = ((MemberDeletedException) cause).getResponseCode();
+        } else if (cause instanceof MemberNotFoundException) {
+            responseCode = ((MemberNotFoundException) cause).getResponseCode();
+        }  else if (exception instanceof LockedException) {
             responseCode = ResponseCode.ACCOUNT_LOCKED;
         } else if (exception instanceof AccountExpiredException) {
             responseCode = ResponseCode.ACCOUNT_EXPIRED;
-        } else if (exception instanceof BadCredentialsException) {
-            responseCode = ResponseCode.INVALID_CREDENTIALS;
         } else {
             responseCode = ResponseCode.INVALID_CREDENTIALS;
         }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("errorCode", responseCode.name());
-        body.put("message", responseCode.getMessage());
-
-        response.setStatus(responseCode.getHttpStatus().value());
-        response.setContentType("application/json;charset=UTF-8");
-        objectMapper.writeValue(response.getWriter(), body);
+        JsonResponse.sendError(response, responseCode);
     }
 }

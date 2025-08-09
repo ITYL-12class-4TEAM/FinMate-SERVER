@@ -10,7 +10,7 @@ public interface AuthService {
     FindIdResponseDTO findPassword(FindIdRequest request);
     void resetPassword(ResetPasswordRequest request);
     void updateProfile(UpdateProfileRequest request);
-    void withdrawMember(WithdrawRequest request);
+    void withdrawMember(WithdrawRequest request , String email);
     void checkPassword(PasswordCheckRequest request, String email);
     AuthResultDTO exchangeToken(String code);
 }

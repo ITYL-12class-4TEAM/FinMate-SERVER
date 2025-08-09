@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import org.scoula.response.ResponseCode;
 import org.scoula.security.util.JsonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -21,13 +22,13 @@ public class AuthenticationErrorFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            super.doFilter(request, response, filterChain);
+            filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, "토큰의 유효시간이 지났습니다.");
+            JsonResponse.sendError(response, ResponseCode.AUTH_TOKEN_EXPIRED);
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-            JsonResponse.sendError(response, HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (ServletException e) {
-            JsonResponse.sendError(response, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            JsonResponse.sendError(response, ResponseCode.AUTH_TOKEN_INVALID);
+        } catch (Exception e) {
+            JsonResponse.sendError(response, ResponseCode.SERVER_ERROR);
         }
     }
 }

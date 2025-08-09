@@ -40,6 +40,8 @@ import javax.sql.DataSource;
         "org.scoula.products.config",
         "org.scoula.products.mapper",
         "org.scoula.common.config",
+        "org.scoula.notification.service",
+        "org.scoula.notification.service.impl",
         "org.scoula",
 })
 //@PropertySource("file:${config.location}/application.properties")
@@ -57,6 +59,7 @@ import javax.sql.DataSource;
         "org.scoula.community.scrap.mapper",
         "org.scoula.wmti.mapper",
         "org.scoula.preinfo.mapper",
+        "org.scoula.notification.mapper",
 })
 //@MapperScan(basePackages = {"org.scoula.mapper"}) // Mapper 인터페이스 스캔 설정
 @MapperScan(basePackages = {"org.scoula.products.mapper"})

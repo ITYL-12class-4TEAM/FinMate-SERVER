@@ -29,15 +29,9 @@ public class LogoutApiController {
 
     public ApiResponse<?> logout(HttpServletRequest request) {
         String accessToken = extractAccessToken(request);
+        logoutServiceImpl.logout(accessToken);
+        return ApiResponse.success(ResponseCode.LOGOUT_SUCCESS);
 
-        try {
-            logoutServiceImpl.logout(accessToken);
-            return ApiResponse.success(ResponseCode.LOGOUT_SUCCESS);
-        } catch (TokenValidationException | MemberNotFoundException e) {
-            return ApiResponse.fail(e.getResponseCode());
-        } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.SERVER_ERROR);
-        }
     }
 
     private String extractAccessToken(HttpServletRequest request) {

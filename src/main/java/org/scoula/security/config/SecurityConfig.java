@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.scoula.auth.oauth2.OAuth2Properties;
 import org.scoula.security.filter.JwtAuthenticationFilter;
 import org.scoula.security.filter.JwtUsernamePasswordAuthenticationFilter;
+import org.scoula.security.handler.CustomAccessDeniedHandler;
+import org.scoula.security.handler.CustomAuthenticationEntryPoint;
 import org.scoula.security.handler.LoginFailureHandler;
 import org.scoula.security.handler.LoginSuccessHandler;
 import org.scoula.auth.oauth2.CustomOAuth2UserService;
@@ -14,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,17 +85,31 @@ public class SecurityConfig {
     }
 
     @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers(
+                "/v2/api-docs",
+                "/swagger-resources/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/webjars/**"
+        );
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         JwtUsernamePasswordAuthenticationFilter loginFilter =
                 new JwtUsernamePasswordAuthenticationFilter(authenticationManager, loginSuccessHandler, loginFailureHandler);
 
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())  // 인증 실패 핸들러
+                .accessDeniedHandler(new CustomAccessDeniedHandler())            // 인가 실패 핸들러
+                .and()
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
-                .antMatchers("/api/auth/**", "/api/sms/**", "/api/validation/**", "/api/signup/**",
+                .antMatchers( "/api/sms/**", "/api/validation/**", "/api/signup/**", "/oauth2/**", "/login/oauth2/code/*", "/auth/oauth2/redirect/**","/api/auth/oauth2/token",
                         "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/api/wmti/questions", "/v2/api-docs", "/swagger-resources/**", "/webjars/**",
-                        "/oauth2/**", "/login/oauth2/code/**", "/auth/oauth2/redirect")  // 경로 수정
+                        "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**" ,"/api/auth/refresh")  // 경로 수정
                 .permitAll()
 
                 // 비회원도 접근 가능한 상품 검색 및 조회 기능
@@ -128,6 +145,7 @@ public class SecurityConfig {
                 // 회원만 접근 가능한 개인화 기능
                 .antMatchers("/api/post-like/**").authenticated()                    // 좋아요 기능
                 .antMatchers("/api/scraps/**").authenticated()                       // 스크랩 기능
+                .antMatchers("/api/notifications/**").authenticated()                // 알림 기능 (추가)
                 .antMatchers("/api/posts/my").authenticated()                        // ⭐ 내가 쓴 글 (회원 전용)
                 .antMatchers("/api/comments/my").authenticated()                     // ⭐ 내가 쓴 댓글 (회원 전용)
                 .antMatchers(HttpMethod.POST, "/api/posts/**").authenticated()       // 게시물 작성

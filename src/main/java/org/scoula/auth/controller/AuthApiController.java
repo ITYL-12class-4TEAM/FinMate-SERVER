@@ -13,6 +13,8 @@ import org.scoula.security.util.JwtProcessor;
 import org.springframework.web.bind.annotation.*;
 import org.scoula.security.account.dto.AuthResultDTO;
 
+import java.security.Principal;
+
 @Api(tags = "아이디 비밀번호 찾기 및 토큰 갱신 API")
 @RestController
 @RequiredArgsConstructor
@@ -60,8 +62,9 @@ public class AuthApiController {
 
     @ApiOperation("회원탈퇴")
     @DeleteMapping("/withdraw")
-    public ApiResponse<?> withdrawMember(@RequestBody WithdrawRequest request) {
-        authService.withdrawMember(request);
+    public ApiResponse<?> withdrawMember(@RequestBody WithdrawRequest request, Principal principal) {
+        String email = principal.getName();
+        authService.withdrawMember(request, email);
         return ApiResponse.success(ResponseCode.MEMBER_WITHDRAW_SUCCESS);
     }
 
