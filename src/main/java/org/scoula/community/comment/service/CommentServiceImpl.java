@@ -14,7 +14,9 @@ import org.scoula.community.commentlike.mapper.CommentLikeMapper;
 import org.scoula.community.commentlike.service.CommentLikeService;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.community.post.domain.PostVO;
 import org.scoula.member.mapper.MemberMapper;
+import org.scoula.notification.helper.NotificationHelper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
     private final MemberMapper memberMapper;
     private final CommentLikeService commentLikeService;
     private final CommentLikeMapper commentLikeMapper;
+    private final NotificationHelper notificationHelper;
 
     @Override
     @Transactional
@@ -42,6 +45,13 @@ public class CommentServiceImpl implements CommentService {
         if (!postMapper.existsById(commentCreateRequestDTO.getPostId())) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
+
+        // 게시글 정보 조회
+        PostVO post = postMapper.get(commentCreateRequestDTO.getPostId());
+        if (post == null) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
+
         if (commentCreateRequestDTO.getParentComment() != null) {
             CommentVO parent = commentMapper.get(commentCreateRequestDTO.getParentComment());
             if (parent == null) {
@@ -56,6 +66,26 @@ public class CommentServiceImpl implements CommentService {
         vo.setMemberId(memberId);
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
+
+        // 댓글 알림 생성 (자신의 게시글에 자신이 댓글을 단 경우는 제외)
+        if (!post.getMemberId().equals(memberId)) {
+            try {
+                String authorNickname = memberMapper.getNicknameByMemberId(memberId);
+                notificationHelper.notifyCommentCreated(
+                    post.getPostId(),
+                    vo.getCommentId(),
+                    post.getMemberId(), // 게시글 작성자에게 알림
+                    authorNickname,
+                    post.getTitle()
+                );
+                log.info("댓글 알림 전송 완료: postId={}, commentId={}, to={}",
+                    post.getPostId(), vo.getCommentId(), post.getMemberId());
+            } catch (Exception e) {
+                log.error("댓글 알림 전송 실패: postId={}, commentId={}",
+                    post.getPostId(), vo.getCommentId(), e);
+                // 알림 전송 실패는 댓글 생성을 막지 않음
+            }
+        }
 
         return get(vo.getCommentId());
     }

@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.notification.service.NotificationSseService;
+import org.scoula.security.util.JwtProcessor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,15 +29,49 @@ public class NotificationSseController {
 
     private final NotificationSseService notificationSseService;
     private final MemberMapper memberMapper;
+    private final JwtProcessor jwtProcessor;
 
-    @ApiOperation("SSE 연결 설정")
+    @ApiOperation("SSE 연결 설정 (토큰 파라미터 방식)")
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamNotifications(Principal principal) {
-        System.out.println("=== SSE 엔드포인트 호출됨 ===");
-        String email = String.valueOf(principal.getName());
-        Long memberId = memberMapper.findIdByUsername(email);
-        log.info("SSE 연결 요청 - 회원 ID: {}", email);
-        return notificationSseService.createConnection(memberId);
+    public ResponseEntity<SseEmitter> streamNotifications(@RequestParam(required = false) String token) {
+        log.info("=== SSE 연결 요청 - 토큰 파라미터 방식 ===");
+
+        try {
+            // 토큰 검증
+            if (token == null || token.trim().isEmpty()) {
+                log.error("SSE 연결 실패: 토큰이 없습니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            // Bearer 토큰 형식인 경우 제거
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            // JWT 토큰 유효성 검증
+            if (!jwtProcessor.validateToken(token)) {
+                log.error("SSE 연결 실패: 유효하지 않은 토큰");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            // 토큰에서 사용자 정보 추출
+            String username = jwtProcessor.getUsername(token);
+            Long memberId = jwtProcessor.getMemberId(token);
+
+            if (memberId == null) {
+                log.error("SSE 연결 실패: 토큰에서 memberId를 추출할 수 없습니다");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            log.info("SSE 연결 요청 - 회원 ID: {}, 사용자명: {}", memberId, username);
+
+            SseEmitter emitter = notificationSseService.createConnection(memberId);
+            return ResponseEntity.ok(emitter);
+
+        } catch (Exception e) {
+            log.error("SSE 연결 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @ApiOperation("SSE 연결 해제")

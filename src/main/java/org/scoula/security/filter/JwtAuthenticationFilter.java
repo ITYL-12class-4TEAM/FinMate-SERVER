@@ -54,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         path.equals("/api/auth/find-password") ||
                         path.equals("/api/auth/reset-password") ||
                         path.equals("/api/auth/oauth2/token") ||
-                        path.startsWith("/auth/oauth2/redirect");
+                        path.startsWith("/auth/oauth2/redirect") ||
+                        path.equals("/api/notifications/stream");
         log.info("[JWT Filter] 요청 경로: {}, 제외 여부: {}", path, shouldSkip);
         return shouldSkip;
     }
