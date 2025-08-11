@@ -67,14 +67,13 @@ public class CommentServiceImpl implements CommentService {
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
 
-        // 댓글 알림 생성 (자신의 게시글에 자신이 댓글을 단 경우는 제외)
         if (!post.getMemberId().equals(memberId)) {
             try {
                 String authorNickname = memberMapper.getNicknameByMemberId(memberId);
                 notificationHelper.notifyCommentCreated(
                     post.getPostId(),
                     vo.getCommentId(),
-                    post.getMemberId(), // 게시글 작성자에게 알림
+                    memberId,
                     authorNickname,
                     post.getTitle()
                 );
@@ -83,7 +82,6 @@ public class CommentServiceImpl implements CommentService {
             } catch (Exception e) {
                 log.error("댓글 알림 전송 실패: postId={}, commentId={}",
                     post.getPostId(), vo.getCommentId(), e);
-                // 알림 전송 실패는 댓글 생성을 막지 않음
             }
         }
 

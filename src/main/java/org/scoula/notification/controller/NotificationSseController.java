@@ -20,9 +20,9 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
 @CrossOrigin(
-    originPatterns = {"http://localhost:*", "http://127.0.0.1:*"},
-    allowCredentials = "true",
-    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
+        originPatterns = {"http://localhost:*", "http://127.0.0.1:*"},
+        allowCredentials = "true",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
 @Slf4j
 public class NotificationSseController {

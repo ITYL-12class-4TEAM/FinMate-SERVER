@@ -16,6 +16,7 @@ import org.scoula.notification.exception.NotificationNotFoundException;
 import org.scoula.notification.exception.NotificationUnauthorizedAccessException;
 import org.scoula.notification.mapper.NotificationMapper;
 import org.scoula.notification.service.NotificationService;
+import org.scoula.notification.service.NotificationSseService;
 import org.scoula.response.ResponseCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper notificationMapper;
     private final RedisService redisService;
     private final ObjectMapper objectMapper;
+    private final NotificationSseService notificationSseService;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -113,11 +116,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void createNotification(NotificationCreateRequest request) {
+    public NotificationVO createNotification(NotificationCreateRequest request) {
         // 알림 설정 확인
         if (!getNotificationSettings(request.getMemberId())) {
             log.debug("알림이 비활성화됨: memberId={}, type={}", request.getMemberId(), request.getType());
-            return;
+            return null;
         }
 
         String relatedDataJson = null;
@@ -139,7 +142,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .createdAt(LocalDateTime.now())
                 .relatedData(relatedDataJson)
                 .build();
-
+        log.info("알림 생성 요청: {}", notification);
         notificationMapper.insertNotification(notification);
 
         // Redis 캐시 무효화
@@ -147,12 +150,12 @@ public class NotificationServiceImpl implements NotificationService {
         redisService.delete(cacheKey);
 
         log.info("알림 생성 완료: memberId={}, type={}", request.getMemberId(), request.getType());
+        return notification;
     }
 
     @Override
     public void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle) {
 
-        // 게시글 작성자 ID 조회 (authorId는 댓글 작성자이므로 게시글 작성자를 따로 조회해야 함)
         Long postAuthorId = notificationMapper.selectPostAuthorId(postId);
 
         if (postAuthorId == null) {
@@ -160,7 +163,6 @@ public class NotificationServiceImpl implements NotificationService {
             return;
         }
 
-        // 자신의 게시글에 자신이 댓글을 단 경우는 알림 생성하지 않음
         if (postAuthorId.equals(authorId)) {
             log.debug("자신의 게시글에 자신이 댓글을 달았으므로 알림을 생성하지 않습니다: postId={}, authorId={}", postId, authorId);
             return;
@@ -180,8 +182,22 @@ public class NotificationServiceImpl implements NotificationService {
                 .targetUrl("/posts/" + postId + "#comment-" + commentId)
                 .relatedData(relatedData)
                 .build();
+        log.info("알림 생성 요청: {}", request);
+        NotificationVO createdNotification = createNotification(request);
+        log.info("생성된 알림: {}", createdNotification);
 
-        createNotification(request);
+
+        if (createdNotification != null) {
+            try {
+                NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
+                notificationSseService.sendNotificationToMember(postAuthorId, notificationDTO);
+
+                log.info("댓글 실시간 알림 전송 완료:  postId={}, commentId={}, notificationId={}, to={}",
+                        postId, commentId, createdNotification.getId(), postAuthorId);
+            } catch (Exception e) {
+                log.error("댓글 실시간 알림 전송 실패: postId={}, commentId={}", postId, commentId, e);
+            }
+        }
 
         log.info("댓글 알림 생성 완료: postId={}, commentId={}, postAuthor={}, commentAuthor={}",
                 postId, commentId, postAuthorId, authorId);
@@ -207,13 +223,26 @@ public class NotificationServiceImpl implements NotificationService {
                     .relatedData(relatedData)
                     .build();
 
-            createNotification(request);
+            NotificationVO createdNotification = createNotification(request);
+
+            // SSE를 통한 실시간 알림 전송 추가
+            if (createdNotification != null) {
+                try {
+                    NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
+                    notificationSseService.sendNotificationToMember(memberId, notificationDTO);
+
+                    log.info("좋아요 실시간 알림 전송 완료: postId={}, notificationId={}, to={}",
+                            postId, createdNotification.getId(), memberId);
+                } catch (Exception e) {
+                    log.error("좋아요 실시간 알림 전송 실패: postId={}, to={}", postId, memberId, e);
+                }
+            }
         }
     }
 
     @Override
     public void createHotPostNotification(Long postId, String postTitle, String category, int likeCount) {
-
+        // 모든 활성 사용자에게 핫 게시글 알림 브로드캐스트
         Map<String, Object> relatedData = new HashMap<>();
         relatedData.put("postId", postId);
         relatedData.put("postTitle", postTitle);
@@ -221,6 +250,26 @@ public class NotificationServiceImpl implements NotificationService {
         relatedData.put("likeCount", likeCount);
 
         log.info("핫 게시글 알림 생성: postId={}, category={}, likeCount={}", postId, category, likeCount);
+
+        // 핫 게시글 알림은 브로드캐스트로 전송
+        NotificationResponseDTO hotPostNotification = NotificationResponseDTO.builder()
+                .notificationId(System.currentTimeMillis()) // 임시 ID
+                .type(NotificationType.HOT_POST)
+                .title("🔥 인기 게시글 알림")
+                .message(String.format("'%s' 게시글이 좋아요 %d개를 받아 인기 게시글이 되었습니다!", postTitle, likeCount))
+                .targetUrl("/posts/" + postId)
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .relatedData(relatedData)
+                .build();
+
+        try {
+            // SSE를 통한 브로드캐스트 알림 전송
+            notificationSseService.broadcastNotification(hotPostNotification);
+            log.info("핫 게시글 브로드캐스트 알림 전송 완료: postId={}, likeCount={}", postId, likeCount);
+        } catch (Exception e) {
+            log.error("핫 게시글 브로드캐스트 알림 전송 실패: postId={}", postId, e);
+        }
     }
 
     @Override
@@ -259,3 +308,4 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
     }
 }
+

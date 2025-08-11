@@ -3,6 +3,7 @@ package org.scoula.notification.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.scoula.member.mapper.MemberMapper;
 import org.scoula.notification.domain.NotificationType;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
 import org.scoula.notification.dto.response.NotificationListResponseDTO;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class NotificationApiController {
 
     private final NotificationService notificationService;
+    private final MemberMapper memberMapper;
 
     @ApiOperation("알림 목록 조회")
     @GetMapping
@@ -32,7 +34,8 @@ public class NotificationApiController {
             @RequestParam(required = false) Boolean isRead,
             Principal principal) {
 
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         NotificationListResponseDTO response = notificationService.getNotifications(memberId, page, size, type, isRead);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_LIST_SUCCESS, response);
@@ -41,7 +44,8 @@ public class NotificationApiController {
     @ApiOperation("읽지 않은 알림 수 조회")
     @GetMapping("/unread-count")
     public ApiResponse<Long> getUnreadCount(Principal principal) {
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         long unreadCount = notificationService.getUnreadCount(memberId);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_LIST_SUCCESS, unreadCount);
@@ -53,7 +57,8 @@ public class NotificationApiController {
             @PathVariable Long notificationId,
             Principal principal) {
 
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         NotificationResponseDTO response = notificationService.markAsRead(notificationId, memberId);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_READ_SUCCESS, response);
@@ -62,7 +67,8 @@ public class NotificationApiController {
     @ApiOperation("모든 알림 읽음 처리")
     @PutMapping("/read-all")
     public ApiResponse<?> markAllAsRead(Principal principal) {
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         notificationService.markAllAsRead(memberId);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_READ_ALL_SUCCESS);
@@ -71,7 +77,8 @@ public class NotificationApiController {
     @ApiOperation("알림 설정 조회")
     @GetMapping("/settings")
     public ApiResponse<?> getNotificationSettings(Principal principal) {
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         boolean settings = notificationService.getNotificationSettings(memberId);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_SETTINGS_GET_SUCCESS, settings);
@@ -83,7 +90,8 @@ public class NotificationApiController {
             @RequestBody NotificationSettingUpdateRequest request,
             Principal principal) {
 
-        Long memberId = Long.valueOf(principal.getName());
+        String email = String.valueOf(principal.getName());
+        Long memberId = memberMapper.findIdByUsername(email);
         notificationService.updateNotificationSettings(memberId, request);
 
         return ApiResponse.success(ResponseCode.NOTIFICATION_SETTINGS_UPDATE_SUCCESS);

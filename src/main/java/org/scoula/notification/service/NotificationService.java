@@ -1,5 +1,6 @@
 package org.scoula.notification.service;
 
+import org.scoula.notification.domain.NotificationVO;
 import org.scoula.notification.dto.request.NotificationCreateRequest;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
 import org.scoula.notification.dto.response.NotificationListResponseDTO;
@@ -21,7 +22,7 @@ public interface NotificationService {
 
     NotificationResponseDTO markAsRead(Long notificationId, Long memberId);
     void markAllAsRead(Long memberId);
-    void createNotification(NotificationCreateRequest request);
+    NotificationVO createNotification(NotificationCreateRequest request);
 
     // 댓글 알림 생성
     void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle);

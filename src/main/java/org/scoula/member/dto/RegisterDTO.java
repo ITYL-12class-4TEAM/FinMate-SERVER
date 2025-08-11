@@ -56,5 +56,5 @@ public class RegisterDTO {
     private Boolean termsRequired2;
 
     @ApiModelProperty(value = "푸시 알림 수신 동의 여부 (선택)", example = "true", required = false, notes = "푸시 알림 수신 동의")
-    private Boolean receive_push_notification;
+    private Boolean receivePushNotification;
 }
