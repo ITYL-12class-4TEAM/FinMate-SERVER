@@ -33,6 +33,8 @@ public interface NotificationMapper {
     int updateNotificationAsRead(@Param("id") Long id, @Param("memberId") Long memberId);
     int updateAllNotificationsAsRead(@Param("memberId") Long memberId);
 
+    // 게시글 작성자 ID 조회
+    Long selectPostAuthorId(@Param("postId") Long postId);
 
     boolean selectNotificationSetting(@Param("memberId") Long memberId);
     int updateNotificationSetting(@Param("memberId") Long memberId,  @Param("isEnabled") Boolean isEnabled);

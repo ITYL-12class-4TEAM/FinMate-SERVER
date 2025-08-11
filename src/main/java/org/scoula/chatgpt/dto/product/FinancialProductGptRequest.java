@@ -106,10 +106,10 @@ public class FinancialProductGptRequest {
         private String joinDeny;
 
         @ApiModelProperty(value = "최소 가입 금액", example = "10000")
-        private Integer minDepositAmount;
+        private Long minDepositAmount;
 
         @ApiModelProperty(value = "최대 가입 금액", example = "100000000")
-        private Integer maxDepositAmount;
+        private Long maxDepositAmount;
 
         @ApiModelProperty(value = "금리 옵션 리스트")
         private List<ProductOption> options;

@@ -152,26 +152,39 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle) {
 
-        List<Long> interestedMemberIds = notificationMapper.selectInterestedMemberIds(postId, authorId);
+        // 게시글 작성자 ID 조회 (authorId는 댓글 작성자이므로 게시글 작성자를 따로 조회해야 함)
+        Long postAuthorId = notificationMapper.selectPostAuthorId(postId);
 
-        for (Long memberId : interestedMemberIds) {
-            Map<String, Object> relatedData = new HashMap<>();
-            relatedData.put("postId", postId);
-            relatedData.put("postTitle", postTitle);
-            relatedData.put("commentId", commentId);
-            relatedData.put("authorNickname", authorNickname);
-
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .memberId(memberId)
-                    .type(NotificationType.POST_COMMENT)
-                    .title("새 댓글 알림")
-                    .message(authorNickname + "님이 회원님의 게시글에 댓글을 달았습니다")
-                    .targetUrl("/posts/" + postId + "#comment-" + commentId)
-                    .relatedData(relatedData)
-                    .build();
-
-            createNotification(request);
+        if (postAuthorId == null) {
+            log.warn("게시글 작성자를 찾을 수 없습니다: postId={}", postId);
+            return;
         }
+
+        // 자신의 게시글에 자신이 댓글을 단 경우는 알림 생성하지 않음
+        if (postAuthorId.equals(authorId)) {
+            log.debug("자신의 게시글에 자신이 댓글을 달았으므로 알림을 생성하지 않습니다: postId={}, authorId={}", postId, authorId);
+            return;
+        }
+
+        Map<String, Object> relatedData = new HashMap<>();
+        relatedData.put("postId", postId);
+        relatedData.put("postTitle", postTitle);
+        relatedData.put("commentId", commentId);
+        relatedData.put("authorNickname", authorNickname);
+
+        NotificationCreateRequest request = NotificationCreateRequest.builder()
+                .memberId(postAuthorId) // 게시글 작성자에게 알림
+                .type(NotificationType.POST_COMMENT)
+                .title("새 댓글 알림")
+                .message(authorNickname + "님이 회원님의 게시글에 댓글을 달았습니다")
+                .targetUrl("/posts/" + postId + "#comment-" + commentId)
+                .relatedData(relatedData)
+                .build();
+
+        createNotification(request);
+
+        log.info("댓글 알림 생성 완료: postId={}, commentId={}, postAuthor={}, commentAuthor={}",
+                postId, commentId, postAuthorId, authorId);
     }
 
     @Override
