@@ -2,7 +2,9 @@ package org.scoula.products.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import javax.validation.Valid;
+
 import org.scoula.products.dto.request.ProductSearchRequest;
 import org.scoula.products.dto.response.*;
 import org.scoula.products.service.ProductCategoryService;
@@ -131,7 +133,8 @@ public class ProductApiController {
             @RequestParam List<String> productIds,
             @RequestParam(required = false, defaultValue = "deposit") String productType,
             @RequestParam(required = false) List<String> saveTrm,          // 가입 기간 (예: 6,12,24)
-            @RequestParam(required = false) List<String> intrRateType) {   // 금리 유형 (예: S,M)
+            @RequestParam(required = false) List<String> intrRateType,
+            @RequestParam(required = false) List<String> rsrvType) {   // 금리 유형 (예: S,M)
 
         // 상품 ID와 옵션 정보를 매핑
         Map<String, Map<String, String>> productOptions = new HashMap<>();
@@ -148,6 +151,11 @@ public class ProductApiController {
             // 금리 유형 정보가 있으면 추가
             if (intrRateType != null && i < intrRateType.size()) {
                 options.put("intrRateType", intrRateType.get(i));
+            }
+
+            // 기타 옵션 정보가 있으면 추가
+            if (rsrvType != null && i < rsrvType.size()) {
+                options.put("rsrvType", rsrvType.get(i));
             }
 
             productOptions.put(productIds.get(i), options);
