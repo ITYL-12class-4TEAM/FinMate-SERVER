@@ -23,16 +23,21 @@ public class WishlistApiController {
 
     @ApiOperation(value = "관심상품 등록", notes = "로그인한 사용자가 특정 상품을 관심상품으로 등록합니다.")
     @PostMapping
-    public ApiResponse<?> addFavorite(
+    public ApiResponse<Void> addFavorite(
             @ApiParam(value = "관심상품 등록 요청 DTO", required = true)
             @Valid @RequestBody FavoriteProductRequest request) {
-        favoriteProductService.addFavorite(request.getProductId(), request.getSaveTrm(), request.getIntrRateType(),request.getRsrvType());
+        favoriteProductService.addFavorite(
+                request.getProductId(),
+                request.getSaveTrm(),
+                request.getIntrRateType(),
+                request.getRsrvType()
+        );
         return ApiResponse.success(ResponseCode.FAVORITE_CREATE_SUCCESS);
     }
 
     @ApiOperation(value = "관심상품 삭제", notes = "관심상품으로 등록된 상품을 삭제합니다.")
     @DeleteMapping("/{productId}")
-    public ApiResponse<?> removeFavorite(
+    public ApiResponse<Void> removeFavorite(
             @ApiParam(value = "삭제할 상품 ID", required = true)
             @PathVariable Long productId) {
         favoriteProductService.removeFavorite(productId);
@@ -41,14 +46,14 @@ public class WishlistApiController {
 
     @ApiOperation(value = "관심상품 목록 조회", notes = "사용자가 등록한 모든 관심상품 목록을 조회합니다.")
     @GetMapping
-    public ApiResponse<?> getFavorites() {
+    public ApiResponse<List<FavoriteProductResponse>> getFavorites() {
         List<FavoriteProductResponse> favorites = favoriteProductService.getFavorites();
         return ApiResponse.success(ResponseCode.FAVORITE_READ_SUCCESS, favorites);
     }
 
     @ApiOperation(value = "관심상품 여부 확인", notes = "특정 상품이 사용자의 관심상품인지 여부를 반환합니다.")
     @GetMapping("/status/{productId}")
-    public ApiResponse<?> checkFavorite(
+    public ApiResponse<Boolean> checkFavorite(
             @ApiParam(value = "조회할 상품 ID", required = true)
             @PathVariable Long productId) {
         Boolean isFavorite = favoriteProductService.isFavorite(productId);
@@ -57,7 +62,7 @@ public class WishlistApiController {
 
     @ApiOperation(value = "인기 관심상품 조회", notes = "카테고리별로 최근 N일 간의 인기 관심상품을 조회합니다.")
     @GetMapping("/populary")
-    public ApiResponse<?> getPopularFavoritesByCategory(
+    public ApiResponse<List<PopularFavoriteGroupResponse>> getPopularFavoritesByCategory(
             @ApiParam(value = "조회 기간(일 단위)", defaultValue = "30")
             @RequestParam(defaultValue = "30") int days) {
         List<PopularFavoriteGroupResponse> result = favoriteProductService.getPopularFavoritesByCategory(days);

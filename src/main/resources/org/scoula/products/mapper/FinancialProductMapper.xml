@@ -19,11 +19,15 @@
         dp.min_deposit as "minDeposit",
         dp.max_limit as "maxLimit",
         fp.join_way as "join_way",
-        do.rsrv_type as "rsrvType"
+        do.rsrv_type as "rsrvType",
+        pc.homp_url as "companyUrl"
+
         FROM financial_product fp
         JOIN product_category c ON fp.category_id = c.category_id
         JOIN deposit_product dp ON fp.product_id = dp.product_id
         JOIN deposit_option do ON dp.product_id = do.product_id
+        LEFT JOIN product_company pc ON fp.fin_co_no = pc.fin_co_no
+
         <where>
             <if test="categoryName != null">
                 c.name = #{categoryName}
@@ -95,7 +99,9 @@
         dp.min_deposit,
         dp.max_limit,
         fp.join_way,
-        do.rsrv_type
+        do.rsrv_type,
+        pc.homp_url
+
         <!-- 정렬 조건 -->
         <choose>
             <when test="sortBy != null and sortBy == 'intrRate' and sortDirection != null and sortDirection == 'desc'">

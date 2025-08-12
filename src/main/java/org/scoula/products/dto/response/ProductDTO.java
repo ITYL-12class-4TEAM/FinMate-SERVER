@@ -29,4 +29,5 @@ public class ProductDTO {
     private Long maxLimit;    // 최대 예치 금액
     private String rsrvType;  // 적립식 유형 (S: 정액적립식, F: 자유적립식)
     private String rsrvTypeNm;  // 적립식 유형 명칭
+    private String companyUrl;      // homp_url - 회사 홈페이지 URL
 }

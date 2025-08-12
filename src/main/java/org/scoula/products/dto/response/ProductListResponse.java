@@ -93,6 +93,9 @@ public class ProductListResponse {
 
         @ApiModelProperty(value = "적립식 유형 (R: 정기적금, F: 자유적금)", example = "R")
         private String rsrvType; // 적립식 유형 (R: 정기적금, F: 자유적금)
+        // 확장된 필드
+        @ApiModelProperty(value = "금융사 링크", example = "https://www.wooribank.com/product/detail.do?finPrdtCd=WR0001B")
+        private String companyUrl;              // 상품 상세 URL
     }
 
     @Data

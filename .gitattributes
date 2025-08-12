@@ -1,2 +1,5 @@
 *.pem text eol=lf
 *.xml text eol=lf
+
+# properties 파일은 UTF-8 인코딩으로 처리하고, 개행문자는 LF로 고정
+*.properties text eol=lf working-tree-encoding=UTF-8
