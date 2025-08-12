@@ -112,7 +112,7 @@ public class ProductApiController {
             @ApiParam(value = "금리 유형 옵션 목록 (S:단리, M:복리)", required = false, example = "S,S,M")
             @RequestParam(required = false) List<String> intrRateType,
 
-            @ApiParam(value = "적립 방식 옵션 목록 (R:정기, F:자유)", required = false, example = "F,F,R")
+            @ApiParam(value = "적립 방식 옵션 목록 (S:정기, F:자유)", required = false, example = "F,F,S")
             @RequestParam(required = false) List<String> rsrvType) {
 
         Map<String, Map<String, String>> productOptions = new HashMap<>();

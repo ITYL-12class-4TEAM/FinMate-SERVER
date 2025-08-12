@@ -27,4 +27,6 @@ public class ProductDTO {
     private Integer minDepositAmount;
     private Long minDeposit;  // 최소 예치 금액
     private Long maxLimit;    // 최대 예치 금액
+    private String rsrvType;  // 적립식 유형 (S: 정액적립식, F: 자유적립식)
+    private String rsrvTypeNm;  // 적립식 유형 명칭
 }

@@ -32,6 +32,7 @@ public class ProductSearchRequest {
     private Integer saveTrm;       // 저축 기간 (개월)
     private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
     private String rsrvType;       // 적립식 유형 (R: 정기적금, F: 자유적금)
+    private String rsrvTypeNm;     // 적립식 유형 명칭
     private String joinWay;        // 가입 방법
     private List<String> joinWays; // 가입 방법 다중 선택용
     private Boolean isOnline;      // 온라인 가입 여부

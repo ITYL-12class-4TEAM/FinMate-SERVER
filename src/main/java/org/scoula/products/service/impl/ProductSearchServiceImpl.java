@@ -267,6 +267,11 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             }
         }
 
+        // rsrvType 필터 설정 추가
+        if (filters.containsKey("rsrvType")) {
+            request.setRsrvType(filters.get("rsrvType"));
+        }
+
         return request;
     }
 
@@ -436,7 +441,8 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 request.getSortDirection(),
                 null, // 페이지 크기를 null로 설정하여 모든 결과 가져오기
                 null, // 오프셋도 null로 설정
-                banksStr
+                banksStr,
+                request.getRsrvType()
         );
 
         // 2. 금액 최대값 필터링 적용 (최소값은 이미 DB에서 필터링됨)
@@ -599,6 +605,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .intrRateType(product.getIntrRateType())
                 .minDepositAmount(product.getMinDeposit()) // 최소 예치 금액 추가
                 .maxDepositAmount(product.getMaxLimit())  // 최대 예치 금액 추가
+                .rsrvType(product.getRsrvType())  // 적립식 유형 추가
                 .build();
     }
 

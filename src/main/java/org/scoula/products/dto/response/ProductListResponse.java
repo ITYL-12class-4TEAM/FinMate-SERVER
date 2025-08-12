@@ -90,6 +90,9 @@ public class ProductListResponse {
 
         @ApiModelProperty(value = "최대 예치 금액", example = "50000000")
         private Long maxDepositAmount;
+
+        @ApiModelProperty(value = "적립식 유형 (R: 정기적금, F: 자유적금)", example = "R")
+        private String rsrvType; // 적립식 유형 (R: 정기적금, F: 자유적금)
     }
 
     @Data
