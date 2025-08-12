@@ -606,6 +606,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .minDepositAmount(product.getMinDeposit()) // 최소 예치 금액 추가
                 .maxDepositAmount(product.getMaxLimit())  // 최대 예치 금액 추가
                 .rsrvType(product.getRsrvType())  // 적립식 유형 추가
+                .companyUrl(product.getCompanyUrl())
                 .build();
     }
 

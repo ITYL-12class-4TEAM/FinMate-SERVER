@@ -210,17 +210,18 @@
         SELECT DISTINCT product_name
         FROM financial_product
         WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
-            LIMIT 10
+        LIMIT 10
     </select>
 
     <select id="findProductDetail" resultType="java.util.HashMap">
-        SELECT
-            fp.*,
-            dp.*,
-            c.name as category_name
+        SELECT fp.*,
+               dp.*,
+               c.name      as category_name,
+               pc.homp_url as companyUrl
         FROM financial_product fp
                  JOIN deposit_product dp ON fp.product_id = dp.product_id
                  JOIN product_category c ON fp.category_id = c.category_id
+                 LEFT JOIN product_company pc ON fp.fin_co_no = pc.fin_co_no
         WHERE fp.fin_prdt_cd = #{productId}
     </select>
 
