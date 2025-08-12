@@ -56,6 +56,7 @@ public class ProductListResponse {
         private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
         private Long minDepositAmount; // 최소 예치 금액
         private Long maxDepositAmount; // 최대 예치 금액
+        private String companyUrl;              // 상품 상세 URL
     }
 
     /**

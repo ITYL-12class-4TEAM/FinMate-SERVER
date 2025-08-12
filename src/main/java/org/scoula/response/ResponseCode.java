@@ -168,7 +168,9 @@ public enum ResponseCode {
     CHATGPT_JSON_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
     CHATGPT_RETRIEVAL_FAILED(HttpStatus.UNAUTHORIZED, "금융 상품 분석 요청에 실패했습니다."),
     CHATGPT_DESERIALIZATION_FAILED(HttpStatus.BAD_REQUEST, "객체 변환에 실패했습니다."),
-
+    CHATGPT_PRODUCT_INFO_SUCCESS(HttpStatus.OK, "상품 정보 요청이 성공적으로 처리되었습니다."),
+    CHATGPT_PRODUCT_INFO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 정보 요청에 실패했습니다."),
+    CHATGPT_ETC_CATEGORY_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "기타 카테고리는 지원하지 않습니다."),
     /**
      * Portfolio response
      */
