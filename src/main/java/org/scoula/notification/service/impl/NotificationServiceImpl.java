@@ -11,7 +11,6 @@ import org.scoula.notification.dto.request.NotificationCreateRequest;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
 import org.scoula.notification.dto.response.NotificationListResponseDTO;
 import org.scoula.notification.dto.response.NotificationResponseDTO;
-import org.scoula.notification.dto.response.PaginationDTO;
 import org.scoula.notification.exception.NotificationNotFoundException;
 import org.scoula.notification.exception.NotificationUnauthorizedAccessException;
 import org.scoula.notification.mapper.NotificationMapper;
@@ -39,13 +38,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public NotificationListResponseDTO getNotifications(Long memberId, int page, int size, NotificationType type, Boolean isRead) {
-        int offset = (page - 1) * size;
+    public NotificationListResponseDTO getNotifications(Long memberId) {
 
         List<NotificationVO> notifications = notificationMapper.selectNotificationsByMemberId(
-                memberId, type, isRead, offset, size);
-
-        long totalCount = notificationMapper.countNotificationsByMemberId(memberId, type, isRead);
+                memberId);
         long unreadCount = notificationMapper.countUnreadNotifications(memberId);
 
         List<NotificationResponseDTO> notificationDTOs = notifications.stream()
@@ -54,12 +50,6 @@ public class NotificationServiceImpl implements NotificationService {
 
         return NotificationListResponseDTO.builder()
                 .notifications(notificationDTOs)
-                .pagination(PaginationDTO.builder()
-                        .currentPage(page)
-                        .totalPages((int) Math.ceil((double) totalCount / size))
-                        .totalCount(totalCount)
-                        .unreadCount(unreadCount)
-                        .build())
                 .build();
     }
 
@@ -89,12 +79,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!notification.getMemberId().equals(memberId)) {
             throw new NotificationUnauthorizedAccessException(ResponseCode.NOTIFICATION_UNAUTHORIZED_ACCESS);
         }
-
-        if (Boolean.TRUE.equals(notification.getIsRead())) {
-            throw new NotificationNotFoundException(ResponseCode.NOTIFICATION_ALREADY_READ);
-        }
-
-        notificationMapper.updateNotificationAsRead(notificationId, memberId);
+        notificationMapper.deleteNotification(notificationId, memberId);
 
         // Redis 캐시 무효화
         String cacheKey = "unread_count:" + memberId;
@@ -108,7 +93,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void markAllAsRead(Long memberId) {
-        notificationMapper.updateAllNotificationsAsRead(memberId);
+        notificationMapper.deleteAllUnreadNotifications(memberId);
 
         // Redis 캐시 무효화
         String cacheKey = "unread_count:" + memberId;

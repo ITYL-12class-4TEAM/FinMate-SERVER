@@ -77,9 +77,6 @@ public class CommentServiceImpl implements CommentService {
                     authorNickname,
                     post.getTitle()
                 );
-                log.info("댓글 알림 전송 완료: postId={}, commentId={}, to={}",
-                    post.getPostId(), vo.getCommentId(), post.getMemberId());
-
         }
 
         return get(vo.getCommentId());

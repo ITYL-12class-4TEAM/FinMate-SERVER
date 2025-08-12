@@ -12,13 +12,7 @@ import java.util.Map;
 public interface NotificationService {
 
     // 알림 목록 조회
-    NotificationListResponseDTO getNotifications(
-            Long memberId,
-            int page,
-            int size,
-            NotificationType type,
-            Boolean isRead
-    );
+    NotificationListResponseDTO getNotifications(Long memberId);
 
     NotificationResponseDTO markAsRead(Long notificationId, Long memberId);
     void markAllAsRead(Long memberId);

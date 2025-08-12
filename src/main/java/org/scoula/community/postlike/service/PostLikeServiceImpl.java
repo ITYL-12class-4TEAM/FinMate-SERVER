@@ -56,8 +56,6 @@ public class PostLikeServiceImpl implements PostLikeService {
                         authorNickname,
                         post.getTitle()
                 );
-
-
             }
             return true;
         } else {

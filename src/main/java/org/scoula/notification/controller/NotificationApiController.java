@@ -3,6 +3,7 @@ package org.scoula.notification.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.scoula.member.mapper.MemberMapper;
 import org.scoula.notification.domain.NotificationType;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.Map;
 
+@Log4j2
 @Api(tags = "알림 관리 API")
 @RestController
 @RequiredArgsConstructor
@@ -27,17 +29,12 @@ public class NotificationApiController {
 
     @ApiOperation("알림 목록 조회")
     @GetMapping
-    public ApiResponse<NotificationListResponseDTO> getNotifications(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) NotificationType type,
-            @RequestParam(required = false) Boolean isRead,
-            Principal principal) {
+    public ApiResponse<NotificationListResponseDTO> getNotifications(Principal principal) {
 
         String email = String.valueOf(principal.getName());
         Long memberId = memberMapper.findIdByUsername(email);
-        NotificationListResponseDTO response = notificationService.getNotifications(memberId, page, size, type, isRead);
-
+        NotificationListResponseDTO response = notificationService.getNotifications(memberId);
+        log.info("알림 목록 조회 - "+ response);
         return ApiResponse.success(ResponseCode.NOTIFICATION_LIST_SUCCESS, response);
     }
 

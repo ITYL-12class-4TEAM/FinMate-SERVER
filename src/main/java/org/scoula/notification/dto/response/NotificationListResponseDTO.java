@@ -13,6 +13,5 @@ import java.util.List;
 @Builder
 public class NotificationListResponseDTO {
     private List<NotificationResponseDTO> notifications;
-    private PaginationDTO pagination;
 }
 

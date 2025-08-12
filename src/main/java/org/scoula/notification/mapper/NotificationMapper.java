@@ -16,22 +16,14 @@ public interface NotificationMapper {
     int insertNotification(NotificationVO notification);
     NotificationVO selectNotificationById(@Param("id") Long id, @Param("memberId") Long memberId);
     List<NotificationVO> selectNotificationsByMemberId(
-            @Param("memberId") Long memberId,
-            @Param("type") NotificationType type,
-            @Param("isRead") Boolean isRead,
-            @Param("offset") int offset,
-            @Param("limit") int limit
+            @Param("memberId") Long memberId
     );
-    long countNotificationsByMemberId(
-            @Param("memberId") Long memberId,
-            @Param("type") NotificationType type,
-            @Param("isRead") Boolean isRead
-    );
+
     long countUnreadNotifications(@Param("memberId") Long memberId);
 
     // 알림 읽음 처리
-    int updateNotificationAsRead(@Param("id") Long id, @Param("memberId") Long memberId);
-    int updateAllNotificationsAsRead(@Param("memberId") Long memberId);
+    int deleteNotification(@Param("id") Long id, @Param("memberId") Long memberId);
+    int deleteAllUnreadNotifications(@Param("memberId") Long memberId);
 
     // 게시글 작성자 ID 조회
     Long selectPostAuthorId(@Param("postId") Long postId);
