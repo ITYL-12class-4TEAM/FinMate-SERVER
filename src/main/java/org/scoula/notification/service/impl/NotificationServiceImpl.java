@@ -9,7 +9,6 @@ import org.scoula.notification.domain.NotificationVO;
 import org.scoula.notification.domain.NotificationType;
 import org.scoula.notification.dto.request.NotificationCreateRequest;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
-import org.scoula.notification.dto.response.NotificationListResponseDTO;
 import org.scoula.notification.dto.response.NotificationResponseDTO;
 import org.scoula.notification.exception.NotificationNotFoundException;
 import org.scoula.notification.exception.NotificationUnauthorizedAccessException;
@@ -38,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public NotificationListResponseDTO getNotifications(Long memberId) {
+    public List<NotificationResponseDTO> getNotifications(Long memberId) {
 
         List<NotificationVO> notifications = notificationMapper.selectNotificationsByMemberId(
                 memberId);
@@ -48,9 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
 
-        return NotificationListResponseDTO.builder()
-                .notifications(notificationDTOs)
-                .build();
+        return notificationDTOs;
     }
 
     @Override
@@ -70,7 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationResponseDTO markAsRead(Long notificationId, Long memberId) {
+    public void markAsRead(Long notificationId, Long memberId) {
         NotificationVO notification = notificationMapper.selectNotificationById(notificationId, memberId);
         if (notification == null) {
             throw new NotificationNotFoundException(ResponseCode.NOTIFICATION_NOT_FOUND);
@@ -88,7 +85,6 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setIsRead(true);
         notification.setReadAt(LocalDateTime.now());
 
-        return convertToResponseDTO(notification);
     }
 
     @Override
@@ -149,7 +145,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         if (postAuthorId.equals(authorId)) {
-            log.debug("자신의 게시글에 자신이 댓글을 달았으므로 알림을 생성하지 않습니다: postId={}, authorId={}", postId, authorId);
             return;
         }
 
@@ -198,7 +193,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         if (postAuthorId.equals(authorId)) {
-            log.debug("자신의 게시글에 자신이 좋아요를 눌렀으므로 알림을 생성하지 않습니다: postId={}, authorId={}", postId, authorId);
             return;
         }
 
@@ -251,7 +245,6 @@ public class NotificationServiceImpl implements NotificationService {
         relatedData.put("likeCount", likeCount);
 
         for (Long memberId : interestedMemberIds) {
-            try {
                 NotificationCreateRequest request = NotificationCreateRequest.builder()
                         .memberId(memberId)
                         .type(NotificationType.HOT_POST)
@@ -268,19 +261,12 @@ public class NotificationServiceImpl implements NotificationService {
                         NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
                         notificationSseService.sendNotificationToMember(memberId, notificationDTO);
 
-                        log.info("핫 게시글 실시간 알림 전송 완료: postId={}, notificationId={}, to={}",
-                                postId, createdNotification.getId(), memberId);
                     } catch (Exception e) {
                         log.error("핫 게시글 실시간 알림 전송 실패: postId={}, to={}", postId, memberId, e);
                     }
                 }
-            } catch (Exception e) {
-                log.error("핫 게시글 알림 생성 실패: postId={}, memberId={}", postId, memberId, e);
-            }
-        }
 
-        log.info("핫 게시글 알림 생성 완료: postId={}, category={}, 대상 회원 수: {}",
-                postId, category, interestedMemberIds.size());
+        }
     }
 
     @Override

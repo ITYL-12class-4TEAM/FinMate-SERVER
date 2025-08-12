@@ -5,9 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.member.mapper.MemberMapper;
-import org.scoula.notification.domain.NotificationType;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
-import org.scoula.notification.dto.response.NotificationListResponseDTO;
 import org.scoula.notification.dto.response.NotificationResponseDTO;
 import org.scoula.notification.service.NotificationService;
 import org.scoula.response.ApiResponse;
@@ -15,7 +13,8 @@ import org.scoula.response.ResponseCode;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Map;
+import java.util.List;
+
 
 @Log4j2
 @Api(tags = "알림 관리 API")
@@ -29,13 +28,11 @@ public class NotificationApiController {
 
     @ApiOperation("알림 목록 조회")
     @GetMapping
-    public ApiResponse<NotificationListResponseDTO> getNotifications(Principal principal) {
-
+    public ApiResponse<List<NotificationResponseDTO>> getNotifications(Principal principal) {
         String email = String.valueOf(principal.getName());
         Long memberId = memberMapper.findIdByUsername(email);
-        NotificationListResponseDTO response = notificationService.getNotifications(memberId);
-        log.info("알림 목록 조회 - "+ response);
-        return ApiResponse.success(ResponseCode.NOTIFICATION_LIST_SUCCESS, response);
+
+        return ApiResponse.success(ResponseCode.NOTIFICATION_LIST_SUCCESS, notificationService.getNotifications(memberId));
     }
 
     @ApiOperation("읽지 않은 알림 수 조회")
@@ -50,15 +47,14 @@ public class NotificationApiController {
 
     @ApiOperation("특정 알림 읽음 처리")
     @PutMapping("/{notificationId}/read")
-    public ApiResponse<NotificationResponseDTO> markAsRead(
+    public ApiResponse<?> markAsRead(
             @PathVariable Long notificationId,
             Principal principal) {
-
         String email = String.valueOf(principal.getName());
         Long memberId = memberMapper.findIdByUsername(email);
-        NotificationResponseDTO response = notificationService.markAsRead(notificationId, memberId);
+        notificationService.markAsRead(notificationId, memberId);
 
-        return ApiResponse.success(ResponseCode.NOTIFICATION_READ_SUCCESS, response);
+        return ApiResponse.success(ResponseCode.NOTIFICATION_READ_SUCCESS);
     }
 
     @ApiOperation("모든 알림 읽음 처리")
@@ -86,7 +82,6 @@ public class NotificationApiController {
     public ApiResponse<?> updateNotificationSettings(
             @RequestBody NotificationSettingUpdateRequest request,
             Principal principal) {
-
         String email = String.valueOf(principal.getName());
         Long memberId = memberMapper.findIdByUsername(email);
         notificationService.updateNotificationSettings(memberId, request);

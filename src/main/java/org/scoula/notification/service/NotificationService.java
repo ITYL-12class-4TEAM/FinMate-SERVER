@@ -3,18 +3,17 @@ package org.scoula.notification.service;
 import org.scoula.notification.domain.NotificationVO;
 import org.scoula.notification.dto.request.NotificationCreateRequest;
 import org.scoula.notification.dto.request.NotificationSettingUpdateRequest;
-import org.scoula.notification.dto.response.NotificationListResponseDTO;
 import org.scoula.notification.dto.response.NotificationResponseDTO;
-import org.scoula.notification.domain.NotificationType;
 
-import java.util.Map;
+
+import java.util.List;
 
 public interface NotificationService {
 
     // 알림 목록 조회
-    NotificationListResponseDTO getNotifications(Long memberId);
+    List<NotificationResponseDTO> getNotifications(Long memberId);
 
-    NotificationResponseDTO markAsRead(Long notificationId, Long memberId);
+    void markAsRead(Long notificationId, Long memberId);
     void markAllAsRead(Long memberId);
     NotificationVO createNotification(NotificationCreateRequest request);
 
