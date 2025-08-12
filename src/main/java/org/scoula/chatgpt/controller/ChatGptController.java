@@ -1,21 +1,15 @@
 package org.scoula.chatgpt.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.scoula.chatgpt.dto.gpt.ChatMessage;
 import org.scoula.chatgpt.dto.portfolio.ProductInfoRequest;
 import org.scoula.chatgpt.dto.portfolio.ProductInfoResponse;
-import org.scoula.chatgpt.dto.portfolio.RateOption;
-import org.scoula.chatgpt.dto.portfolio.TermOption;
 import org.scoula.chatgpt.dto.product.FinancialProductGptRequest;
 import org.scoula.chatgpt.service.ChatGptService;
 import org.scoula.chatgpt.service.ProductInfoService;
@@ -24,6 +18,8 @@ import org.scoula.response.ResponseCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @Api(tags = "ChatGPT 금융 상품 API")
 @RequestMapping("/api")
@@ -31,7 +27,6 @@ public class ChatGptController {
 
     private final ChatGptService chatGptService;
     private final ProductInfoService productInfoService;
-
 
     @Value("${chatgpt.summary-prompt}")
     private String summaryPrompt;
@@ -88,12 +83,15 @@ public class ChatGptController {
             return ApiResponse.fail(ResponseCode.CHATGPT_JSON_PARSING_FAILED);
         }
     }
-    @ApiOperation(value = "상품 자동입력용 정보 조회",
-            notes = "상품명/금융회사(+선택: 카테고리/세부카테고리)를 바탕으로 최신 정보를 찾아 구조화해 반환합니다.")
+    @ApiOperation(
+            value = "상품 자동입력용 정보 조회",
+            notes = "상품명/금융회사(+선택: 카테고리/세부카테고리)를 바탕으로 최신 정보를 찾아 구조화해 반환합니다."
+    )
     @PostMapping("/chat/product-info")
-    public ApiResponse<?> getProductInfo(@RequestBody ProductInfoRequest request) {
+    public ApiResponse<ProductInfoResponse> getProductInfo(@Valid @RequestBody ProductInfoRequest request) {
         try {
-            return productInfoService.getProductInfo(request);
+            ProductInfoResponse response = productInfoService.getProductInfo(request);
+            return ApiResponse.success(ResponseCode.CHATGPT_PRODUCT_INFO_SUCCESS, response);
         } catch (Exception e) {
             return ApiResponse.fail(ResponseCode.CHATGPT_PRODUCT_INFO_FAILED);
         }

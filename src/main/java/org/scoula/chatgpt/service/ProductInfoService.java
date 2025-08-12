@@ -40,7 +40,7 @@ public class ProductInfoService {
     @Value("${chatgpt.etc.prompt}")
     private String etcPrompt;
 
-    public ApiResponse<?> getProductInfo(ProductInfoRequest request) {
+    public ProductInfoResponse getProductInfo(ProductInfoRequest request) {
         try {
             // 입력 카테고리 있으면 매핑, 없으면 감지
             String mappedCategory = (request.getCategory() != null && !request.getCategory().isEmpty())
@@ -48,7 +48,8 @@ public class ProductInfoService {
                     : detectCategory(request.getProductName(), request.getCompanyName());
 
             if ("etc".equals(mappedCategory)) {
-                return ApiResponse.fail(ResponseCode.CHATGPT_ETC_CATEGORY_NOT_SUPPORTED);
+                // 비지원 카테고리는 예외로 위임(컨트롤러에서 실패 코드로 변환)
+                throw new UnsupportedOperationException("Unsupported category: etc");
             }
 
             // 프롬프트 생성
@@ -69,9 +70,13 @@ public class ProductInfoService {
             if (request.getCategory() != null) productInfo.setCategory(request.getCategory());
             if (request.getSubcategory() != null) productInfo.setSubcategory(request.getSubcategory());
 
-            return ApiResponse.success(ResponseCode.CHATGPT_PRODUCT_INFO_SUCCESS, productInfo);
+            return productInfo;
+
+        } catch (UnsupportedOperationException e) {
+            throw e; // 컨트롤러에서 적절한 에러 코드로 변환
         } catch (Exception e) {
-            return ApiResponse.fail(ResponseCode.CHATGPT_PRODUCT_INFO_FAILED);
+            // 필요한 경우 커스텀 예외로 감싸기
+            throw new RuntimeException("Failed to retrieve product info", e);
         }
     }
 
