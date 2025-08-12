@@ -46,7 +46,7 @@ public class ChatGptController {
     @ApiOperation(value = "금융 상품 요약 요청",
             notes = "금융 상품 정보를 입력받아, 사회초년생 및 금융 초보자를 위한 쉬운 요약을 반환합니다.")
     @PostMapping("/chat/summary")
-    public ApiResponse<?> summarize(@RequestBody FinancialProductGptRequest product) {
+    public ApiResponse<String> summarize(@RequestBody FinancialProductGptRequest product) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String productJson = mapper.writeValueAsString(product);
@@ -62,7 +62,7 @@ public class ChatGptController {
     @ApiOperation(value = "금융 상품 비교 요청",
             notes = "복수의 금융 상품 정보를 입력받아, 각각의 상품을 비교하고 어떤 사람에게 더 적합한지 설명합니다.")
     @PostMapping("/chat/compare")
-    public ApiResponse<?> compare(@RequestBody List<FinancialProductGptRequest> products) {
+    public ApiResponse<String> compare(@RequestBody List<FinancialProductGptRequest> products) {
         try {
             StringBuilder sb = new StringBuilder();
             int count = 1;

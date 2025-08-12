@@ -26,7 +26,7 @@ public class CommentLikeApiController {
 
     @PostMapping("/{commentId}/toggle")
     @ApiOperation("댓글 좋아요 토글")
-    public ApiResponse<?> toggleLike(@PathVariable("commentId") Long commentId) {
+    public ApiResponse<CommentLikeToggleResponseDTO> toggleLike(@PathVariable("commentId") Long commentId) {
         log.info("Toggle like - commentId: {}, memberId: {}", commentId);
         boolean liked = commentLikeService.toggleLike(commentId);
         return ApiResponse.success(
@@ -37,13 +37,14 @@ public class CommentLikeApiController {
 
     @GetMapping("/{commentId}/count")
     @ApiOperation("댓글 좋아요 개수 조회")
-    public ApiResponse<?> getLikeCount(@PathVariable Long commentId) {
-        return ApiResponse.success(ResponseCode.COMMENT_LIKE_COUNT_SUCCESS, commentLikeService.getLikeCount(commentId));
+    public ApiResponse<Integer> getLikeCount(@PathVariable Long commentId) {
+        int response = commentLikeService.getLikeCount(commentId);
+        return ApiResponse.success(ResponseCode.COMMENT_LIKE_COUNT_SUCCESS, response);
     }
 
     @GetMapping("/{commentId}/me")
     @ApiOperation("해당 댓글 좋아요 여부 조회")
-    public ApiResponse<?> getMyLikeStatus(@PathVariable Long commentId,
+    public ApiResponse<CommentLikeToggleResponseDTO> getMyLikeStatus(@PathVariable Long commentId,
                                           @RequestParam("memberId") Long memberId) {
         boolean liked = commentLikeService.isLikedByMember(commentId, memberId);
         return ApiResponse.success(ResponseCode.COMMENT_LIKE_STATUS_SUCCESS, new CommentLikeToggleResponseDTO(liked));
