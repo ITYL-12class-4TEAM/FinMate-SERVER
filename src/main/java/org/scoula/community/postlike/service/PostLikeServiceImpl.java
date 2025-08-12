@@ -12,6 +12,7 @@ import org.scoula.community.postlike.domain.PostLikeVO;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
 import org.scoula.community.scrap.mapper.ScrapMapper;
 import org.scoula.member.mapper.MemberMapper;
+import org.scoula.notification.helper.NotificationHelper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostMapper postMapper;
     private final MemberMapper memberMapper;
     private final ScrapMapper scrapMapper;
+    private final NotificationHelper notificationHelper;
+
 
     @Override
     @Transactional
@@ -42,6 +45,20 @@ public class PostLikeServiceImpl implements PostLikeService {
                     .memberId(memberId)
                     .isLiked(true)
                     .build());
+            // 알림 생성
+            PostVO post = postMapper.get(postId);
+            if (!post.getMemberId().equals(memberId)) {
+
+                String authorNickname = memberMapper.getNicknameByMemberId(memberId);
+                notificationHelper.notifyLikeCreated(
+                        post.getPostId(),
+                        memberId,
+                        authorNickname,
+                        post.getTitle()
+                );
+
+
+            }
             return true;
         } else {
             postLikeMapper.deleteByPostIdAndMemberId(postId, memberId);
@@ -85,6 +102,7 @@ public class PostLikeServiceImpl implements PostLikeService {
                 })
                 .toList();
     }
+
 
     @Override
     public int getLikeCount(Long postId) {

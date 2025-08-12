@@ -179,7 +179,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(NotificationType.POST_COMMENT)
                 .title("새 댓글 알림")
                 .message(authorNickname + "님이 회원님의 게시글에 댓글을 달았습니다")
-                .targetUrl("/posts/" + postId + "#comment-" + commentId)
+                .targetUrl("/community/" + postId)
                 .relatedData(relatedData)
                 .build();
         log.info("알림 생성 요청: {}", request);
@@ -205,71 +205,97 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createLikeNotification(Long postId, Long authorId, String authorNickname, String postTitle) {
-        // 게시글 작성자에게 알림 발송
-        List<Long> interestedMemberIds = notificationMapper.selectInterestedMemberIds(postId, authorId);
+        Long postAuthorId = notificationMapper.selectPostAuthorId(postId);
 
-        for (Long memberId : interestedMemberIds) {
-            Map<String, Object> relatedData = new HashMap<>();
-            relatedData.put("postId", postId);
-            relatedData.put("postTitle", postTitle);
-            relatedData.put("authorNickname", authorNickname);
+        if (postAuthorId == null) {
+            log.warn("게시글 작성자를 찾을 수 없습니다: postId={}", postId);
+            return;
+        }
 
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .memberId(memberId)
-                    .type(NotificationType.POST_LIKE)
-                    .title("좋아요 알림")
-                    .message(authorNickname + "님이 회원님의 게시글을 좋아합니다")
-                    .targetUrl("/posts/" + postId)
-                    .relatedData(relatedData)
-                    .build();
+        if (postAuthorId.equals(authorId)) {
+            log.debug("자신의 게시글에 자신이 좋아요를 눌렀으므로 알림을 생성하지 않습니다: postId={}, authorId={}", postId, authorId);
+            return;
+        }
 
-            NotificationVO createdNotification = createNotification(request);
+        Map<String, Object> relatedData = new HashMap<>();
+        relatedData.put("postId", postId);
+        relatedData.put("postTitle", postTitle);
+        relatedData.put("authorNickname", authorNickname);
 
-            // SSE를 통한 실시간 알림 전송 추가
-            if (createdNotification != null) {
-                try {
-                    NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
-                    notificationSseService.sendNotificationToMember(memberId, notificationDTO);
+        NotificationCreateRequest request = NotificationCreateRequest.builder()
+                .memberId(postAuthorId) // 게시글 작성자에게만 알림
+                .type(NotificationType.POST_LIKE)
+                .title("새 좋아요 알림")
+                .message(authorNickname + "님이 회원님의 게시글을 좋아합니다")
+                .targetUrl("/community/" + postId)
+                .relatedData(relatedData)
+                .build();
 
-                    log.info("좋아요 실시간 알림 전송 완료: postId={}, notificationId={}, to={}",
-                            postId, createdNotification.getId(), memberId);
-                } catch (Exception e) {
-                    log.error("좋아요 실시간 알림 전송 실패: postId={}, to={}", postId, memberId, e);
-                }
+        NotificationVO createdNotification = createNotification(request);
+
+        if (createdNotification != null) {
+            try {
+                NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
+                notificationSseService.sendNotificationToMember(postAuthorId, notificationDTO);
+
+                log.info("좋아요 실시간 알림 전송 완료: postId={}, notificationId={}, to={}",
+                        postId, createdNotification.getId(), postAuthorId);
+            } catch (Exception e) {
+                log.error("좋아요 실시간 알림 전송 실패: postId={}", postId, e);
             }
         }
+
+        log.info("좋아요 알림 생성 완료: postId={}, postAuthor={}, likeAuthor={}",
+                postId, postAuthorId, authorId);
     }
 
     @Override
     public void createHotPostNotification(Long postId, String postTitle, String category, int likeCount) {
-        // 모든 활성 사용자에게 핫 게시글 알림 브로드캐스트
+        // 해당 카테고리에 관심있는 모든 회원에게 알림 전송
+        List<Long> interestedMemberIds = notificationMapper.selectAllActiveMemberIds();
+
+        if (interestedMemberIds.isEmpty()) {
+            log.debug("관심있는 회원이 없습니다: category={}, postId={}", category, postId);
+            return;
+        }
+
         Map<String, Object> relatedData = new HashMap<>();
         relatedData.put("postId", postId);
         relatedData.put("postTitle", postTitle);
         relatedData.put("category", category);
         relatedData.put("likeCount", likeCount);
 
-        log.info("핫 게시글 알림 생성: postId={}, category={}, likeCount={}", postId, category, likeCount);
+        for (Long memberId : interestedMemberIds) {
+            try {
+                NotificationCreateRequest request = NotificationCreateRequest.builder()
+                        .memberId(memberId)
+                        .type(NotificationType.HOT_POST)
+                        .title("핫 게시글 알림")
+                        .message(category + " 카테고리의 인기 게시글: " + postTitle + " (좋아요 " + likeCount + "개)")
+                        .targetUrl("/posts/" + postId)
+                        .relatedData(relatedData)
+                        .build();
 
-        // 핫 게시글 알림은 브로드캐스트로 전송
-        NotificationResponseDTO hotPostNotification = NotificationResponseDTO.builder()
-                .notificationId(System.currentTimeMillis()) // 임시 ID
-                .type(NotificationType.HOT_POST)
-                .title("🔥 인기 게시글 알림")
-                .message(String.format("'%s' 게시글이 좋아요 %d개를 받아 인기 게시글이 되었습니다!", postTitle, likeCount))
-                .targetUrl("/posts/" + postId)
-                .isRead(false)
-                .createdAt(LocalDateTime.now())
-                .relatedData(relatedData)
-                .build();
+                NotificationVO createdNotification = createNotification(request);
 
-        try {
-            // SSE를 통한 브로드캐스트 알림 전송
-            notificationSseService.broadcastNotification(hotPostNotification);
-            log.info("핫 게시글 브로드캐스트 알림 전송 완료: postId={}, likeCount={}", postId, likeCount);
-        } catch (Exception e) {
-            log.error("핫 게시글 브로드캐스트 알림 전송 실패: postId={}", postId, e);
+                if (createdNotification != null) {
+                    try {
+                        NotificationResponseDTO notificationDTO = convertToResponseDTO(createdNotification);
+                        notificationSseService.sendNotificationToMember(memberId, notificationDTO);
+
+                        log.info("핫 게시글 실시간 알림 전송 완료: postId={}, notificationId={}, to={}",
+                                postId, createdNotification.getId(), memberId);
+                    } catch (Exception e) {
+                        log.error("핫 게시글 실시간 알림 전송 실패: postId={}, to={}", postId, memberId, e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("핫 게시글 알림 생성 실패: postId={}, memberId={}", postId, memberId, e);
+            }
         }
+
+        log.info("핫 게시글 알림 생성 완료: postId={}, category={}, 대상 회원 수: {}",
+                postId, category, interestedMemberIds.size());
     }
 
     @Override

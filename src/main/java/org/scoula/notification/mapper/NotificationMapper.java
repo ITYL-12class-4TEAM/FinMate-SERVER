@@ -40,7 +40,5 @@ public interface NotificationMapper {
     int updateNotificationSetting(@Param("memberId") Long memberId,  @Param("isEnabled") Boolean isEnabled);
 
     int deleteOldNotifications(@Param("daysBefore") int daysBefore);
-
-    // 관심 사용자 조회 (게시글/댓글 작성자 등)
-    List<Long> selectInterestedMemberIds(@Param("postId") Long postId, @Param("excludeMemberId") Long excludeMemberId);
-}
+    List<Long> selectAllActiveMemberIds();
+    }

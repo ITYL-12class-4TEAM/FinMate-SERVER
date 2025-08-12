@@ -68,7 +68,7 @@ public class CommentServiceImpl implements CommentService {
         postMapper.incrementCommentCount(vo.getPostId());
 
         if (!post.getMemberId().equals(memberId)) {
-            try {
+
                 String authorNickname = memberMapper.getNicknameByMemberId(memberId);
                 notificationHelper.notifyCommentCreated(
                     post.getPostId(),
@@ -79,10 +79,7 @@ public class CommentServiceImpl implements CommentService {
                 );
                 log.info("댓글 알림 전송 완료: postId={}, commentId={}, to={}",
                     post.getPostId(), vo.getCommentId(), post.getMemberId());
-            } catch (Exception e) {
-                log.error("댓글 알림 전송 실패: postId={}, commentId={}",
-                    post.getPostId(), vo.getCommentId(), e);
-            }
+
         }
 
         return get(vo.getCommentId());
