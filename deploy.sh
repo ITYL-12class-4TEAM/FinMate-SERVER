@@ -8,8 +8,11 @@ TOMCAT2=$TOMCAT_HOME/tomcat-8082
 NGINX_SITES=/etc/nginx/sites-available/$APP_NAME
 
 # 환경 변수 로딩
-export $(grep -v '^#' /home/ubuntu/app/step1/FinMate-SERVER/.env | xargs)
+set -o allexport
+source /home/ubuntu/app/step1/FinMate-SERVER/.env
+set +o allexport
 
+echo "[`date`] Loaded environment variables"
 # 현재 활성 Tomcat 확인
 ACTIVE_PORT=$(curl -s http://127.0.0.1:8080/health || echo "8081")
 if [[ "$ACTIVE_PORT" == "8081" ]]; then
