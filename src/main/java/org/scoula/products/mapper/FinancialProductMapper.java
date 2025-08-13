@@ -29,7 +29,9 @@ public interface FinancialProductMapper {
             @Param("sortDirection") String sortDirection,
             @Param("pageSize") Integer pageSize,
             @Param("offset") Integer offset,
-            @Param("banksStr") String banksStr);
+            @Param("banksStr") String banksStr,
+            @Param("rsrvType") String rsrvType);  // 적립식 유형 추가
+
 
     /**
      * 필터 조건에 맞는 금융 상품 총 개수 조회
@@ -44,7 +46,8 @@ public interface FinancialProductMapper {
             @Param("intrRateType") String intrRateType,
             @Param("joinWays") String joinWays,  // 파라미터명 변경: joinWay -> joinWays
             @Param("amount") Integer amount,
-            @Param("banksStr") String banksStr);
+            @Param("banksStr") String banksStr,
+            @Param("rsrvType") String rsrvType);
 
     /**
      * 검색어에 맞는 상품명 자동완성 목록 조회

@@ -218,7 +218,7 @@ public class ProductCompareServiceImpl implements ProductCompareService {
             List<DepositOptionDTO> options,
             Map<String, String> requestedOptions) {
 
-        // 가입 기간(saveTrm) 및 금리 유형(intrRateType) 필터링
+        // 가입 기간(saveTrm), 금리 유형(intrRateType), 적립 방식(rsrvType) 필터링
         return options.stream()
                 .filter(option -> {
                     boolean matches = true;
@@ -233,6 +233,21 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                     if (requestedOptions.containsKey("intrRateType")) {
                         String requestedIntrRateType = requestedOptions.get("intrRateType");
                         matches = matches && option.getIntrRateType().equals(requestedIntrRateType);
+                    }
+
+                    if (requestedOptions.containsKey("rsrvType")) {
+                        String requestedRsrvType = requestedOptions.get("rsrvType");
+
+                        // rsrvType이 null이거나 빈 문자열인 경우 필터링 스킵
+                        if (requestedRsrvType == null || requestedRsrvType.isEmpty()) {
+                            // 조건 없음 - 기본값 유지
+                        }
+                        // 실제 비교 수행
+                        else {
+                            matches = matches &&
+                                    option.getRsrvType() != null &&
+                                    option.getRsrvType().equals(requestedRsrvType);
+                        }
                     }
 
                     return matches;

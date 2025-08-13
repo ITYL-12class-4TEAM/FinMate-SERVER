@@ -31,6 +31,8 @@ public class ProductSearchRequest {
     private Double maxIntrRate;    // 최대 금리
     private Integer saveTrm;       // 저축 기간 (개월)
     private String intrRateType;   // 금리 유형 (S: 단리, M: 복리)
+    private String rsrvType;       // 적립식 유형 (R: 정기적금, F: 자유적금)
+    private String rsrvTypeNm;     // 적립식 유형 명칭
     private String joinWay;        // 가입 방법
     private List<String> joinWays; // 가입 방법 다중 선택용
     private Boolean isOnline;      // 온라인 가입 여부
@@ -114,6 +116,11 @@ public class ProductSearchRequest {
         // 금리 유형
         if (this.intrRateType != null) {
             filters.put("interestRateType", this.intrRateType);
+        }
+
+        // 적립 방식 (추가된 부분)
+        if (this.rsrvType != null) {
+            filters.put("rsrvType", this.rsrvType);
         }
 
         // 저축 기간
