@@ -3,7 +3,7 @@ name: Deploy FinMate
 on:
   push:
     branches:
-      - develop
+      - develop  # develop 브랜치에 push 되면 실행
 
 jobs:
   deploy:
@@ -18,10 +18,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
 
-      - name: Copy code to server
+      - name: Pull code on server
         run: |
-          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && git pull origin develop"
+          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && git reset --hard && git pull origin develop"
 
-      - name: Run deploy.sh on server
+      - name: Run deploy script
         run: |
           ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && ./deploy.sh"
