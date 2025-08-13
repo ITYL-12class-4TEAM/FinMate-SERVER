@@ -168,6 +168,9 @@ public class ProductCompareServiceImpl implements ProductCompareService {
             if (productOpt.isPresent()) {
                 DepositProductDTO product = productOpt.get();
 
+                // companyUrl 값 백업
+                String companyUrl = product.getCompanyUrl();
+
                 // 해당 상품의 모든 옵션
                 List<DepositOptionDTO> options = optionsByProductId
                         .getOrDefault(product.getProductId(), new ArrayList<>());
@@ -179,10 +182,6 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                 List<DepositOptionDTO> filteredOptions;
                 if (requestedOptions != null && !requestedOptions.isEmpty()) {
                     filteredOptions = filterDepositOptions(options, requestedOptions);
-
-                    // 필터링 결과 로깅
-//                    log.debug("상품 ID: {}, 전체 옵션: {}, 필터링된 옵션: {}",
-//                             productId, options.size(), filteredOptions.size());
                 } else {
                     filteredOptions = options;
                 }
@@ -192,6 +191,12 @@ public class ProductCompareServiceImpl implements ProductCompareService {
 
                 // 상품 데이터 보강
                 DepositProductDTO enrichedProduct = enrichDepositProductData(product);
+
+                // companyUrl 값 복원
+                if (enrichedProduct.getCompanyUrl() == null) {
+                    enrichedProduct.setCompanyUrl(companyUrl);
+                }
+
                 enrichedProducts.add(enrichedProduct);
             }
         }
@@ -377,6 +382,12 @@ public class ProductCompareServiceImpl implements ProductCompareService {
             throw new ProductNotFoundException(ResponseCode.PRODUCT_NOT_FOUND);
         }
 
+        // companyUrl 값 백업 (문제 해결을 위해 추가)
+        Map<Long, String> companyUrls = new HashMap<>();
+        for (DepositProductDTO product : products) {
+            companyUrls.put(product.getProductId(), product.getCompanyUrl());
+        }
+
         // 모든 상품 ID 추출
         List<Long> fetchedProductIds = products.stream()
                 .map(DepositProductDTO::getProductId)
@@ -394,7 +405,14 @@ public class ProductCompareServiceImpl implements ProductCompareService {
                 .map(product -> {
                     List<DepositOptionDTO> options = optionsByProductId.getOrDefault(product.getProductId(), new ArrayList<>());
                     product.setOptions(options);
-                    return enrichDepositProductData(product);
+                    DepositProductDTO enriched = enrichDepositProductData(product);
+
+                    // companyUrl 값 복원 (문제 해결을 위해 추가)
+                    if (enriched.getCompanyUrl() == null) {
+                        enriched.setCompanyUrl(companyUrls.get(enriched.getProductId()));
+                    }
+
+                    return enriched;
                 })
                 .collect(Collectors.toList());
 
@@ -417,16 +435,23 @@ public class ProductCompareServiceImpl implements ProductCompareService {
      * 예금 상품 데이터를 보강하는 메서드
      */
     private DepositProductDTO enrichDepositProductData(DepositProductDTO original) {
+        // 원래 값 저장
+        String companyUrl = original.getCompanyUrl();
+
         // toBuilder() 패턴 사용
         DepositProductDTO.DepositProductDTOBuilder builder = original.toBuilder();
 
-        // 날짜 포맷팅은 유지 (기술적 변환)
+        // 날짜 포맷팅 (기존 코드 유지)
         if (original.getDclsStrtDay() != null) {
             builder.dclsStrtDay(formatDateIfNeeded(original.getDclsStrtDay()));
         }
 
+        // 중요: companyUrl 필드 명시적 설정
+        builder.companyUrl(companyUrl);
+
         return builder.build();
     }
+
 
     /**
      * 연금 상품들을 비교하여 비교 결과를 반환합니다. (Long 타입 ID 목록)
