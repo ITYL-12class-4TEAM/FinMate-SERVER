@@ -29,6 +29,10 @@ else
     STANDBY_TOMCAT=$TOMCAT1
 fi
 
+# 3.5. 프로젝트 빌드
+echo "[`date`] Building project..."
+./gradlew clean build -x test
+
 # 4. 새로운 WAR 배포
 WAR_PATH=$PROJECT_DIR/build/libs/$WAR_NAME
 if [[ ! -f "$WAR_PATH" ]]; then
@@ -42,10 +46,10 @@ $STANDBY_TOMCAT/bin/shutdown.sh || true
 $STANDBY_TOMCAT/bin/startup.sh
 
 # 6. Nginx upstream 전환
-sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)/" $NGINX_SITES
+sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)/" $NGINX_SITES
 sudo nginx -s reload
 
 # 7. 이전 Tomcat 종료
 $ACTIVE_TOMCAT/bin/shutdown.sh
 
-echo "Deployment finished successfully!"
+echo "[`date`] Deployment finished successfully!"
