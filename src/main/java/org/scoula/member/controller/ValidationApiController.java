@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "중복 확인 API")
+@Api(tags = "중복 확인 API" , description = "회원가입 시 이메일과 닉네임의 중복 여부를 확인하는 API.")
 @RestController
 @RequestMapping("/api/validation/check")
 @RequiredArgsConstructor
@@ -23,12 +23,12 @@ public class ValidationApiController {
             notes = "회원가입 시 입력한 이메일이 이미 사용 중인지 확인합니다."
     )
     @GetMapping("/email")
-    public ApiResponse<?> checkEmail(@RequestParam String email) {
+    public ApiResponse<Boolean> checkEmail(@RequestParam String email) {
         boolean available = memberService.isEmailAvailable(email);
         if (available) {
-            return ApiResponse.success(ResponseCode.VALID_EMAIL);
+            return ApiResponse.success(ResponseCode.VALID_EMAIL,true);
         } else {
-            return ApiResponse.fail(ResponseCode.DUPLICATED_EMAIL);
+            return ApiResponse.fail(ResponseCode.DUPLICATED_EMAIL,false);
         }
     }
 
@@ -37,12 +37,12 @@ public class ValidationApiController {
             notes = "회원가입 시 입력한 닉네임이 이미 사용 중인지 확인합니다."
     )
     @GetMapping("/nickname")
-    public ApiResponse<?> checkNickname(@RequestParam String nickname) {
+    public ApiResponse<Boolean> checkNickname(@RequestParam String nickname) {
         boolean available = memberService.isNicknameAvailable(nickname);
         if (available) {
-            return ApiResponse.success(ResponseCode.VALID_NICKNAME);
+            return ApiResponse.success(ResponseCode.VALID_NICKNAME, true);
         } else {
-            return ApiResponse.fail(ResponseCode.DUPLICATED_NICKNAME);
+            return ApiResponse.fail(ResponseCode.DUPLICATED_NICKNAME, false);
         }
     }
 }
