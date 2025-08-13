@@ -108,7 +108,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()  // authorizeHttpRequests → authorizeRequests
                 .antMatchers( "/api/sms/**", "/api/validation/**", "/api/signup/**", "/oauth2/**", "/login/oauth2/code/*", "/auth/oauth2/redirect/**","/api/auth/oauth2/token",
-                        "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
+                        "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**", "/api/notifications/stream",
                         "/api/wmti/questions","/v2/api-docs", "/swagger-resources/**", "/webjars/**" ,"/api/auth/refresh" ,"/api/auth/find-id","/api/auth/find-password")  // 경로 수정
                 .permitAll()
 
