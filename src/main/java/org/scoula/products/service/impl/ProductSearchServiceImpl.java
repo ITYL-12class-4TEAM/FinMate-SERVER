@@ -599,6 +599,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
                 .intrRateType(product.getIntrRateType())
                 .minDepositAmount(product.getMinDeposit()) // 최소 예치 금액 추가
                 .maxDepositAmount(product.getMaxLimit())  // 최대 예치 금액 추가
+                .companyUrl(product.getCompanyUrl())
                 .build();
     }
 

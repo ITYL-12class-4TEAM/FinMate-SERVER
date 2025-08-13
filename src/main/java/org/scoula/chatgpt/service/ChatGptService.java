@@ -37,6 +37,10 @@ public class ChatGptService {
         return chatGptUtil.createChatCompletion(toChatCompletionRequest(messages), API_URL);
     }
 
+    public String getProductInfo(List<ChatMessage> messages) {
+        return chatGptUtil.createChatCompletion(toChatCompletionRequest(messages), API_URL);
+    }
+
     public ChatCompletionRequest toChatCompletionRequest(List<ChatMessage> messages) {
         return new ChatCompletionRequest(model, messages, maxTokens);
     }

@@ -8,11 +8,10 @@ import org.scoula.mypage.portfolio.dto.PortfolioSummaryWithComparisonResponse;
 import org.scoula.mypage.portfolio.dto.PortfolioUpdateRequest;
 import org.scoula.mypage.portfolio.service.PortfolioService;
 import org.scoula.response.ApiResponse;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.scoula.response.ResponseCode;
 import org.springframework.web.bind.annotation.*;
-import org.scoula.response.*;
 
-
+import javax.validation.Valid;
 import java.util.List;
 
 @Api(tags = "포트폴리오 API")
@@ -32,39 +31,40 @@ public class PortfolioApiController {
 
     @ApiOperation(value = "포트폴리오 추가", notes = "포트폴리오 항목을 새로 추가합니다.")
     @PostMapping
-    public ApiResponse<?> addPortfolio(
+    public ApiResponse<Void> addPortfolio(
             @ApiParam(value = "포트폴리오 생성 정보", required = true)
-            @RequestBody PortfolioCreateRequest dto) {
+            @Valid @RequestBody PortfolioCreateRequest dto) {
         portfolioService.addPortfolio(dto);
         return ApiResponse.success(ResponseCode.PORTFOLIO_CREATE_SUCCESS);
     }
 
     @ApiOperation(value = "포트폴리오 수정", notes = "포트폴리오 항목을 수정합니다.")
     @PatchMapping("/{portfolioId}")
-    public ApiResponse<?> updatePortfolio(
+    public ApiResponse<Void> updatePortfolio(
             @ApiParam(value = "포트폴리오 ID", required = true)
             @PathVariable Long portfolioId,
             @ApiParam(value = "수정할 포트폴리오 정보", required = true)
-            @RequestBody PortfolioUpdateRequest dto) {
+            @Valid @RequestBody PortfolioUpdateRequest dto) {
         portfolioService.updatePortfolio(portfolioId, dto);
         return ApiResponse.success(ResponseCode.PORTFOLIO_UPDATE_SUCCESS);
     }
 
     @ApiOperation(value = "포트폴리오 삭제", notes = "포트폴리오 항목을 삭제합니다.")
     @DeleteMapping("/{portfolioId}")
-    public ApiResponse<?> deletePortfolio(
+    public ApiResponse<Void> deletePortfolio(
             @ApiParam(value = "포트폴리오 ID", required = true)
             @PathVariable Long portfolioId) {
         portfolioService.deletePortfolio(portfolioId);
         return ApiResponse.success(ResponseCode.PORTFOLIO_DELETE_SUCCESS);
     }
 
-    @ApiOperation(value = "포트폴리오 요약 + 비교 통계 조회",
-            notes = "로그인한 사용자의 포트폴리오 통계와 비교 통계(연령대, 금액대, WMTI)를 함께 조회합니다.")
+    @ApiOperation(
+            value = "포트폴리오 요약 + 비교 통계 조회",
+            notes = "로그인한 사용자의 포트폴리오 통계와 비교 통계(연령대, 금액대, WMTI)를 함께 조회합니다."
+    )
     @GetMapping("/summary")
     public ApiResponse<PortfolioSummaryWithComparisonResponse> getSummary() {
         PortfolioSummaryWithComparisonResponse result = portfolioService.getSummaryWithComparison();
         return ApiResponse.success(ResponseCode.PORTFOLIO_SUMMARY_SUCCESS, result);
     }
-
 }

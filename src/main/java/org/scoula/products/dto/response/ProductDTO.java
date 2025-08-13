@@ -27,4 +27,6 @@ public class ProductDTO {
     private Integer minDepositAmount;
     private Long minDeposit;  // 최소 예치 금액
     private Long maxLimit;    // 최대 예치 금액
+
+    private String companyUrl;      // homp_url - 회사 홈페이지 URL
 }
