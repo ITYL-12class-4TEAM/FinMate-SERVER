@@ -1,0 +1,27 @@
+name: Deploy FinMate
+
+on:
+  push:
+    branches:
+      - develop  # develop 브랜치에 push 되면 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+
+      - name: Pull code on server
+        run: |
+          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && git reset --hard && git pull origin develop"
+
+      - name: Run deploy script
+        run: |
+          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && ./deploy.sh"
