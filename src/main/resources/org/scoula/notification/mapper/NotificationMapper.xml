@@ -24,49 +24,34 @@
         SELECT notification_id as id, member_id, type, title, message, target_url, is_read, created_at, read_at, related_data
         FROM notification
         WHERE member_id = #{memberId}
-        <if test="type != null">
-            AND type = #{type}
-        </if>
-        <if test="isRead != null">
-            AND is_read = #{isRead}
-        </if>
         ORDER BY created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
-    </select>
-
-    <!-- 사용자별 알림 개수 조회 -->
-    <select id="countNotificationsByMemberId" resultType="long">
-        SELECT COUNT(*)
-        FROM notification
-        WHERE member_id = #{memberId}
-        <if test="type != null">
-            AND type = #{type}
-        </if>
-        <if test="isRead != null">
-            AND is_read = #{isRead}
-        </if>
     </select>
 
     <!-- 읽지 않은 알림 개수 조회 -->
     <select id="countUnreadNotifications" resultType="long">
         SELECT COUNT(*)
         FROM notification
-        WHERE member_id = #{memberId} AND is_read = false
+        WHERE member_id = #{memberId}
     </select>
 
     <!-- 특정 알림 읽음 처리 -->
-    <update id="updateNotificationAsRead">
-        UPDATE notification
-        SET is_read = true, read_at = NOW()
+    <delete id="deleteNotification">
+        DELETE FROM notification
         WHERE notification_id = #{id} AND member_id = #{memberId}
-    </update>
+    </delete>
 
-    <!-- 모든 알림 읽음 처리 -->
-    <update id="updateAllNotificationsAsRead">
-        UPDATE notification
-        SET is_read = true, read_at = NOW()
-        WHERE member_id = #{memberId} AND is_read = false
-    </update>
+    <!-- 모든 미읽음 알림 삭제 -->
+    <delete id="deleteAllUnreadNotifications">
+        DELETE FROM notification
+        WHERE member_id = #{memberId}
+    </delete>
+
+    <!-- 게시글 작성자 ID 조회 -->
+    <select id="selectPostAuthorId" resultType="long">
+        SELECT member_id
+        FROM post
+        WHERE post_id = #{postId}
+    </select>
 
     <!-- 사용자 알림 설정 조회  -->
     <select id="selectNotificationSetting" resultType="boolean">
@@ -89,23 +74,10 @@
         WHERE created_at &lt; DATE_SUB(NOW(), INTERVAL #{daysBefore} DAY)
     </delete>
 
-    <!-- 관심 사용자 조회 (알림 설정이 활성화된 사용자만) -->
-    <select id="selectInterestedMemberIds" resultType="long">
-        SELECT DISTINCT p.author_id
-        FROM posts p
-                 JOIN member m ON p.author_id = m.member_id
-        WHERE p.id = #{postId}
-          AND p.author_id != #{excludeMemberId}
-          AND m.receive_push_notification = true
-
-        UNION
-
-        SELECT DISTINCT c.author_id
-        FROM comments c
-                 JOIN member m ON c.author_id = m.member_id
-        WHERE c.post_id = #{postId}
-          AND c.author_id != #{excludeMemberId}
-          AND m.receive_push_notification = true
+    <select id="selectAllActiveMemberIds" resultType="long">
+        SELECT member_id
+        FROM member
+        WHERE receive_push_notification = true
     </select>
 
 </mapper>

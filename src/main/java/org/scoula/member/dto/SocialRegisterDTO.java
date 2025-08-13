@@ -34,7 +34,7 @@ public class SocialRegisterDTO {
     private String gender;
 
     @ApiModelProperty(value = "푸시 알림 수신 여부", example = "true")
-    private Boolean receivePushNotification = false;
+    private Boolean receivePushNotification;
 
     @ApiModelProperty(value = "프로필 이미지 URL (구글에서 받은 정보, 자동 매핑)", example = "https://...", readOnly = true)
     private String profileImage;

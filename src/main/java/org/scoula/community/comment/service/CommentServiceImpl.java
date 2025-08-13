@@ -14,7 +14,9 @@ import org.scoula.community.commentlike.mapper.CommentLikeMapper;
 import org.scoula.community.commentlike.service.CommentLikeService;
 import org.scoula.community.post.exception.PostNotFoundException;
 import org.scoula.community.post.mapper.PostMapper;
+import org.scoula.community.post.domain.PostVO;
 import org.scoula.member.mapper.MemberMapper;
+import org.scoula.notification.helper.NotificationHelper;
 import org.scoula.response.ResponseCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
     private final MemberMapper memberMapper;
     private final CommentLikeService commentLikeService;
     private final CommentLikeMapper commentLikeMapper;
+    private final NotificationHelper notificationHelper;
 
     @Override
     @Transactional
@@ -42,6 +45,13 @@ public class CommentServiceImpl implements CommentService {
         if (!postMapper.existsById(commentCreateRequestDTO.getPostId())) {
             throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
         }
+
+        // 게시글 정보 조회
+        PostVO post = postMapper.get(commentCreateRequestDTO.getPostId());
+        if (post == null) {
+            throw new PostNotFoundException(ResponseCode.POST_NOT_FOUND);
+        }
+
         if (commentCreateRequestDTO.getParentComment() != null) {
             CommentVO parent = commentMapper.get(commentCreateRequestDTO.getParentComment());
             if (parent == null) {
@@ -56,6 +66,18 @@ public class CommentServiceImpl implements CommentService {
         vo.setMemberId(memberId);
         commentMapper.create(vo);
         postMapper.incrementCommentCount(vo.getPostId());
+
+        if (!post.getMemberId().equals(memberId)) {
+
+                String authorNickname = memberMapper.getNicknameByMemberId(memberId);
+                notificationHelper.notifyCommentCreated(
+                    post.getPostId(),
+                    vo.getCommentId(),
+                    memberId,
+                    authorNickname,
+                    post.getTitle()
+                );
+        }
 
         return get(vo.getCommentId());
     }
