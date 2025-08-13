@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "로그아웃 API")
+@Api(tags = "로그아웃 API" , description = "액세스 토큰을 이용한 로그아웃 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -27,10 +27,10 @@ public class LogoutApiController {
     @PostMapping("/logout")
     @ApiOperation(value = "로그아웃", notes = "액세스 토큰을 이용한 로그아웃")
 
-    public ApiResponse<?> logout(HttpServletRequest request) {
+    public ApiResponse<Boolean> logout(HttpServletRequest request) {
         String accessToken = extractAccessToken(request);
         logoutServiceImpl.logout(accessToken);
-        return ApiResponse.success(ResponseCode.LOGOUT_SUCCESS);
+        return ApiResponse.success(ResponseCode.LOGOUT_SUCCESS, true);
 
     }
 
