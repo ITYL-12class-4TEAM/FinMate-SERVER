@@ -66,8 +66,9 @@ $TOMCAT/bin/shutdown.sh || true
 sleep 3
 
 # CATALINA_OPTS에 Log4j2 설정 추가 (config.location을 디렉토리로 설정)
-CATALINA_OPTS="-Dconfig.location=$CONFIG_DIR -Dlog4j.configurationFile=$PROJECT_DIR/src/main/resources/log4j2.xml" \
-    $TOMCAT/bin/startup.sh
+export CATALINA_OPTS="-Dconfig.location=$CONFIG_DIR -Dlog4j.configurationFile=$PROJECT_DIR/src/main/resources/log4j2.xml"
+cd $TOMCAT/bin
+./startup.sh
 
 # 5.1 톰캣 기동 확인
 sleep 10
