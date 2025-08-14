@@ -63,3 +63,6 @@ bin/
 
 # 민감 키 파일 무시
 *.pem
+
+.env
+/finmate-key.pub

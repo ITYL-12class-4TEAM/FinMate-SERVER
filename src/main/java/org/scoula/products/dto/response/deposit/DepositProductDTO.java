@@ -85,6 +85,9 @@ public class DepositProductDTO {
     @JsonProperty("dcls_end_day")
     private String dclsEndDay;
 
+    @JsonProperty("company_url")
+    private String companyUrl;
+
     // 금리 정보 목록
     @JsonProperty("options")
     private List<DepositOptionDTO> options;

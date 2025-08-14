@@ -19,6 +19,7 @@
         dp.min_deposit as "minDeposit",
         dp.max_limit as "maxLimit",
         fp.join_way as "join_way",
+        do.rsrv_type as "rsrvType",
         pc.homp_url as "companyUrl"
 
         FROM financial_product fp
@@ -67,7 +68,8 @@
             </if>
             <!-- 은행명 필터링 - 단일 문자열 버전 -->
             <if test="banksStr != null and banksStr != ''">
-                AND fp.kor_co_nm IN
+                AND (
+                fp.kor_co_nm IN
                 <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
                     #{bank}
                 </foreach>
@@ -75,6 +77,10 @@
                 <foreach item="bank" collection="banksStr.split(',')" open="(" separator="," close=")">
                     #{bank}
                 </foreach>
+                )
+            </if>
+            <if test="rsrvType != null and rsrvType != ''">
+                AND do.rsrv_type = #{rsrvType}
             </if>
 
         </where>
@@ -93,6 +99,7 @@
         dp.min_deposit,
         dp.max_limit,
         fp.join_way,
+        do.rsrv_type,
         pc.homp_url
 
         <!-- 정렬 조건 -->
@@ -192,6 +199,9 @@
                     #{bank}
                 </foreach>
             </if>
+            <if test="rsrvType != null and rsrvType != ''">
+                AND do.rsrv_type = #{rsrvType}
+            </if>
         </where>
     </select>
 
@@ -200,17 +210,18 @@
         SELECT DISTINCT product_name
         FROM financial_product
         WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
-            LIMIT 10
+        LIMIT 10
     </select>
 
     <select id="findProductDetail" resultType="java.util.HashMap">
-        SELECT
-            fp.*,
-            dp.*,
-            c.name as category_name
+        SELECT fp.*,
+               dp.*,
+               c.name      as category_name,
+               pc.homp_url as companyUrl
         FROM financial_product fp
                  JOIN deposit_product dp ON fp.product_id = dp.product_id
                  JOIN product_category c ON fp.category_id = c.category_id
+                 LEFT JOIN product_company pc ON fp.fin_co_no = pc.fin_co_no
         WHERE fp.fin_prdt_cd = #{productId}
     </select>
 
