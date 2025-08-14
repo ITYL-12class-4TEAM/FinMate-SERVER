@@ -3,10 +3,10 @@ set -e
 
 APP_NAME=finmate
 TOMCAT_HOME=/home/ubuntu/tomcat
-TOMCAT1=$TOMCAT_HOME/tomcat-8081
-TOMCAT2=$TOMCAT_HOME/tomcat-8082
+TOMCAT=$TOMCAT_HOME/tomcat-8081
 NGINX_SITES=/etc/nginx/sites-available/$APP_NAME
 PROJECT_DIR=/home/ubuntu/app/step1/FinMate-SERVER
+CONFIG_FILE=$PROJECT_DIR/server-submodule/application-prod.properties
 
 cd $PROJECT_DIR
 
@@ -16,21 +16,13 @@ source $PROJECT_DIR/.env
 set +o allexport
 echo "[`date`] Loaded environment variables"
 
-# 2. 현재 활성 Tomcat 확인
-if curl -s http://127.0.0.1:8081/health >/dev/null 2>&1; then
-    ACTIVE_TOMCAT=$TOMCAT1
-    STANDBY_TOMCAT=$TOMCAT2
-    STANDBY_PORT=8082
-else
-    ACTIVE_TOMCAT=$TOMCAT2
-    STANDBY_TOMCAT=$TOMCAT1
-    STANDBY_PORT=8081
-fi
-echo "[`date`] Active Tomcat: $ACTIVE_TOMCAT, Standby Tomcat: $STANDBY_TOMCAT"
+# 1.1 Spring 필수 config.location 환경 변수 설정
+export CONFIG_LOCATION=$CONFIG_FILE
+echo "[`date`] CONFIG_LOCATION set to $CONFIG_LOCATION"
 
-# 2.1 스탠바이 톰캣 기본 디렉토리 생성
-mkdir -p $STANDBY_TOMCAT/webapps
-mkdir -p $STANDBY_TOMCAT/logs
+# 2. Tomcat 기본 디렉토리 생성
+mkdir -p $TOMCAT/webapps
+mkdir -p $TOMCAT/logs
 
 # 3. Gradle 빌드
 chmod +x ./gradlew
@@ -43,33 +35,29 @@ if [[ ! -f "$WAR_PATH" ]]; then
     echo "[ERROR] WAR file not found: $WAR_PATH"
     exit 1
 fi
-cp $WAR_PATH $STANDBY_TOMCAT/webapps/ROOT.war
-echo "[`date`] Copied WAR as ROOT.war to standby Tomcat"
 
-# 5. 스탠바이 Tomcat 재시작
-echo "[`date`] Restarting standby Tomcat..."
-$STANDBY_TOMCAT/bin/shutdown.sh || true
-$STANDBY_TOMCAT/bin/startup.sh
+# 기존 ROOT 제거
+rm -rf $TOMCAT/webapps/ROOT
+rm -f  $TOMCAT/webapps/ROOT.war
 
-# 5.1 스탠바이 기동 확인
-echo "[`date`] Checking standby Tomcat on port $STANDBY_PORT..."
+cp $WAR_PATH $TOMCAT/webapps/ROOT.war
+echo "[`date`] Copied WAR as ROOT.war to Tomcat"
+
+# 5. Tomcat 재시작
+echo "[`date`] Restarting Tomcat..."
+$TOMCAT/bin/shutdown.sh || true
+$TOMCAT/bin/startup.sh
+
+# 5.1 기동 확인
 sleep 5
-if ! nc -z localhost $STANDBY_PORT; then
-    echo "[ERROR] Standby Tomcat failed to start on $STANDBY_PORT"
+if ! nc -z localhost 8081; then
+    echo "[ERROR] Tomcat failed to start on 8081"
     exit 1
 fi
 
-# 6. Nginx upstream 안전 전환 (단일 서버)
-echo "[`date`] Switching Nginx upstream to $STANDBY_PORT..."
-sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$STANDBY_PORT/" $NGINX_SITES
+# 6. Nginx reload (단일 서버용)
+echo "[`date`] Reloading Nginx..."
+sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:8081/" $NGINX_SITES
 sudo nginx -s reload || echo "[WARN] Nginx reload failed, check config"
-
-# 7. 이전 Tomcat 종료
-if nc -z localhost 8005; then
-    echo "[`date`] Shutting down active Tomcat..."
-    $ACTIVE_TOMCAT/bin/shutdown.sh || echo "[WARN] Shutdown command failed"
-else
-    echo "[`date`] Active Tomcat not running on 8005, skip shutdown"
-fi
 
 echo "[`date`] Deployment finished successfully!"
