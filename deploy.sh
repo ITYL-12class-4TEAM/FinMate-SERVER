@@ -6,7 +6,7 @@ TOMCAT_HOME=/home/ubuntu/tomcat
 TOMCAT=$TOMCAT_HOME/tomcat-8081
 NGINX_SITES=/etc/nginx/sites-available/$APP_NAME
 PROJECT_DIR=/home/ubuntu/app/step1/FinMate-SERVER
-CONFIG_FILE=$PROJECT_DIR/server-submodule/application-prod.properties
+CONFIG_FILE=$PROJECT_DIR/server-submodule/application.properties
 
 cd $PROJECT_DIR
 
@@ -46,7 +46,7 @@ echo "[`date`] Copied WAR as ROOT.war to Tomcat"
 # 5. Tomcat 재시작
 echo "[`date`] Restarting Tomcat..."
 $TOMCAT/bin/shutdown.sh || true
-$TOMCAT/bin/startup.sh
+CATALINA_OPTS="-Dconfig.location=$CONFIG_FILE" $TOMCAT/bin/startup.sh
 
 # 5.1 기동 확인
 sleep 5
