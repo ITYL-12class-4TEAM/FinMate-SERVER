@@ -20,7 +20,6 @@ jobs:
         uses: haythem/public-ip@v1.3
 
       - name: Print Public IP
-      - name: Print Public IP
         run: |
           echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
 
