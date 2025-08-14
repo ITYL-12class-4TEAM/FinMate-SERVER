@@ -8,18 +8,15 @@ TOMCAT2=$TOMCAT_HOME/tomcat-8082
 NGINX_SITES=/etc/nginx/sites-available/$APP_NAME
 PROJECT_DIR=/home/ubuntu/app/step1/FinMate-SERVER
 
-# 1. 최신 develop 브랜치 pull
 cd $PROJECT_DIR
-git fetch origin
-git reset --hard origin/develop
 
-# 2. 환경 변수 로딩
+# 1. 환경 변수 로딩
 set -o allexport
 source $PROJECT_DIR/.env
 set +o allexport
 echo "[`date`] Loaded environment variables"
 
-# 3. 현재 활성 Tomcat 확인
+# 2. 현재 활성 Tomcat 확인
 ACTIVE_PORT=$(curl -s http://127.0.0.1:8080/health || echo "8081")
 if [[ "$ACTIVE_PORT" == "8081" ]]; then
     ACTIVE_TOMCAT=$TOMCAT1
@@ -29,11 +26,11 @@ else
     STANDBY_TOMCAT=$TOMCAT1
 fi
 
-# 3.5. 프로젝트 빌드
+# 3. 빌드 (테스트 제외, 캐시 활용)
 echo "[`date`] Building project..."
-./gradlew clean build -x test
+./gradlew clean build -x test --parallel --configure-on-demand
 
-# 4. 새로운 WAR 배포
+# 4. WAR 배포
 WAR_PATH=$PROJECT_DIR/build/libs/$WAR_NAME
 if [[ ! -f "$WAR_PATH" ]]; then
     echo "WAR file not found: $WAR_PATH"
@@ -41,7 +38,7 @@ if [[ ! -f "$WAR_PATH" ]]; then
 fi
 cp $WAR_PATH $STANDBY_TOMCAT/webapps/$APP_NAME.war
 
-# 5. 스탠바이 Tomcat 시작
+# 5. 스탠바이 Tomcat 재시작
 $STANDBY_TOMCAT/bin/shutdown.sh || true
 $STANDBY_TOMCAT/bin/startup.sh
 
