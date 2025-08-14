@@ -102,9 +102,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .socialType(existingMember.getSocialType())
                 .socialId(oauth2UserInfo.getId())
                 .isNewMember(false)
-                .phoneNumber(existingMember.getPhoneNumber())
                 .birthDate(existingMember.getBirthDate())
                 .gender(existingMember.getGender())
+                .receivePushNotification(existingMember.getReceivePushNotification())
                 .build();
 
         memberMapper.updateSocialMember(updatedMember);

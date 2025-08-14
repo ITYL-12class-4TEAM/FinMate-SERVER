@@ -99,7 +99,7 @@ public class SignupServiceImpl implements SignupService {
                 .phoneNumber(dto.getPhoneNumber())
                 .birthDate(birthDate)
                 .gender(dto.getGender())
-                .receivePushNotification(Boolean.TRUE.equals(dto.getReceive_push_notification()))
+                .receivePushNotification(Boolean.TRUE.equals(dto.getReceivePushNotification()))
                 .build();
 
         memberMapper.insert(member);

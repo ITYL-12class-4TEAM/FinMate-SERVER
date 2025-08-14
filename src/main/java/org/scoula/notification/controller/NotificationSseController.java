@@ -2,57 +2,79 @@ package org.scoula.notification.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.scoula.member.mapper.MemberMapper;
 import org.scoula.notification.service.NotificationSseService;
+import org.scoula.security.util.JwtProcessor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.security.Principal;
 
-@Api(tags = "실시간 알림 SSE API")
+@Api(tags = "실시간 알림 SSE API", description = "회원 실시간 알림 스트림 및 테스트용 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
 @CrossOrigin(
-    originPatterns = {"http://localhost:*", "http://127.0.0.1:*"},
-    allowCredentials = "true",
-    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
+        originPatterns = {"http://localhost:*", "http://127.0.0.1:*"},
+        allowCredentials = "true",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
 @Slf4j
 public class NotificationSseController {
 
     private final NotificationSseService notificationSseService;
-    private final MemberMapper memberMapper;
+    private final JwtProcessor jwtProcessor;
 
-    @ApiOperation("SSE 연결 설정")
+    @ApiOperation(
+            value = "SSE 연결 설정",
+            notes = "클라이언트가 토큰을 파라미터로 전달하여 실시간 알림 스트림(SSE)에 연결합니다."
+    )
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamNotifications(Principal principal) {
-        System.out.println("=== SSE 엔드포인트 호출됨 ===");
-        String email = String.valueOf(principal.getName());
-        Long memberId = memberMapper.findIdByUsername(email);
-        log.info("SSE 연결 요청 - 회원 ID: {}", email);
-        return notificationSseService.createConnection(memberId);
+    public ResponseEntity<SseEmitter> streamNotifications(
+            @ApiParam(value = "JWT 인증 토큰", required = true)
+            @RequestParam(required = false) String token
+    ) {
+
+        try {
+            if (token == null || token.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            if (!jwtProcessor.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String username = jwtProcessor.getUsername(token);
+            Long memberId = jwtProcessor.getMemberId(token);
+
+            if (memberId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            SseEmitter emitter = notificationSseService.createConnection(memberId);
+            return ResponseEntity.ok(emitter);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @ApiOperation("SSE 연결 해제")
+    @ApiOperation(
+            value = "SSE 연결 해제",
+            notes = "실시간 알림 스트림 연결을 해제합니다."
+    )
     @DeleteMapping("/stream")
-    public void disconnectStream(Principal principal) {
+    public void disconnectStream(
+            @ApiParam(value = "인증된 사용자 정보", required = true)
+            Principal principal
+    ) {
         Long memberId = Long.valueOf(principal.getName());
-        log.info("SSE 연결 해제 요청 - 회원 ID: {}", memberId);
-
         notificationSseService.removeConnection(memberId);
     }
 
-    @ApiOperation("테스트 알림 전송")
-    @PostMapping("/test")
-    public void sendTestNotification(Principal principal) {
-        String email = String.valueOf(principal.getName());
-        Long memberId = memberMapper.findIdByUsername(email);
-        log.info("테스트 알림 전송 - 회원 ID: {}", memberId);
-
-        notificationSseService.sendTestNotification(memberId);
-    }
 }

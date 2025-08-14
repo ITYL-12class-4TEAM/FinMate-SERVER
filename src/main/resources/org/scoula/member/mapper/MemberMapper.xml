@@ -123,6 +123,7 @@
             nickname = #{nickname},
             social_id = #{socialId},
             is_new_member = #{isNewMember},
+            receive_push_notification = #{receivePushNotification},
             updated_at = #{updatedAt}
         WHERE member_id = #{memberId}
     </update>

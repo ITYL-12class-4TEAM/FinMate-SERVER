@@ -21,4 +21,13 @@ public class WMTIProfileDTO {
 
     @ApiModelProperty(value = "WMTI 성향 코드 설명 상세")
     private String description;
+
+    @ApiModelProperty(value = "WMTI 성향 코드별 강점")
+    private List<String> strengths;
+
+    @ApiModelProperty(value = "WMTI 성향 코드별 보완점")
+    private List<String> improvements;
+
+    @ApiModelProperty(value = "WMTI 성향 코드별 투자전략")
+    private String investmentStrategy;
 }

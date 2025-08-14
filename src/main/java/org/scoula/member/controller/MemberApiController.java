@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Api(tags = "회원 정보 API")
+@Api(tags = "회원 정보 API" , description = "현재 사용자 정보 조회 및 프로필 사진 업로드 API")
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor

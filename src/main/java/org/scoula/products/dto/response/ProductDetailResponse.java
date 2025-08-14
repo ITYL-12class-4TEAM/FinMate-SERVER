@@ -52,6 +52,9 @@ public class ProductDetailResponse {
     // 최고 금리
     private Double maxIntrRate;
 
+    // 회사 홈페이지 URL
+    private String companyUrl;
+
     /**
      * 예금, 적금 상품 정보로 응답 생성
      */
@@ -67,6 +70,7 @@ public class ProductDetailResponse {
         this.spclCnd = deposit.getSpclCnd();
         this.preferentialTags = deposit.getPreferentialTags();
         this.joinMember = deposit.getJoinMember();
+        this.companyUrl = deposit.getCompanyUrl();
 
         // 최고 금리 계산 (옵션 중 가장 높은 금리)
         this.maxIntrRate = deposit.getOptions().stream()
