@@ -65,3 +65,4 @@ bin/
 *.pem
 
 .env
+/finmate-key.pub
