@@ -49,7 +49,9 @@ echo "[`date`] Copied WAR as ROOT.war to standby Tomcat"
 # 5. 스탠바이 Tomcat 재시작
 echo "[`date`] Restarting standby Tomcat..."
 $STANDBY_TOMCAT/bin/shutdown.sh || true
-$STANDBY_TOMCAT/bin/startup.sh
+
+# config.location 추가
+$STANDBY_TOMCAT/bin/startup.sh -Dconfig.location=$PROJECT_DIR/server-submodule/
 
 # 6. Nginx upstream 안전 전환
 echo "[`date`] Switching Nginx upstream to $STANDBY_PORT..."
