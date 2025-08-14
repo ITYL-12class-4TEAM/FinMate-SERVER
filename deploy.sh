@@ -6,7 +6,7 @@ TOMCAT_HOME=/home/ubuntu/tomcat
 TOMCAT=$TOMCAT_HOME/tomcat-8081
 NGINX_SITES=/etc/nginx/sites-available/$APP_NAME
 PROJECT_DIR=/home/ubuntu/app/step1/FinMate-SERVER
-CONFIG_FILE=$PROJECT_DIR/server-submodule/application.properties
+CONFIG_DIR=$PROJECT_DIR/server-submodule/
 WAR_NAME=FinMate-SERVER-1.0-SNAPSHOT.war
 
 # 톰캣 lib에 로그 관련 JAR 복사 경로
@@ -25,8 +25,8 @@ source $PROJECT_DIR/.env
 set +o allexport
 echo "[`date`] Loaded environment variables"
 
-# 1.1 Spring 필수 config.location 환경 변수 설정
-export CONFIG_LOCATION=$CONFIG_FILE
+# 1.1 Spring 필수 config.location 환경 변수 설정 (디렉토리 경로로 설정)
+export CONFIG_LOCATION=$CONFIG_DIR
 echo "[`date`] CONFIG_LOCATION set to $CONFIG_LOCATION"
 
 # 2. 톰캣 기본 디렉토리 생성
@@ -65,8 +65,8 @@ echo "[`date`] Restarting Tomcat..."
 $TOMCAT/bin/shutdown.sh || true
 sleep 3
 
-# CATALINA_OPTS에 Log4j2 설정 추가
-CATALINA_OPTS="-Dconfig.location=$CONFIG_FILE -Dlog4j.configurationFile=$PROJECT_DIR/src/main/resources/log4j2.xml" \
+# CATALINA_OPTS에 Log4j2 설정 추가 (config.location을 디렉토리로 설정)
+CATALINA_OPTS="-Dconfig.location=$CONFIG_DIR -Dlog4j.configurationFile=$PROJECT_DIR/src/main/resources/log4j2.xml" \
     $TOMCAT/bin/startup.sh
 
 # 5.1 톰캣 기동 확인
