@@ -45,11 +45,12 @@ jobs:
       - name: Pull code and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "cd /home/ubuntu/app/step1/FinMate-SERVER && \
-             git fetch --depth=1 origin develop && \
-             git reset --hard origin/develop && \
-             chmod +x deploy.sh && \
-             ./deploy.sh"
+          "cd /home/ubuntu/app/step1/FinMate-SERVER && \
+           git fetch --depth=1 origin develop && \
+           git reset --hard origin/develop && \
+           chmod +x deploy.sh gradlew && \
+           ./deploy.sh"
+
 
       # 6. 배포 완료 후 Actions IP 제거
       - name: Remove GitHub Actions IP from security group
