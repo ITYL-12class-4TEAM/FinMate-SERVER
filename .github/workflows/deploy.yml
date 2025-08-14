@@ -10,19 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 소스 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 1. Actions VM 퍼블릭 IP 조회
+      # 2. GitHub Actions VM 퍼블릭 IP 조회
       - name: Get Public IP
         id: ip
         uses: haythem/public-ip@v1.3
 
       - name: Print Public IP
-        run: |
-          echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
+        run: echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
 
-      # 2. AWS 인증
+      # 3. AWS 인증
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -30,37 +30,36 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'ap-northeast-2'
 
-      # 3. EC2 보안 그룹에 Actions IP 허용
+      # 4. EC2 보안 그룹에 Actions IP 허용
       - name: Add GitHub Actions IP to security group
         run: |
           aws ec2 authorize-security-group-ingress \
-              --group-id ${{ secrets.SECURITY_GROUP_ID }} \
-              --protocol tcp \
-              --port 22 \
-              --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      # 4. 서버에서 fast fetch + deploy
-      - name: Pull code on server (fast fetch)
+      # 5. ssh-agent에 private key 등록
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+
+      # 6. 서버에서 fast fetch + deploy
+      - name: Pull code on server and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-              -o PreferredAuthentications=publickey \
-              -o PubkeyAuthentication=yes \
-              ubuntu@54.180.75.58 \
-              "cd /home/ubuntu/app/step1/FinMate-SERVER && \
-               git fetch --depth=1 origin develop && \
-               git reset --hard origin/develop"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "cd /home/ubuntu/app/step1/FinMate-SERVER && \
+             git fetch --depth=1 origin develop && \
+             git reset --hard origin/develop && \
+             ./deploy.sh"
 
-      - name: Run deploy script
-        run: |
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-              ubuntu@54.180.75.58 \
-              "cd /home/ubuntu/app/step1/FinMate-SERVER && ./deploy.sh"
-
-      # 5. 배포 완료 후 Actions IP 제거
+      # 7. 배포 완료 후 Actions IP 제거
       - name: Remove GitHub Actions IP from security group
+        if: always()
         run: |
           aws ec2 revoke-security-group-ingress \
-              --group-id ${{ secrets.SECURITY_GROUP_ID }} \
-              --protocol tcp \
-              --port 22 \
-              --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
