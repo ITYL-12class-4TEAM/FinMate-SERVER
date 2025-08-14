@@ -20,8 +20,7 @@ jobs:
         uses: haythem/public-ip@v1.3
 
       - name: Print Public IP
-        run: |
-          echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
+        run: echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
 
       # 3. AWS 인증
       - name: Configure AWS credentials
