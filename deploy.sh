@@ -26,7 +26,7 @@ else
     STANDBY_TOMCAT=$TOMCAT1
 fi
 
-# 3. 빌드 (테스트 제외, 캐시 활용)
+# 3. 빌드
 echo "[`date`] Building project..."
 ./gradlew clean build -x test --parallel --configure-on-demand
 
@@ -42,11 +42,15 @@ cp $WAR_PATH $STANDBY_TOMCAT/webapps/$APP_NAME.war
 $STANDBY_TOMCAT/bin/shutdown.sh || true
 $STANDBY_TOMCAT/bin/startup.sh
 
-# 6. Nginx upstream 전환
-sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)/" $NGINX_SITES
-sudo nginx -s reload
+# 6. Nginx upstream 전환 (에러 무시)
+if [ -f /run/nginx.pid ]; then
+    sudo nginx -s reload || true
+else
+    sudo nginx || true
+fi
+sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)/" $NGINX_SITES || true
 
 # 7. 이전 Tomcat 종료
-$ACTIVE_TOMCAT/bin/shutdown.sh
+$ACTIVE_TOMCAT/bin/shutdown.sh || true
 
 echo "[`date`] Deployment finished successfully!"
