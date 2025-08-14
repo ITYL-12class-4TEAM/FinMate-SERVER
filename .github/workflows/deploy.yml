@@ -17,7 +17,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. AWS 인증
+      # 2. GitHub Actions VM 퍼블릭 IP 조회
+      - name: Get Public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+        with:
+          maxRetries: 5
+
+      - name: Print Public IP
+        run: |
+          echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
+
+      # 3. AWS 인증
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -25,7 +36,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 3. EC2 보안 그룹에 Actions IP 허용 (Secrets에 저장된 고정 IP 사용)
+      # 4. EC2 보안 그룹에 Actions IP 허용
       - name: Add GitHub Actions IP to security group
         run: |
           aws ec2 authorize-security-group-ingress \
@@ -33,26 +44,25 @@ jobs:
             --group-id ${{ secrets.SECURITY_GROUP_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ secrets.ACTIONS_RUNNER_IP }}/32
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      # 4. ssh-agent에 private key 등록
+      # 5. ssh-agent에 private key 등록
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
 
-      # 5. 서버에서 pull + 권한 설정 + deploy
+      # 6. 서버에서 pull + 권한 설정 + deploy
       - name: Pull code and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "cd /home/ubuntu/app/step1/FinMate-SERVER && \
-           git fetch --depth=1 origin develop && \
-           git reset --hard origin/develop && \
-           chmod +x deploy.sh gradlew && \
-           ./deploy.sh"
+            "cd /home/ubuntu/app/step1/FinMate-SERVER && \
+             git fetch --depth=1 origin develop && \
+             git reset --hard origin/develop && \
+             chmod +x deploy.sh gradlew && \
+             ./deploy.sh"
 
-
-      # 6. 배포 완료 후 Actions IP 제거
+      # 7. 배포 완료 후 Actions IP 제거
       - name: Remove GitHub Actions IP from security group
         if: always()
         run: |
@@ -61,4 +71,4 @@ jobs:
             --group-id ${{ secrets.SECURITY_GROUP_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ secrets.ACTIONS_RUNNER_IP }}/32
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
