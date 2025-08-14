@@ -25,33 +25,39 @@ else
     ACTIVE_TOMCAT=$TOMCAT2
     STANDBY_TOMCAT=$TOMCAT1
 fi
+echo "[`date`] Active Tomcat: $ACTIVE_TOMCAT, Standby Tomcat: $STANDBY_TOMCAT"
 
-# 3. 빌드 (테스트 제외, 캐시 활용)
-echo "[`date`] Building project..."
+# 3. Gradle 빌드 (권한 체크 후)
 chmod +x ./gradlew
+echo "[`date`] Building project..."
 ./gradlew clean build -x test --parallel --configure-on-demand
 
 # 4. WAR 배포
 WAR_PATH=$PROJECT_DIR/build/libs/$WAR_NAME
 if [[ ! -f "$WAR_PATH" ]]; then
-    echo "WAR file not found: $WAR_PATH"
+    echo "[ERROR] WAR file not found: $WAR_PATH"
     exit 1
 fi
 cp $WAR_PATH $STANDBY_TOMCAT/webapps/$APP_NAME.war
+echo "[`date`] Copied WAR to standby Tomcat"
 
 # 5. 스탠바이 Tomcat 재시작
+echo "[`date`] Restarting standby Tomcat..."
 $STANDBY_TOMCAT/bin/shutdown.sh || true
 $STANDBY_TOMCAT/bin/startup.sh
 
-# 6. Nginx upstream 전환
-sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)/" $NGINX_SITES
-sudo nginx -s reload || true
+# 6. Nginx upstream 안전 전환
+NEW_PORT=$( [[ $ACTIVE_PORT == 8081 ]] && echo 8082 || echo 8081)
+echo "[`date`] Switching Nginx upstream to $NEW_PORT..."
+sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$NEW_PORT/" $NGINX_SITES
+sudo nginx -s reload || echo "[WARN] Nginx reload failed, check config"
 
-# 7. 이전 Tomcat 종료 (포트 확인 후 종료)
+# 7. 이전 Tomcat 종료 (포트 확인 후만)
 if nc -z localhost 8005; then
-    $ACTIVE_TOMCAT/bin/shutdown.sh || true
+    echo "[`date`] Shutting down active Tomcat..."
+    $ACTIVE_TOMCAT/bin/shutdown.sh || echo "[WARN] Shutdown command failed"
 else
-    echo "Active Tomcat not running on 8005, skip shutdown"
+    echo "[`date`] Active Tomcat not running on 8005, skip shutdown"
 fi
 
 echo "[`date`] Deployment finished successfully!"
