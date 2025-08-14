@@ -24,10 +24,6 @@ jobs:
         with:
           maxRetries: 5
 
-      - name: Print Public IP
-        run: |
-          echo "Actions runner IP: ${{ steps.ip.outputs.ipv4 }}"
-
       # 3. AWS 인증
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,13 +42,13 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      # 5. ssh-agent에 private key 등록
+      # 5. SSH Key 등록
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
 
-      # 6. 서버에서 pull + 권한 설정 + deploy
+      # 6. 서버에서 pull + deploy.sh 실행
       - name: Pull code and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
