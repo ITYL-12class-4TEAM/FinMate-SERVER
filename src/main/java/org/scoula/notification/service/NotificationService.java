@@ -18,7 +18,7 @@ public interface NotificationService {
     NotificationVO createNotification(NotificationCreateRequest request);
 
     // 댓글 알림 생성
-    void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle);
+    void createCommentNotification(Long postId, Long commentId, Long authorId, Boolean isAnonymous, String authorNickname, String postTitle);
 
     // 좋아요 알림 생성
     void createLikeNotification(Long postId, Long authorId, String authorNickname, String postTitle);

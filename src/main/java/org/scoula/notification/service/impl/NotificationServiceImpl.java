@@ -135,7 +135,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void createCommentNotification(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle) {
+    public void createCommentNotification(Long postId, Long commentId, Long authorId, Boolean isAnonymous, String authorNickname, String postTitle) {
 
         Long postAuthorId = notificationMapper.selectPostAuthorId(postId);
 
@@ -146,6 +146,9 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (postAuthorId.equals(authorId)) {
             return;
+        }
+        if(isAnonymous){
+            authorNickname = "익명의 사용자";
         }
 
         Map<String, Object> relatedData = new HashMap<>();
