@@ -16,9 +16,9 @@ public class NotificationHelper {
     private final NotificationService notificationService;
 
 
-    public void notifyCommentCreated(Long postId, Long commentId, Long authorId, String authorNickname, String postTitle) {
+    public void notifyCommentCreated(Long postId, Long commentId, Long authorId, Boolean isAnonymous, String authorNickname, String postTitle) {
         try {
-            notificationService.createCommentNotification(postId, commentId, authorId, authorNickname, postTitle);
+            notificationService.createCommentNotification(postId, commentId, authorId, isAnonymous, authorNickname, postTitle);
         } catch (Exception e) {
             log.error("댓글 알림 생성 실패: postId={}, commentId={}", postId, commentId, e);
         }
