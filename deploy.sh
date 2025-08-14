@@ -28,6 +28,10 @@ else
 fi
 echo "[`date`] Active Tomcat: $ACTIVE_TOMCAT, Standby Tomcat: $STANDBY_TOMCAT"
 
+# 2.1 스탠바이 톰캣 기본 디렉토리 생성
+mkdir -p $STANDBY_TOMCAT/webapps
+mkdir -p $STANDBY_TOMCAT/logs
+
 # 3. Gradle 빌드
 chmod +x ./gradlew
 echo "[`date`] Building project..."
