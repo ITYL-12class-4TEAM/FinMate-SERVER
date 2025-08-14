@@ -49,11 +49,17 @@ echo "[`date`] Copied WAR as ROOT.war to standby Tomcat"
 # 5. 스탠바이 Tomcat 재시작
 echo "[`date`] Restarting standby Tomcat..."
 $STANDBY_TOMCAT/bin/shutdown.sh || true
+$STANDBY_TOMCAT/bin/startup.sh
 
-# config.location 추가
-$STANDBY_TOMCAT/bin/startup.sh -Dconfig.location=$PROJECT_DIR/server-submodule/
+# 5.1 스탠바이 기동 확인
+echo "[`date`] Checking standby Tomcat on port $STANDBY_PORT..."
+sleep 5
+if ! nc -z localhost $STANDBY_PORT; then
+    echo "[ERROR] Standby Tomcat failed to start on $STANDBY_PORT"
+    exit 1
+fi
 
-# 6. Nginx upstream 안전 전환
+# 6. Nginx upstream 안전 전환 (단일 서버)
 echo "[`date`] Switching Nginx upstream to $STANDBY_PORT..."
 sudo sed -i "s/server 127.0.0.1:808[12]/server 127.0.0.1:$STANDBY_PORT/" $NGINX_SITES
 sudo nginx -s reload || echo "[WARN] Nginx reload failed, check config"
