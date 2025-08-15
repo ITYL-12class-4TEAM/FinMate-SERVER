@@ -3,11 +3,10 @@ package org.scoula.product.scheduler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.scoula.product.EtcNoteParsedResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,7 +14,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.*;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,58 +22,46 @@ import java.util.regex.Pattern;
 public class SavingProductScheduler {
 
     private static final String[] GROUP_CODES = {"020000", "030300"}; // 은행, 저축은행
-    private String API_URL;
-    private String AUTH_KEY;
-    private String DB_URL;
-    private String DB_USER;
-    private String DB_PASS;
 
-    @PostConstruct
-    public void init() {
-        try {
-            Properties props = new Properties();
-            String baseDir = System.getProperty("config.location", "");
-            if (!baseDir.isEmpty() && !baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-                baseDir = baseDir + "/";
-            }
-            String oauthPath = baseDir + "application-oauth.properties";
-            String dbPath = baseDir + "application-local.properties";
-            try (FileInputStream oauthInput = new FileInputStream(oauthPath)) {
-                props.load(oauthInput);
-            }
-            try (FileInputStream dbInput = new FileInputStream(dbPath)) {
-                props.load(dbInput);
-            }
-            API_URL = props.getProperty("finlife.api.url.savingProduct");
-            AUTH_KEY = props.getProperty("finlife.api.key");
-            DB_URL = props.getProperty("jdbc.url");
-            DB_USER = props.getProperty("jdbc.username");
-            DB_PASS = props.getProperty("jdbc.password");
-        } catch (Exception e) {
-            throw new RuntimeException("프로퍼티 로딩 실패", e);
-        }
-    }
+    @Value("${finlife.api.url.savingProduct}")
+    private String API_URL;
+
+    @Value("${finlife.api.key}")
+    private String AUTH_KEY;
+
+    @Value("${spring.datasource.url:${jdbc.url}}")
+    private String DB_URL;
+
+    @Value("${spring.datasource.username:${jdbc.username}}")
+    private String DB_USER;
+
+    @Value("${spring.datasource.password:${jdbc.password}}")
+    private String DB_PASS;
 
     @Scheduled(cron = "0 0 4 * * 1")
     public void fetchSavingProductProductsScheduled() {
+        System.out.println("⏰ [스케줄러] 적금상품 데이터 수집 시작 - " + java.time.LocalDateTime.now());
         executeDataFetch();
     }
+
     public void fetchSavingProducttProductsManually() {
-        System.out.println("🔧 [Spring Legacy] 수동 적금상품 데이터 수집 시작...");
+        System.out.println("🔧 [수동실행] 적금상품 데이터 수집 시작 - " + java.time.LocalDateTime.now());
         executeDataFetch();
     }
 
     public void executeDataFetch() {
+        System.out.println("🚀 SavingProductScheduler 데이터 수집 시작");
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            System.out.println("✅ 데이터베이스 연결 성공");
 
             // 외래키 사용하기 위해 auto commit false
             conn.setAutoCommit(false);
 
             for (String code : GROUP_CODES) {
-                System.out.println("🔍 그룹코드 " + code + " 처리 시작...");
+                System.out.println("\n🔍 그룹코드 " + code + " 처리 시작...");
 
                 // 첫 번째 페이지로 전체 페이지 수 확인
                 int totalPages = getTotalPages(client, mapper, code);
@@ -86,6 +72,8 @@ public class SavingProductScheduler {
                     System.out.println("📖 페이지 " + pageNo + "/" + totalPages + " 처리 중...");
 
                     String url = API_URL + "?auth=" + AUTH_KEY + "&topFinGrpNo=" + code + "&pageNo=" + pageNo;
+                    System.out.println("   🌐 API 호출: " + url.substring(0, url.indexOf("auth=")) + "auth=***");
+
                     String body = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
                             HttpResponse.BodyHandlers.ofString()).body();
 
@@ -93,7 +81,7 @@ public class SavingProductScheduler {
                     JsonNode baseList = result.path("baseList");
                     JsonNode optionList = result.path("optionList");
 
-                    System.out.println("  - 상품 " + baseList.size() + "개, 옵션 " + optionList.size() + "개");
+                    System.out.println("   📊 상품 " + baseList.size() + "개, 옵션 " + optionList.size() + "개 발견");
 
                     // baseList 처리
                     for (JsonNode base : baseList) {
@@ -109,6 +97,9 @@ public class SavingProductScheduler {
                 conn.commit();
                 System.out.println("✅ 완료: 그룹코드=" + code + " (총 " + totalPages + "페이지)\n");
             }
+
+            System.out.println("🎉 전체 적금상품 데이터 수집 완료!");
+
         } catch (Exception e) {
             System.out.println("❌ 오류 발생: " + e.getMessage());
             e.printStackTrace();
@@ -118,15 +109,23 @@ public class SavingProductScheduler {
     // 전체 페이지 수 조회
     private int getTotalPages(HttpClient client, ObjectMapper mapper, String groupCode) throws Exception {
         String url = API_URL + "?auth=" + AUTH_KEY + "&topFinGrpNo=" + groupCode + "&pageNo=1";
+        System.out.println("   🔍 페이지 수 조회 API 호출");
+
         String body = client.send(HttpRequest.newBuilder(URI.create(url)).build(),
                 HttpResponse.BodyHandlers.ofString()).body();
 
         JsonNode result = mapper.readTree(body).path("result");
-        return result.path("max_page_no").asInt(1); // 기본값 1
+        int maxPage = result.path("max_page_no").asInt(1);
+        System.out.println("   📄 최대 페이지 수: " + maxPage);
+        return maxPage;
     }
 
     // 기본 상품 정보 처리
     private static void processBaseProduct(Connection conn, JsonNode base) throws SQLException {
+        String productName = base.path("fin_prdt_nm").asText();
+        String companyName = base.path("kor_co_nm").asText();
+        System.out.println("     🏦 적금상품 처리: " + productName + " (" + companyName + ")");
+
         // 1. financial_product 저장
         String insertFin = "INSERT INTO financial_product (fin_co_no, fin_prdt_cd, product_name, kor_co_nm, dcls_month,join_way,join_deny, join_member, risk_level, external_link, category_id, subcategory_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?,?,?,'LOW', '', 1, 102) " +  // 예적금(1), 적금(102)
@@ -136,15 +135,18 @@ public class SavingProductScheduler {
             // 필수 필드 설정
             ps.setString(1, base.path("fin_co_no").asText());
             ps.setString(2, base.path("fin_prdt_cd").asText());
-            ps.setString(3, base.path("fin_prdt_nm").asText());
-            ps.setString(4, base.path("kor_co_nm").asText());
+            ps.setString(3, productName);
+            ps.setString(4, companyName);
             ps.setString(5, base.path("dcls_month").asText());
             ps.setString(6, base.path("join_way").asText()); // 가입방법
             ps.setString(7, base.path("join_deny").asText()); // 가입제한
             ps.setString(8, base.path("join_member").asText()); // 가입대상
-            ps.executeUpdate();
+
+            int affected = ps.executeUpdate();
+            System.out.println("       💾 financial_product 저장 완료 - 영향받은 행 수: " + affected);
 
             Long productId = getProductId(conn, ps, base);
+            System.out.println("       🔑 Product ID: " + productId);
 
             // 2. deposit_product 저장
             insertDepositProduct(conn, base, productId);
@@ -187,7 +189,18 @@ public class SavingProductScheduler {
 
             // etcNote 파싱
             String etcNoteRaw = base.path("etc_note").asText(null);
+            System.out.println("       📝 ETC Note 파싱 중...");
             EtcNoteParsedResult parsed = parseEtcNote(etcNoteRaw);
+
+            if (parsed.minDeposit != null) {
+                System.out.println("       💰 최소적립금: " + String.format("%,d원", parsed.minDeposit));
+            }
+            if (parsed.maxLimit != null) {
+                System.out.println("       📊 최대한도: " + String.format("%,d원", parsed.maxLimit));
+            }
+            if (parsed.isDigitalOnly) {
+                System.out.println("       📱 디지털 전용 상품");
+            }
 
             // 필수 필드 설정
             psDp.setInt(2, parsed.minDeposit != null ? parsed.minDeposit : 0);
@@ -203,7 +216,9 @@ public class SavingProductScheduler {
                 String maxLimitStr = base.path("max_limit").asText();
                 if (!maxLimitStr.equals("null") && !maxLimitStr.isEmpty()) {
                     try {
-                        psDp.setLong(6, Long.parseLong(maxLimitStr));
+                        long maxLimit = Long.parseLong(maxLimitStr);
+                        psDp.setLong(6, maxLimit);
+                        System.out.println("       📈 fallback 최대한도: " + String.format("%,d원", maxLimit));
                     } catch (NumberFormatException e) {
                         psDp.setNull(6, Types.BIGINT);
                     }
@@ -211,7 +226,6 @@ public class SavingProductScheduler {
                     psDp.setNull(6, Types.BIGINT);
                 }
             }
-
 
             // 날짜들
             setDateField(psDp, 7, base.path("dcls_strt_day").asText());
@@ -238,10 +252,10 @@ public class SavingProductScheduler {
             psDp.setString(16, preferentialTags);
             psDp.setString(17, base.path("mtrt_int").asText(null));
 
-            psDp.executeUpdate();
+            int affected = psDp.executeUpdate();
+            System.out.println("       💾 deposit_product 저장 완료 - 영향받은 행 수: " + affected);
         }
     }
-
 
     // 상품 옵션 처리
     private static void processProductOption(Connection conn, JsonNode option) throws SQLException {
@@ -255,7 +269,9 @@ public class SavingProductScheduler {
             try (ResultSet rs3 = ps3.executeQuery()) {
                 if (rs3.next()) {
                     productId = rs3.getLong(1);
+                    System.out.println("       ⚙️  옵션 처리 - Product ID: " + productId + ", 기간: " + option.path("save_trm").asInt() + "개월");
                 } else {
+                    System.out.println("       ⚠️  상품을 찾을 수 없어 옵션 건너뜀");
                     return; // product를 찾을 수 없으면 스킵
                 }
             }
@@ -268,7 +284,8 @@ public class SavingProductScheduler {
         try (PreparedStatement psOpt = conn.prepareStatement(insOpt)) {
 
             // 1. 예치 기간 (단위: 개월)
-            psOpt.setInt(1, option.path("save_trm").asInt());
+            int saveTrm = option.path("save_trm").asInt();
+            psOpt.setInt(1, saveTrm);
 
             // 2. 이자율 타입 (코드)
             psOpt.setString(2, option.path("intr_rate_type").asText());
@@ -280,14 +297,18 @@ public class SavingProductScheduler {
             if (option.path("intr_rate").isNull()) {
                 psOpt.setNull(4, Types.DECIMAL);
             } else {
-                psOpt.setBigDecimal(4, BigDecimal.valueOf(option.path("intr_rate").asDouble()));
+                double intrRate = option.path("intr_rate").asDouble();
+                psOpt.setBigDecimal(4, BigDecimal.valueOf(intrRate));
+                System.out.println("         💹 기본금리: " + intrRate + "%");
             }
 
             // 5. 우대 금리 설정
             if (option.path("intr_rate2").isNull()) {
                 psOpt.setNull(5, Types.DECIMAL);
             } else {
-                psOpt.setBigDecimal(5, BigDecimal.valueOf(option.path("intr_rate2").asDouble()));
+                double intrRate2 = option.path("intr_rate2").asDouble();
+                psOpt.setBigDecimal(5, BigDecimal.valueOf(intrRate2));
+                System.out.println("         🔥 우대금리: " + intrRate2 + "%");
             }
 
             // 6. 적립 방식 코드 (예: 정액적립식, 자유적립식)
@@ -299,7 +320,8 @@ public class SavingProductScheduler {
             // 8. 해당 옵션이 속한 상품의 product_id (외래키)
             psOpt.setLong(8, productId);
 
-            psOpt.executeUpdate();
+            int affected = psOpt.executeUpdate();
+            System.out.println("         💾 옵션 저장 완료 - 영향받은 행 수: " + affected);
         }
     }
 
@@ -336,6 +358,7 @@ public class SavingProductScheduler {
             ps.setNull(paramIndex, Types.TIMESTAMP);
         }
     }
+
     private static EtcNoteParsedResult parseEtcNote(String etcNoteRaw) {
         EtcNoteParsedResult result = new EtcNoteParsedResult();
 
@@ -371,7 +394,6 @@ public class SavingProductScheduler {
                         // "전용상품" 패턴
                         Pattern.compile("(인터넷|모바일|디지털).{0,30}전용상품")
                                 .matcher(normalized).find();
-
 
         // === 금액 파싱 개선 ===
 
@@ -445,6 +467,7 @@ public class SavingProductScheduler {
 
         return result;
     }
+
     // 특수 케이스 처리 메서드
     private static void handleSpecialCases(String normalized, EtcNoteParsedResult result) {
         // "제한없음" 처리
@@ -471,7 +494,6 @@ public class SavingProductScheduler {
             result.maxLimit = convertToNumber(personalMatcher.group(1), personalMatcher.group(2));
         }
     }
-
 
     // 기타 필드 파싱 메서드
     private static void parseOtherFields(String normalized, EtcNoteParsedResult result) {
@@ -506,6 +528,7 @@ public class SavingProductScheduler {
             result.rotationCycle = rotMatcher.group(1).trim();
         }
     }
+
     // 숫자 변환 헬퍼 메서드
     private static long convertToNumber(String numberStr, String unit) {
         if (numberStr == null || numberStr.isEmpty()) return 0;
