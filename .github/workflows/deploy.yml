@@ -3,25 +3,68 @@ name: Deploy FinMate
 on:
   push:
     branches:
-      - develop  # develop 브랜치에 push 되면 실행
+      - develop
+
+env:
+  AWS_DEFAULT_REGION: ap-northeast-2
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 소스 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH
+      # 2. GitHub Actions VM 퍼블릭 IP 조회
+      - name: Get Public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+        with:
+          maxRetries: 5
+
+      # 3. AWS 인증
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 4. EC2 보안 그룹에 Actions IP 허용
+      - name: Add GitHub Actions IP to security group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --region ap-northeast-2 \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      # 5. SSH Key 등록
+      - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
 
-      - name: Pull code on server
+      # 6. 서버에서 pull + deploy.sh 실행
+      - name: Pull code and deploy
         run: |
-          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && git reset --hard && git pull origin develop"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "cd /home/ubuntu/app/step1/FinMate-SERVER && \
+             git fetch --depth=1 origin develop && \
+             git reset --hard origin/develop && \
+             chmod +x deploy.sh gradlew && \
+             ./deploy.sh"
 
-      - name: Run deploy script
+      # 7. 배포 완료 후 Actions IP 제거
+      - name: Remove GitHub Actions IP from security group
+        if: always()
         run: |
-          ssh ubuntu@54.180.75.58 "cd /home/ubuntu/app/step1/FinMate-SERVER && ./deploy.sh"
+          aws ec2 revoke-security-group-ingress \
+            --region ap-northeast-2 \
+            --group-id ${{ secrets.SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32

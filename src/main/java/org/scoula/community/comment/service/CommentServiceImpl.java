@@ -74,6 +74,7 @@ public class CommentServiceImpl implements CommentService {
                     post.getPostId(),
                     vo.getCommentId(),
                     memberId,
+                    vo.isAnonymous(),
                     authorNickname,
                     post.getTitle()
                 );

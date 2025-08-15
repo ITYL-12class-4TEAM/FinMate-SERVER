@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.scoula.member.mapper.MemberMapper;
 import org.scoula.notification.service.NotificationSseService;
 import org.scoula.security.util.JwtProcessor;
 import org.springframework.http.HttpStatus;
