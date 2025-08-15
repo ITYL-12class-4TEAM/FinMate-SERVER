@@ -2,58 +2,41 @@ package org.scoula.product.scheduler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.*;
-import java.util.Properties;
 
 @Component
 public class PensionProductScheduler {
     private static final String[] GROUP_CODES = {"050000", "060000"}; // 보험, 금융투자
 
+    @Value("${finlife.api.url.pension}")
     private String API_URL;
+
+    @Value("${finlife.api.key}")
     private String AUTH_KEY;
+
+    @Value("${spring.datasource.url:${jdbc.url}}")
     private String DB_URL;
+
+    @Value("${spring.datasource.username:${jdbc.username}}")
     private String DB_USER;
+
+    @Value("${spring.datasource.password:${jdbc.password}}")
     private String DB_PASS;
 
-    @PostConstruct
-    public void init() {
-        try {
-            Properties props = new Properties();
-            String baseDir = System.getProperty("config.location", "");
-            if (!baseDir.isEmpty() && !baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-                baseDir = baseDir + "/";
-            }
-            String oauthPath = baseDir + "application-oauth.properties";
-            String dbPath = baseDir + "application-local.properties";
-            try (FileInputStream oauthInput = new FileInputStream(oauthPath)) {
-                props.load(oauthInput);
-            }
-            try (FileInputStream dbInput = new FileInputStream(dbPath)) {
-                props.load(dbInput);
-            }
-            API_URL = props.getProperty("finlife.api.url.pension");
-            AUTH_KEY = props.getProperty("finlife.api.key");
-            DB_URL = props.getProperty("jdbc.url");
-            DB_USER = props.getProperty("jdbc.username");
-            DB_PASS = props.getProperty("jdbc.password");
-        } catch (Exception e) {
-            throw new RuntimeException("프로퍼티 로딩 실패", e);
-        }
-    }
     @Scheduled(cron = "0 0 4 * * 1")
     public void fetchPensionProductsScheduled() {
         executeDataFetch();
     }
+
     public void fetchPensiontProductsManually() {
         System.out.println("🔧 [Spring Legacy] 수동 연금상품 데이터 수집 시작...");
         executeDataFetch();
@@ -368,6 +351,7 @@ public class PensionProductScheduler {
             ps.setNull(paramIndex, Types.TIMESTAMP);
         }
     }
+
     // 분류 메서드
     private static String getProductCategory(String prdtType) {
         if (prdtType == null || prdtType.isEmpty()) {
