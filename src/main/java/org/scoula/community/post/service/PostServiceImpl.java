@@ -8,6 +8,8 @@ import org.scoula.auth.exception.AccessDeniedException;
 import org.scoula.community.comment.domain.CommentVO;
 import org.scoula.community.post.domain.PostVO;
 import org.scoula.community.post.domain.ProductTag;
+import org.scoula.community.post.dto.PageRequestDTO;
+import org.scoula.community.post.dto.PageResponseDTO;
 import org.scoula.community.post.dto.PostCreateRequestDTO;
 import org.scoula.community.post.dto.PostDetailsResponseDTO;
 import org.scoula.community.post.dto.PostListResponseDTO;
@@ -30,13 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    private final static String BASE_DIR = "/Users/yerong/documents/board";
     final private PostMapper postMapper;
     private final MemberMapper memberMapper;
     private final PostLikeMapper postLikeMapper;
     private final RedisTemplate<String, Object> redisObjectTemplate;
-    private final PostLikeService postLikeService;
-    private final ScrapService scrapService;
     private final ScrapMapper scrapMapper;
 
     private static final String HOT_POSTS_ALL_KEY = "hot_posts:all";
@@ -82,9 +81,6 @@ public class PostServiceImpl implements PostService {
         PostVO post = postMapper.get(postId);
         validatePostExists(postId);
 
-//        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(postId);
-//        post.setAttachments(attachments);
-
         List<CommentVO> comments = postMapper.getCommentsByPostId(postId);
         Long currentUserId = getCurrentUserIdAsLong();
         int likeCount = postLikeMapper.countByPostId(post.getPostId());
@@ -121,10 +117,6 @@ public class PostServiceImpl implements PostService {
         }
         vo.setMemberId(memberId);
         postMapper.create(vo);
-//        List<MultipartFile> files = postCreateRequestDTO.getFiles();
-//        if (files != null && !files.isEmpty()) {
-//            upload(vo.getPostId(), files);
-//        }
         return get(vo.getPostId());
     }
 
@@ -141,10 +133,7 @@ public class PostServiceImpl implements PostService {
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
-//        List<MultipartFile> files = postUpdateRequestDTO.getFiles();
-//        if (files != null && !files.isEmpty()) {
-//            upload(post.getPostId(), files);
-//        }
+
         PostVO updateVO = postUpdateRequestDTO.toVo();
         updateVO.setPostId(postId);
         postMapper.update(updateVO);
@@ -166,59 +155,9 @@ public class PostServiceImpl implements PostService {
         if (post.getMemberId() != memberId) {
             throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
         }
-//        List<PostAttachmentVO> attachments = postMapper.getAttachmentList(postId);
-//        for (PostAttachmentVO attachment : attachments) {
-//            try {
-//                UploadFiles.deleteFile(attachment.getPath());
-//                log.info("파일 삭제 성공: {}", attachment.getPath());
-//            } catch (Exception e) {
-//                log.warn("파일 삭제 실패: {}", attachment.getPath(), e);
-//            }
-//        }
-//        postMapper.deleteAttachmentsByPostId(postId);
+
         postMapper.delete(postId);
     }
-
-//    @Override
-//    public PostAttachmentVO getAttachment(Long no) {
-//        PostAttachmentVO attachment = postMapper.getAttachment(no);
-//        if (attachment == null) {
-//            throw new AttachmentNotFound(ResponseCode.ATTACHMENT_NOT_FOUND);
-//        }
-//        return attachment;
-//    }
-
-//    // 첨부파일 삭제
-//    @Override
-//    @Transactional
-//    public boolean deleteAttachment(Long no) {
-//        // 첨부파일 정보 조회
-//        PostAttachmentVO attachment = postMapper.getAttachment(no);
-//        if (attachment == null) {
-//            throw new AttachmentNotFound(ResponseCode.ATTACHMENT_NOT_FOUND);
-//        }
-//
-//        PostVO post = postMapper.get(attachment.getBno());
-//        Long memberId = getCurrentUserIdAsLong();
-//        if (!post.getMemberId().equals(memberId)) {
-//            throw new AccessDeniedException(ResponseCode.ACCESS_DENIED);
-//        }
-//
-//        try {
-//            UploadFiles.deleteFile(attachment.getPath());
-//            log.info("첨부파일 삭제 성공: {}", attachment.getPath());
-//        } catch (Exception e) {
-//            log.warn("첨부파일 삭제 실패: {}", attachment.getPath(), e);
-//        }
-//
-//        // DB 레코드 삭제
-//        boolean result = postMapper.deleteAttachment(no) == 1;
-//        if (!result) {
-//            throw new AttachmentNotFound(ResponseCode.ATTACHMENT_NOT_FOUND);
-//        }
-//
-//        return true;
-//    }
 
     @Override
     public List<PostListResponseDTO> getListByBoard(Long boardId) {
@@ -320,9 +259,9 @@ public class PostServiceImpl implements PostService {
         for (PostVO post : posts) {
             Long postId = post.getPostId();
             Long currentUserId = getCurrentUserIdAsLong();
-            int likeCount = postLikeMapper.countByPostId(post.getPostId());
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
-            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+            int likeCount = postLikeMapper.countByPostId(postId);
+            int commentCount = postMapper.countCommentsByPostId(postId);
+            int scrapCount = scrapMapper.countScrapsByPostId(postId);
 
             post.setLikeCount(likeCount);
             post.setCommentCount(commentCount);
@@ -380,9 +319,9 @@ public class PostServiceImpl implements PostService {
         for (PostVO post : posts) {
             Long postId = post.getPostId();
             Long currentUserId = getCurrentUserIdAsLong();
-            int likeCount = postLikeMapper.countByPostId(post.getPostId());
-            int commentCount = postMapper.countCommentsByPostId(post.getPostId());
-            int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+            int likeCount = postLikeMapper.countByPostId(postId);
+            int commentCount = postMapper.countCommentsByPostId(postId);
+            int scrapCount = scrapMapper.countScrapsByPostId(postId);
 
             post.setLikeCount(likeCount);
             post.setCommentCount(commentCount);
@@ -412,33 +351,108 @@ public class PostServiceImpl implements PostService {
 
         return result;
     }
+    @Override
+    public PageResponseDTO<PostListResponseDTO> getListWithPaging(PageRequestDTO pageRequest) {
+        log.info("getListWithPaging..........");
 
-//
-//    private void upload(Long bno, List<MultipartFile> files) {
-//        for (MultipartFile part : files) {
-//            if (part == null || part.isEmpty()) continue;
-//
-//            try {
-//                String originalFileName = UploadFiles.sanitizeFilename(part.getOriginalFilename());
-//
-//                if (part.getSize() > 50 * 1024 * 1024) {
-//                    log.warn("파일 크기 초과: {} ({}bytes)", originalFileName, part.getSize());
-//                    continue;
-//                }
-//
-//                String uploadPath = UploadFiles.upload(BASE_DIR, part);
-//                PostAttachmentVO attach = PostAttachmentVO.of(part, bno, uploadPath);
-//                postMapper.createAttachment(attach);
-//
-//                log.info("파일 업로드 성공: {} -> {}", originalFileName, uploadPath);
-//
-//            } catch (IOException e) {
-//                log.error("파일 업로드 실패: {}", part.getOriginalFilename(), e);
-//                throw new UploadFailException(ResponseCode.FILE_UPLOAD_FAIL);
-//            }
-//        }
-//    }
+        Long currentUserId = getCurrentUserIdAsLong();
 
+        // 페이징된 게시글 목록 조회
+        List<PostVO> posts = postMapper.getListWithPaging(pageRequest.getOffset(), pageRequest.getSize());
+
+        // 전체 게시글 수 조회
+        long totalCount = postMapper.getTotalCount();
+
+        // PostVO를 PostListResponseDTO로 변환
+        List<PostListResponseDTO> result = posts.stream()
+                .map(post -> {
+                    setPostCounts(post);
+                    setUserInteractionFlags(post, currentUserId);
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
+                .toList();
+
+        return PageResponseDTO.of(result, pageRequest, totalCount);
+    }
+
+    @Override
+    public PageResponseDTO<PostListResponseDTO> getListByBoardWithPaging(Long boardId, PageRequestDTO pageRequest) {
+        log.info("getListByBoardWithPaging......... boardId={}", boardId);
+
+        Long currentUserId = getCurrentUserIdAsLong();
+
+        // 페이징된 게시글 목록 조회
+        List<PostVO> posts = postMapper.getListByBoardWithPaging(boardId, pageRequest.getOffset(), pageRequest.getSize());
+
+        // 해당 게시판의 전체 게시글 수 조회
+        long totalCount = postMapper.getTotalCountByBoard(boardId);
+
+        // PostVO를 PostListResponseDTO로 변환
+        List<PostListResponseDTO> result = posts.stream()
+                .map(post -> {
+                    setPostCounts(post);
+                    setUserInteractionFlags(post, currentUserId);
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
+                .toList();
+
+        return PageResponseDTO.of(result, pageRequest, totalCount);
+    }
+
+    @Override
+    public PageResponseDTO<PostListResponseDTO> getMyPostsWithPaging(PageRequestDTO pageRequest) {
+        log.info("getMyPostsWithPaging..........");
+
+        Long memberId = getCurrentUserIdAsLong();
+        if (memberId == null) {
+            throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
+        }
+
+        // 페이징된 게시글 목록 조회
+        List<PostVO> posts = postMapper.getPostsByMemberIdWithPaging(memberId, pageRequest.getOffset(), pageRequest.getSize());
+
+        // 해당 사용자의 전체 게시글 수 조회
+        long totalCount = postMapper.getTotalCountByMemberId(memberId);
+
+        // PostVO를 PostListResponseDTO로 변환
+        List<PostListResponseDTO> result = posts.stream()
+                .map(post -> {
+                    setPostCounts(post);
+                    setUserInteractionFlags(post, memberId);
+                    String nickname = memberMapper.getNicknameByMemberId(post.getMemberId());
+                    return PostListResponseDTO.of(post, nickname);
+                })
+                .toList();
+
+        return PageResponseDTO.of(result, pageRequest, totalCount);
+    }
+
+    // 공통 메서드: 게시글의 좋아요, 댓글, 스크랩 수 설정
+    private void setPostCounts(PostVO post) {
+        int likeCount = postLikeMapper.countByPostId(post.getPostId());
+        int commentCount = postMapper.countCommentsByPostId(post.getPostId());
+        int scrapCount = scrapMapper.countScrapsByPostId(post.getPostId());
+
+        post.setLikeCount(likeCount);
+        post.setCommentCount(commentCount);
+        post.setScrapCount(scrapCount);
+    }
+
+    // 공통 메서드: 사용자의 좋아요, 스크랩 여부 설정
+    private void setUserInteractionFlags(PostVO post, Long currentUserId) {
+        boolean isLiked = false;
+        boolean isScraped = false;
+
+        if (currentUserId != null) {
+            isLiked = postLikeMapper.existsByPostIdAndMemberId(post.getPostId(), currentUserId);
+            isScraped = scrapMapper.existsScrap(post.getPostId(), currentUserId);
+        }
+
+        post.setLiked(isLiked);
+        post.setScraped(isScraped);
+    }
     private Long getCurrentUserIdAsLong() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 

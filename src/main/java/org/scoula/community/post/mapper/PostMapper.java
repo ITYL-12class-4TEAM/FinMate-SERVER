@@ -20,20 +20,12 @@ public interface PostMapper {
     public int delete(Long no);
     boolean existsById(Long postId);
 
-//    public void createAttachment(PostAttachmentVO attach);
-//    public List<PostAttachmentVO> getAttachmentList(Long bno);
-//    public PostAttachmentVO getAttachment(Long no);
-//    public int deleteAttachment(Long no);
-
     List<CommentVO> getCommentsByPostId(Long no);
     void updateLikeCount(Long postId);
     int countCommentsByPostId(Long postId);
 
     void incrementCommentCount(Long postId);
     void decrementCommentCountBy(@Param("postId") Long postId, @Param("count") int count);
-
-//    void deleteAttachmentsByPostId(Long postId);
-
     List<PostVO> getPostsByMemberId(Long currentUserId);
 
     PostVO findOldestPostByBoardId(Long hotBoardId);
@@ -41,4 +33,17 @@ public interface PostMapper {
 
     List<PostVO> getHotPostsByBoard(Long boardId);
     List<PostVO> getAllHotPosts();
+
+    List<PostVO> getListWithPaging(@Param("offset") int offset, @Param("size") int size);
+    long getTotalCount();
+
+    List<PostVO> getListByBoardWithPaging(@Param("boardId") Long boardId,
+                                          @Param("offset") int offset,
+                                          @Param("size") int size);
+    long getTotalCountByBoard(@Param("boardId") Long boardId);
+
+    List<PostVO> getPostsByMemberIdWithPaging(@Param("memberId") Long memberId,
+                                              @Param("offset") int offset,
+                                              @Param("size") int size);
+    long getTotalCountByMemberId(@Param("memberId") Long memberId);
 }
