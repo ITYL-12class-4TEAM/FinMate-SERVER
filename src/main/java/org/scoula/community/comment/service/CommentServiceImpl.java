@@ -38,6 +38,11 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDTO create(CommentCreateRequestDTO commentCreateRequestDTO) {
         log.info("create........." + commentCreateRequestDTO);
         Long memberId = getCurrentUserIdAsLong();
+        CommentVO vo = commentCreateRequestDTO.toVo();
+        vo.setMemberId(memberId);
+        commentMapper.create(vo);
+        postMapper.incrementCommentCount(vo.getPostId());
+
         if (memberId == null) {
             throw new AccessDeniedException(ResponseCode.UNAUTHORIZED_USER);
         }
@@ -60,12 +65,19 @@ public class CommentServiceImpl implements CommentService {
             if (!parent.getPostId().equals(commentCreateRequestDTO.getPostId())) {
                 throw new CommentParentMismatchException(ResponseCode.COMMENT_PARENT_MISMATCH);
             }
-        }
 
-        CommentVO vo = commentCreateRequestDTO.toVo();
-        vo.setMemberId(memberId);
-        commentMapper.create(vo);
-        postMapper.incrementCommentCount(vo.getPostId());
+            if (!parent.getMemberId().equals(memberId) && !parent.getMemberId().equals(post.getMemberId())) {
+                String authorNickname = memberMapper.getNicknameByMemberId(memberId);
+                notificationHelper.notifyReplyCreated(
+                        post.getPostId(),
+                        vo.getCommentId(),
+                        parent.getCommentId(),
+                        parent.getMemberId(),
+                        vo.isAnonymous(),
+                        authorNickname
+                );
+            }
+        }
 
         if (!post.getMemberId().equals(memberId)) {
 

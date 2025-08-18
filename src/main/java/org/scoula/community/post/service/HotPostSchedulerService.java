@@ -11,6 +11,7 @@ import org.scoula.community.post.mapper.PostMapper;
 import org.scoula.community.postlike.mapper.PostLikeMapper;
 import org.scoula.community.scrap.mapper.ScrapMapper;
 import org.scoula.member.mapper.MemberMapper;
+import org.scoula.notification.helper.NotificationHelper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ public class HotPostSchedulerService {
     private final BoardMapper boardMapper;
     private final ScrapMapper scrapMapper;
     private final MemberMapper memberMapper;
+    private final NotificationHelper notificationHelper;
 
     private static final String HOT_POSTS_ALL_KEY = "hot_posts:all";
     private static final String HOT_POSTS_BOARD_KEY_PREFIX = "hot_posts:board:";
@@ -37,25 +39,61 @@ public class HotPostSchedulerService {
     @Scheduled(cron = "0 0 0 * * *")
     public void updateHotPosts() {
         log.info("핫게시물 업데이트 스케줄러 시작...");
-        executeHotPostUpdate();
+        try {
+            executeHotPostUpdate();
+        } catch (Exception e) {
+            log.error("핫게시물 업데이트 실패", e);
+        }
+
+        try {
+            sendHotPostNotifications();
+        } catch (Exception e) {
+            log.error("핫게시물 알림 발송 실패", e);
+        }
+
     }
 
     // 테스트용 메서드 - 현재 시각에 실행
     public void updateHotPostsNow() {
         log.info("핫게시물 업데이트 즉시 실행...");
         executeHotPostUpdate();
+        sendHotPostNotifications();
     }
 
     @Transactional(readOnly = true)
     public void executeHotPostUpdate() {
+        updateAllHotPosts();
+        updateHotPostsByBoard();
+        log.info("핫게시물 업데이트 완료");
+
+    }
+    private void sendHotPostNotifications() {
         try {
-            updateAllHotPosts();
-            updateHotPostsByBoard();
-            log.info("핫게시물 업데이트 완료");
+            // 오늘의 핫게시물 조회
+            List<PostVO> todayHotPosts = postMapper.getAllHotPosts();
+
+            for (PostVO post : todayHotPosts) {
+                String notificationKey = "hot_post_notified:" + post.getPostId();
+                if (redisObjectTemplate.hasKey(notificationKey)) {
+                    continue;
+                }
+
+                notificationHelper.notifyHotPost(
+                        post.getPostId(),
+                        post.getTitle()
+                );
+
+                redisObjectTemplate.opsForValue().set(
+                        notificationKey,
+                        "notified",
+                        Duration.ofHours(24)
+                );
+            }
+
+            log.info("핫게시물 알림 발송 완료: {} 개 게시물", todayHotPosts.size());
+
         } catch (Exception e) {
-            log.error("핫게시물 업데이트 실패", e);
-            // 운영환경에서는 알림 시스템 연동 고려
-            throw new RuntimeException("핫게시물 업데이트 실패", e);
+            log.error("핫게시물 알림 발송 실패", e);
         }
     }
 

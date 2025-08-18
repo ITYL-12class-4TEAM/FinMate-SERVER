@@ -22,9 +22,9 @@ public interface NotificationService {
 
     // 좋아요 알림 생성
     void createLikeNotification(Long postId, Long authorId, String authorNickname, String postTitle);
-
+    void createReplyNotification(Long postId, Long commentId, Long  parentCommentId, Long memberId,Boolean isAnonymous, String authorNickname);
     // 핫 게시글 알림 생성
-    void createHotPostNotification(Long postId, String postTitle, String category, int likeCount);
+    void createHotPostNotification(Long postId, String postTitle);
 
     // 알림 설정 관리
     boolean getNotificationSettings(Long memberId);

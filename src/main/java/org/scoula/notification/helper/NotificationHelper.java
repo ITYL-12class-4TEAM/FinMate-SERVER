@@ -32,9 +32,18 @@ public class NotificationHelper {
         }
     }
 
-    public void notifyHotPost(Long postId, String postTitle, String category, int likeCount) {
+    public void notifyReplyCreated(Long postId, Long commentId, Long  parentCommentId, Long parentMemberId, Boolean isAnonymous, String authorNickname) {
         try {
-            notificationService.createHotPostNotification(postId, postTitle, category, likeCount);
+            notificationService.createReplyNotification(postId, commentId, parentCommentId, parentMemberId, isAnonymous, authorNickname);
+        } catch (Exception e) {
+            log.error("좋아요 알림 생성 실패: postId={}", postId, e);
+        }
+    }
+
+
+    public void notifyHotPost(Long postId, String postTitle) {
+        try {
+            notificationService.createHotPostNotification(postId, postTitle);
         } catch (Exception e) {
             log.error("핫 게시글 알림 생성 실패: postId={}", postId, e);
         }
