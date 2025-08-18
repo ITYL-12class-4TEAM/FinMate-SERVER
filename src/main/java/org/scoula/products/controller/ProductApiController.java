@@ -93,6 +93,7 @@ public class ProductApiController {
             @ApiParam(value = "상품 ID (숫자)", required = true, example = "1")
             @PathVariable Long productId) {
 
+        System.out.println("------------------");
         ProductDetailResponse response = searchService.getProductDetail(productType, productId);
         return ApiResponse.success(ResponseCode.PRODUCT_DETAIL_SUCCESS, response);
     }
