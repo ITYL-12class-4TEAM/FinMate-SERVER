@@ -50,7 +50,6 @@ public class NotificationSseController {
             if (!jwtProcessor.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-            String username = jwtProcessor.getUsername(token);
             Long memberId = jwtProcessor.getMemberId(token);
 
             if (memberId == null) {

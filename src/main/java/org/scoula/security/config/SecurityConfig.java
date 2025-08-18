@@ -37,7 +37,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -80,7 +79,7 @@ public class SecurityConfig {
                 .clientName("Kakao")
                 .redirectUri(oauth2Properties.getKakao().getRedirectUri())
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE) // 중요: NONE으로 설정
+                .clientAuthenticationMethod(org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE)
                 .build();
     }
 
@@ -108,62 +107,72 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
 
-                // 1. 가장 먼저 - 공개 API들을 맨 위에 배치
-                .antMatchers("/api/sms/**", "/api/validation/**", "/api/signup/**", "/oauth2/**",
-                        "/login/oauth2/code/*", "/auth/oauth2/redirect/**", "/api/auth/oauth2/token",
-                        "/resources/**", "/uploads/**", "/swagger-ui.html", "/swagger-ui/**",
-                        "/api/notifications/stream", "/api/wmti/questions", "/v2/api-docs",
-                        "/swagger-resources/**", "/webjars/**", "/api/auth/refresh",
-                        "/api/auth/find-id", "/api/auth/find-password").permitAll()
+                // 1. 인증/권한 관련 공개 API
+                .antMatchers("/api/sms/**", "/api/validation/**", "/api/signup/**", 
+                           "/oauth2/**", "/login/oauth2/code/*", "/auth/oauth2/redirect/**", 
+                           "/api/auth/oauth2/token", "/api/auth/refresh", "/api/auth/find-id", 
+                           "/api/auth/find-password", "/api/auth/reset-password").permitAll()
 
-                // 2. 페이징 API들을 다른 posts API보다 먼저 배치
-                .antMatchers(HttpMethod.GET, "/api/posts/paging**").permitAll()              // ?page=1&size=5 포함
-                .antMatchers(HttpMethod.GET, "/api/posts/board/*/paging**").permitAll()      // 게시판별 페이징
+                // 2. 정적 리소스 및 문서
+                .antMatchers("/resources/**", "/uploads/**", "/swagger-ui.html", 
+                           "/swagger-ui/**", "/v2/api-docs", "/swagger-resources/**", 
+                           "/webjars/**").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/posts/hot**").permitAll()                 // 전체 핫게시물
-                .antMatchers(HttpMethod.GET, "/api/posts/board/*/hot**").permitAll()         // 게시판별 핫게시물
+                // 3. 페이징 API (더 구체적인 패턴을 먼저 배치)
+                .antMatchers(HttpMethod.GET, "/api/posts/paging**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/board/*/paging**").permitAll()
 
-                // 3. 구체적인 게시글 API들
-                .antMatchers(HttpMethod.GET, "/api/posts/board/**").permitAll()              // 게시판별 게시물 조회
-                .antMatchers(HttpMethod.GET, "/api/posts/**").permitAll()                    // 모든 게시물 조회 (GET만)
+                // 4. 핫 게시물 API
+                .antMatchers(HttpMethod.GET, "/api/posts/hot**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/board/*/hot**").permitAll()
 
-                // 4. 상품 관련
-                .antMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/products/**").permitAll()
+                // 5. 게시판 및 게시물 조회 (비회원 접근 가능)
+                .antMatchers("/api/board").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/{id}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/board/**").permitAll()
 
-                // 5. 댓글 조회
+                // 6. 댓글 조회 (비회원 접근 가능)
                 .antMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
 
-                // 6. 좋아요/스크랩 수 조회
+                // 7. 좋아요/스크랩 수 조회 (비회원 접근 가능)
                 .antMatchers(HttpMethod.GET, "/api/post-like/*/count").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/comment-like/*/count").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/scraps/posts/*/count").permitAll()
 
-                // 7. 기타 공개 API들
+                // 8. 상품 관련 (비회원 접근 가능)
+                .antMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/products/**").permitAll()
+
+                // 9. 챗봇 및 금융 상품 비교/요약 (비회원 접근 가능)
                 .antMatchers("/api/chatbot/**").permitAll()
                 .antMatchers("/api/chat/compare").permitAll()
                 .antMatchers("/api/chat/summary").permitAll()
-                .antMatchers("/api/board").permitAll()
+
+                // 10. 기타 공개 API
+                .antMatchers("/api/notifications/stream").permitAll()
+                .antMatchers("/api/wmti/questions").permitAll()
                 .antMatchers("/api/wmti/analysis/all").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/wishlist/populary").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/admin/scheduler/hot-posts/update").permitAll()
 
-                // 8. 인증이 필요한 개인화 기능들
-                .antMatchers(HttpMethod.GET, "/api/posts/my/**").authenticated()              // 내 게시글 관련 모든 API
-                .antMatchers("/api/comments/my").authenticated()                             // 내가 쓴 댓글
-                .antMatchers("/api/post-like/**").authenticated()                            // 좋아요 기능
-                .antMatchers("/api/comment-like/**").authenticated()                         // 댓글 좋아요
-                .antMatchers("/api/scraps/**").authenticated()                               // 스크랩 기능
-                .antMatchers("/api/notifications/**").authenticated()                        // 알림 기능
-                .antMatchers("/api/wishlist/**").authenticated()                             // 관심상품 기능
+                // 11. 인증이 필요한 개인화 기능들
+                .antMatchers(HttpMethod.GET, "/api/posts/my/**").authenticated()
+                .antMatchers("/api/comments/my").authenticated()
+                .antMatchers("/api/post-like/**").authenticated()
+                .antMatchers("/api/comment-like/**").authenticated()
+                .antMatchers("/api/scraps/**").authenticated()
+                .antMatchers("/api/notifications/**").authenticated()
+                .antMatchers("/api/wishlist/**").authenticated()
 
-                // 9. 작성/수정/삭제 (회원 전용)
+                // 12. 작성/수정/삭제 (회원 전용)
                 .antMatchers(HttpMethod.POST, "/api/posts/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/comments/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()
 
+                // 13. 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated()
                 .and()
                 .logout().disable()
