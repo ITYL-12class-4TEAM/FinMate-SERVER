@@ -172,9 +172,6 @@ dependencies {
     implementation 'org.hibernate.validator:hibernate-validator:6.1.7.Final'
 
     implementation 'org.apache.commons:commons-dbcp2:2.9.0'
-
-    // Mockito JUnit 5 지원 추가
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
 }
 // 테스트 실행 설정
 test {
