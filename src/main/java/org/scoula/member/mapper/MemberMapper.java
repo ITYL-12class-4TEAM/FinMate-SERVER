@@ -48,4 +48,6 @@ public interface MemberMapper {
     void completeSocialSignup(MemberVO member);
 
     String getNicknameByMemberId(@Param("memberId") Long memberId);
+    MemberVO findByEmailIncludeDeleted(@Param("email") String email);
+    void reactivateMember(MemberVO member);
 }

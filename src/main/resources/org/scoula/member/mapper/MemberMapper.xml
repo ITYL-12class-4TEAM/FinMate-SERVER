@@ -22,10 +22,10 @@
     </resultMap>
 
     <select id="selectByEmail" resultType="org.scoula.security.account.domain.MemberVO">
-        SELECT * FROM member WHERE email = #{email}
+        SELECT * FROM member WHERE email = #{email} AND status = 'ACTIVE'
     </select>
     <select id="selectByNickname" resultType="org.scoula.security.account.domain.MemberVO">
-        SELECT * FROM member WHERE nickname = #{nickname}
+        SELECT * FROM member WHERE nickname = #{nickname} AND status = 'ACTIVE'
     </select>
     <!-- 토큰  -->
     <update id="updateTokens">
@@ -62,6 +62,7 @@
         FROM member
         WHERE username = #{username}
           AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
     </select>
 
     <update id="updatePassword">
@@ -78,7 +79,7 @@
         WHERE member_id = #{memberId}
     </update>
     <select id="getMemberIdByEmail" resultType="long">
-        SELECT member_id FROM member WHERE email = #{email}
+        SELECT member_id FROM member WHERE email = #{email} AND status = 'ACTIVE'
     </select>
     <update id="updateProfileImage">
         UPDATE member
@@ -148,5 +149,22 @@
             TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) AS age FROM member m
         WHERE m.member_id = #{memberId}
     </select>
+    <!-- 탈퇴한 회원 포함해서 찾는 쿼리 추가 -->
+    <select id="findByEmailIncludeDeleted" resultMap="memberMap">
+        SELECT * FROM member WHERE email = #{email}
+    </select>
 
+    <!-- 탈퇴한 회원 재활성화 쿼리 추가 -->
+    <update id="reactivateMember" parameterType="org.scoula.security.account.domain.MemberVO">
+        UPDATE member
+        SET status = 'ACTIVE',
+            profile_image = #{profileImage},
+            username = #{username},
+            level = #{level},
+            social_type = #{socialType},
+            social_id = #{socialId},
+            is_new_member = #{isNewMember},
+            updated_at = NOW()
+        WHERE email = #{email}
+    </update>
 </mapper>

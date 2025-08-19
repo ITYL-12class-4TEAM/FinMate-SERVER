@@ -42,9 +42,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     )
             );
         }
+
+        // 1. 먼저 활성 회원 찾기
         MemberVO member = memberMapper.selectByEmail(oauth2UserInfo.getEmail());
 
         if (member != null) {
+            // 활성 회원 처리
             if ("none".equals(member.getSocialType())) {
                 throw new OAuth2AuthenticationException(
                         new OAuth2Error(
@@ -67,13 +70,38 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             member = updateExistingUser(member, oauth2UserInfo);
         } else {
-            member = registerNewUser(registrationId, oauth2UserInfo);
+            // 2. 탈퇴한 회원 포함해서 찾기
+            MemberVO deletedMember = memberMapper.findByEmailIncludeDeleted(oauth2UserInfo.getEmail());
+
+            if (deletedMember != null && "DELETED".equals(deletedMember.getStatus())) {
+                // 탈퇴한 회원 재활성화
+                member = reactivateUser(deletedMember, registrationId, oauth2UserInfo);
+            } else {
+                // 3. 완전히 새로운 회원 등록
+                member = registerNewUser(registrationId, oauth2UserInfo);
+            }
         }
 
         return new CustomUser(member, oauth2User.getAttributes());
     }
 
+    private MemberVO reactivateUser(MemberVO deletedMember, String registrationId, OAuth2UserInfo oauth2UserInfo) {
+        MemberVO reactivatedMember = MemberVO.builder()
+                .memberId(deletedMember.getMemberId())
+                .email(oauth2UserInfo.getEmail())
+                .username(oauth2UserInfo.getName())
+                .profileImage(oauth2UserInfo.getImageUrl())
+                .socialType(registrationId)
+                .socialId(oauth2UserInfo.getId())
+                .role("USER")
+                .level(1)
+                .isNewMember(true) // 재가입이므로 새 회원으로 처리
+                .updatedAt(new Date())
+                .build();
 
+        memberMapper.reactivateMember(reactivatedMember);
+        return reactivatedMember;
+    }
 
     private MemberVO registerNewUser(String registrationId, OAuth2UserInfo oauth2UserInfo) {
         MemberVO newMember = MemberVO.builder()
