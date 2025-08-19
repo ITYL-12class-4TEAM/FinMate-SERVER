@@ -126,11 +126,11 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
     private void processPensionProducts(List<FavoriteProductResponse> favorites) {
         try {
             for (FavoriteProductResponse dto : favorites) {
-                if ("연금".equals(dto.getCategoryName())) {
-                    BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
-                    dto.setBaseRate(pensionRate);
-                    dto.setMaxRate(null);
-                }
+//                if ("연금".equals(dto.getCategoryName())) {
+//                    BigDecimal pensionRate = favoriteProductMapper.selectPensionRateByProductId(dto.getProductId());
+//                    dto.setBaseRate(pensionRate);
+//                    dto.setMaxRate(null);
+//                }
             }
         } catch (Exception e) {
             throw new FavoriteServiceException(ResponseCode.PENSION_RATE_PROCESSING_FAILED);
