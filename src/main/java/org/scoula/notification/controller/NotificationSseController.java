@@ -20,7 +20,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
 @CrossOrigin(
-        originPatterns = {"http://localhost:*", "http://127.0.0.1:*"},
+        originPatterns = {"http://localhost:*", "http://127.0.0.1:*","https://finmate-woad.vercel.app"},
         allowCredentials = "true",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
