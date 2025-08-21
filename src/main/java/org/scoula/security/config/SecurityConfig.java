@@ -142,6 +142,8 @@ public class SecurityConfig {
                 // 4. 핫 게시물 API
                 .antMatchers(HttpMethod.GET, "/api/posts/hot**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/posts/board/*/hot**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/hot-posts/clear-cache").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/admin/scheduler/hot-posts/clear-cache").permitAll()
 
                 // 5. 게시판 및 게시물 조회 (비회원 접근 가능)
                 .antMatchers("/api/board").permitAll()
